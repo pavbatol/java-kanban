@@ -45,12 +45,22 @@ public class Manager {
         Object object = tasks.get(id);
         return object.getClass().getName().equals(Epic.class.getName());
     }
-    //  Получение имени класса по типу
-    public String getClassNameByType(TaskType taskType) {
-        if (taskType == null) {
-            return "";
+
+    // Проверяет по ID есть ли задача и Субзадача ли это
+    public boolean checkFoSubtask(int id) {
+        if (!tasks.containsKey(id)) {
+            return  false;
         }
-        String className = "";
+        Object object = tasks.get(id);
+        return object.getClass().getName().equals(Subtask.class.getName());
+    }
+
+    // Получает имя класса по типу задачи
+    public String getClassNameByTaskType(TaskType taskType) {
+        if (taskType == null) {
+            return null;
+        }
+        String className = null;
         switch (taskType){
             case TASK:
                 className = Task.class.getName();
@@ -81,20 +91,24 @@ public class Manager {
     }
 
     // 2 Методы для каждого из типа задач(Задача/Эпик/Подзадача):
-    // 2.1 Получение списка всех задач по типу.
-    public HashMap<Integer, Object> getTaskByType(TaskType taskType) {
-        HashMap<Integer, Object> result = new HashMap<>();
-        String className = getClassNameByType(taskType);
+    // +++2.1 Получение списка всех задач по типу.
+    public ArrayList<Object> getTasksByType(TaskType taskType) {
+        ArrayList<Object> resultList = new ArrayList<>();
+        String className = getClassNameByTaskType(taskType);
+        if (className == null) {
+            System.out.println("Список не получен, не удалось получить className");
+            return null;
+        }
         for (int key : tasks.keySet()) {
             Object object = tasks.get(key);
             if (object == null) {
                 continue;
             }
             if (object.getClass().getName().equals(className)) {
-                result.put(key, object);
+                resultList.add(object);
             }
         }
-        return result;
+        return resultList;
 
         /*
         public HashMap<Integer, Object> getTaskByType(String className) {
@@ -113,10 +127,14 @@ public class Manager {
         */
     }
 
-    // 2.2 Удаление всех задач по типу.
+    // +++2.2 Удаление всех задач по типу.
     public void deleteTasksByType(TaskType taskType) {
-        ArrayList<Integer> idForDelete = new ArrayList<>();
-        String className = getClassNameByType(taskType);
+        ArrayList<Integer> idForDeleteList = new ArrayList<>();
+        String className = getClassNameByTaskType(taskType);
+        if (className == null) {
+            System.out.println("Удаление не выполнено, не удалось получить className");
+            return;
+        }
         //Собираем нужные ID
         for (int key : tasks.keySet()) {
             Object object = tasks.get(key);
@@ -124,23 +142,23 @@ public class Manager {
                 continue;
             }
             if (object.getClass().getName().equals(className)) {
-                idForDelete.add(key);
+                idForDeleteList.add(key);
             }
         }
         // Удаляем по собранным ID
-        for (Integer id : idForDelete) {
-            tasks.remove(id);
+        for (Integer id : idForDeleteList) {
+            deleteTaskById(id);
         }
 
     }
 
-    // 2.3 Получение по идентификатору.
+    // +++2.3 Получение по идентификатору.
     public Object getTaskById(int id) {
         return tasks.getOrDefault(id, null);
     }
 
     // 2.4 Создание. Сам объект должен передаваться в качестве параметра.
-    // -- для Task
+    // +++Создание для Task
     public void createTask(String name, String description) {
         Task task = new Task(getNewId(), name, description);
         tasks.put(id, task);
@@ -154,7 +172,7 @@ public class Manager {
         createTask(task.getName(), task.getDescription());
     }
 
-    // -- для Subtask
+    // +++Создание для Subtask
     public void createSubtask(String name, String description, int epicId) {
         if (!checkFoEpic(epicId)) {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
@@ -162,7 +180,7 @@ public class Manager {
         }
         int id = getNewId();
         Epic epic = (Epic) tasks.get(epicId);
-        epic.subtaskId.add(id);
+        epic.addSubtaskId(id);
         Subtask subtask = new Subtask(id, name, description, epicId);
         tasks.put(id, subtask);
     }
@@ -175,7 +193,7 @@ public class Manager {
         createSubtask(subtask.getName(), subtask.getDescription(), subtask.getEpicId());
     }
 
-    // -- для Epic
+    // +++Создание для Epic
     public void createEpic(String name, String description) {
         Epic epic = new Epic(getNewId(), name, description);
         tasks.put(id, epic);
@@ -183,12 +201,13 @@ public class Manager {
 
     public void createEpic(Epic epic) {
         if (epic == null) {
-            System.out.println("Задача НЕ создана, объект не инициализирован");
+            System.out.println("Эпик НЕ создан, объект не инициализирован");
             return;
         }
-        createTask(epic.getName(), epic.getDescription());
+        createEpic(epic.getName(), epic.getDescription());
     }
-/*
+
+    /*
     public void createTask(String name, String description, TaskType taskType) {
         int id = getNewId();
         switch (taskType){
@@ -212,39 +231,119 @@ public class Manager {
                 return;
         }
     }
-*/
+    */
 
-/*    public void createTask(Object object) {
-        TaskType taskType = getTaskTypeByObject(object);
-        if (taskType == null) {
-            System.out.println("Тип задачи не определен");
-            return;
-        }
-        Task task = (Task) object;
-        createTask(task.getName(), task.getDescription(), taskType);
-    }*/
-
-    // 2.4 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
-    public void updateTask(int id, Object task) {
-        if (task == null) {
+    // 2.5 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
+    public void updateAnyTask(int id, Object object) {
+        if (object == null) {
             System.out.println("Задача НЕ обновлена, объект не инициализирован");
             return;
         }
-        if (tasks.containsKey(id)) {
-            tasks.put(id, task);
-        } else {
-            System.out.println("Такого ID нет");
+        if (!tasks.containsKey(id)) {
+            System.out.println("Задача НЕ обновлена, ID не найден");
+            return;
         }
+        Task newTask = (Task) object;
+        TaskType taskType = getTaskTypeByObject(object);
+        switch (taskType) {
+            case TASK:
+                Task originTask = (Task) tasks.get(id);
+                originTask.setName(newTask.getName());
+                originTask.setDescription(newTask.getDescription());
+                originTask.setStatus(newTask.getStatus());
+                tasks.put(id, originTask);
+                break;
+            case SUBTASK:
+                Subtask originSubtask = (Subtask) tasks.get(id);
+                originSubtask.setName(newTask.getName());
+                originSubtask.setDescription(newTask.getDescription());
+                originSubtask.setStatus(newTask.getStatus());
+                tasks.put(id, originSubtask);
+                break;
+            case EPIC:
+                Epic originEpic = (Epic) tasks.get(id);
+                originEpic.setName(newTask.getName());
+                originEpic.setDescription(newTask.getDescription());
+                originEpic.setStatus(newTask.getStatus());
+                tasks.put(id, originEpic);
+                break;
+            default:
+                System.out.println("Задача НЕ обновлена, такой тип не поддерживается");
+        }
+
+
+
+
+//        TaskType taskType = getTaskTypeByObject(object);
+//        switch (taskType){
+//            case TASK:
+//                Task task = (Task) object;
+//                Task newTask = new Task(id, task.getName(), task.getDescription());
+//                newTask.setStatus(task.getStatus());
+//                tasks.put(id, newTask);
+//                break;
+//            case SUBTASK:
+//                Subtask originSubtask = (Subtask) tasks.get(id);
+//                Subtask subtask = (Subtask) object;
+//                if (subtask.getEpicId() != originSubtask.getEpicId()) {
+//                    System.out.println("Задача НЕ обновлена, нельзя менять ID Эпика");
+//                    return;
+//                }
+//                Subtask newSubtask = new Subtask(id, subtask.getName(), subtask.getDescription(), subtask.getEpicId());
+//                newSubtask.setStatus(subtask.getStatus());
+//                tasks.put(id, newSubtask);
+//                break;
+//            case EPIC:
+//                Epic originEpic = (Epic) tasks.get(id);
+//                Epic epic = (Epic) object;
+//                originEpic.setName(epic.getName());
+//                originEpic.setDescription(epic.getDescription());
+//                originEpic.setStatus(epic.getStatus());
+////                if (epic.getSubtaskIdList() != originEpic.getSubtaskIdList()) {
+////                    System.out.println("Задача НЕ обновлена, нельзя менять ID Эпика");
+////                    return;
+////                }
+////                Epic newEpic = new Epic(id, epic.getName(), epic.getDescription());
+////                newEpic.setStatus(epic.getStatus());
+////                newEpic.getSubtaskIdList() = originEpic.getSubtaskIdList();
+//                tasks.put(id, originEpic);
+//                break;
+//            default:
+//                System.out.println("Задача НЕ обновлена, такой тип не поддерживается");
+//        }
     }
 
-    // 2.5 Удаление по идентификатору.
-    public void deleteTasksById(int id ) {
-        if (tasks.containsKey(id)) {
-            tasks.remove(id);
-            System.out.println("Задача удалена");
-        } else {
-            System.out.println("Задача НЕ удалена, такого ID нет");
+    // +++2.6 Удаление по идентификатору.
+    public void deleteTaskById(int id) {
+        if (!tasks.containsKey(id)) {
+            System.out.println("Удаление не выполнено, такого ID = " + id + " нет");
+            return;
         }
+        // Если Subtask или Epic, то ищем связи и меняем/удаляем их
+        if (checkFoSubtask(id)) {
+            for (int key : tasks.keySet()) {
+                if (!checkFoEpic(key)) {
+                    continue;
+                }
+                Epic epic = (Epic) tasks.get(key);
+                if (epic != null && epic.getSubtaskIdList() != null) {
+                    epic.removeSubtaskIdByValue(id);
+                }
+            }
+            tasks.remove(id);
+        } else if (checkFoEpic(id)) {
+            Epic epic = (Epic) tasks.get(id);
+            for (int subtaskId : epic.getSubtaskIdList()) {
+                tasks.remove(subtaskId);
+            }
+            tasks.remove(id);
+        } else {
+            tasks.remove(id);
+        }
+//        System.out.println("Задача удалена");
+
+
+
     }
 
     // 3 Дополнительные методы:
