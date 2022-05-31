@@ -37,6 +37,14 @@ public class Manager {
         return getId();
     }
 
+    // Проверяет по ID есть ли задача и Эпик ли это
+    public boolean checkFoEpic(int id) {
+        if (!tasks.containsKey(id)) {
+            return  false;
+        }
+        Object object = tasks.get(id);
+        return object.getClass().getName().equals(Epic.class.getName());
+    }
     //  Получение имени класса по типу
     public String getClassNameByType(TaskType taskType) {
         if (taskType == null) {
@@ -131,11 +139,58 @@ public class Manager {
         return tasks.getOrDefault(id, null);
     }
 
-    // Создание. Сам объект должен передаваться в качестве параметра.
+    // 2.4 Создание. Сам объект должен передаваться в качестве параметра.
+    // -- для Task
+    public void createTask(String name, String description) {
+        Task task = new Task(getNewId(), name, description);
+        tasks.put(id, task);
+    }
+
+    public void createTask(Task task) {
+        if (task == null) {
+            System.out.println("Задача НЕ создана, объект не инициализирован");
+            return;
+        }
+        createTask(task.getName(), task.getDescription());
+    }
+
+    // -- для Subtask
+    public void createSubtask(String name, String description, int epicId) {
+        if (!checkFoEpic(epicId)) {
+            System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
+            return;
+        }
+        int id = getNewId();
+        Epic epic = (Epic) tasks.get(epicId);
+        epic.subtaskId.add(id);
+        Subtask subtask = new Subtask(id, name, description, epicId);
+        tasks.put(id, subtask);
+    }
+
+    public void createSubtask(Subtask subtask) {
+        if (subtask == null) {
+            System.out.println("Подзадача НЕ создана, объект не инициализирован");
+            return;
+        }
+        createSubtask(subtask.getName(), subtask.getDescription(), subtask.getEpicId());
+    }
+
+    // -- для Epic
+    public void createEpic(String name, String description) {
+        Epic epic = new Epic(getNewId(), name, description);
+        tasks.put(id, epic);
+    }
+
+    public void createEpic(Epic epic) {
+        if (epic == null) {
+            System.out.println("Задача НЕ создана, объект не инициализирован");
+            return;
+        }
+        createTask(epic.getName(), epic.getDescription());
+    }
+/*
     public void createTask(String name, String description, TaskType taskType) {
         int id = getNewId();
-//        Task task = new Task(id, name, description);
-
         switch (taskType){
             case TASK: {
                 Task task = new Task(id, name, description);
@@ -143,7 +198,7 @@ public class Manager {
                 break;
             }
             case SUBTASK: {
-                Subtask task = new Subtask(id, name, description);
+                Subtask task = new Subtask(id, name, description, 12312313);
                 tasks.put(id, task);
                 break;
             }
@@ -156,17 +211,18 @@ public class Manager {
                 System.out.println("Тип не найден, задача не создана");
                 return;
         }
-//        tasks.put(id, task);
     }
+*/
 
-    public void createTask(Object object) {
+/*    public void createTask(Object object) {
         TaskType taskType = getTaskTypeByObject(object);
         if (taskType == null) {
-            System.out.println("Тип объекта не определен");
+            System.out.println("Тип задачи не определен");
+            return;
         }
         Task task = (Task) object;
         createTask(task.getName(), task.getDescription(), taskType);
-    }
+    }*/
 
     // 2.4 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
     public void updateTask(int id, Object task) {

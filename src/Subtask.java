@@ -14,10 +14,10 @@ public class Subtask extends Task{
     public String toString() {
         return "Subtask{" +
                 "id=" + getId() +
-                "epicId=" + epicId +
+                ", epicId=" + epicId +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                '}';
+                '}' + "\n";
     }
 }
