@@ -56,6 +56,15 @@ public class Task {
         this.status = status;
     }
 
+    public void copy(Task task) {
+        if (task == null) {
+            return;
+        }
+        setName(task.getName());
+        setDescription(task.getDescription());
+        setStatus(task.getStatus());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

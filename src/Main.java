@@ -14,26 +14,26 @@ public class Main {
             3. Без объекта, только значения необходимых полей
         */
 //        createTasks(manager); // Подробности в методе
-
         /*
+
         +++2.1 Получение списка всех задач по типу.
         */
-//        getTasksByType(manager); // Подробности в методе
-
+//        getTasksByType(manager);
         /*
+
         +++2.2 Удаление всех задач по типу.
         */
-//        deleteTasksByType(manager); // Подробности в методе
+//        deleteTasksByType(manager);
 
         /*
         +++2.3 Получение по идентификатору.
         */
-//        getTaskById(manager); // Подробности в методе
+//        getTaskById(manager);
 
         /*
-        ---2.6 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
+        +++2.5 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
         */
-
+        updateAnyTask(manager);
 
         /*
         +++2.6 Удаление по идентификатору.
@@ -41,6 +41,32 @@ public class Main {
 //        deleteTaskById(manager, 3);
 
 
+    }
+
+    private static void updateAnyTask(Manager manager) {
+        int id_0 = 1;
+        int id_1 = 6;
+        int id_2 = 4;
+        System.out.println("\nСписок перед обновлением");
+        createTasks(manager);
+
+        Task task = new Task("updatedName_0", "updetedDiscription_0");
+        task.setStatus(TaskStatus.IN_PROGRESS);
+        System.out.println("\nОбновляем задачу с id = " + id_0);
+        manager.updateAnyTask(id_0, task);
+
+        Subtask subtask = new Subtask("updatedName_0", "updetedDiscription_0", 3);
+        subtask.setStatus(TaskStatus.IN_PROGRESS);
+        System.out.println("\nОбновляем задачу с id = " + id_1);
+        manager.updateAnyTask(id_1, subtask);
+
+        Epic epic = new Epic("updatedName_0", "updetedDiscription_0");
+        epic.setStatus(TaskStatus.IN_PROGRESS);
+        System.out.println("\nОбновляем задачу с id = " + id_2);
+        manager.updateAnyTask(id_2, epic);
+
+        System.out.println("\nСписок после обновлением");
+        System.out.println(manager.tasks);
     }
 
     private static void deleteTaskById(Manager manager, int id ) {

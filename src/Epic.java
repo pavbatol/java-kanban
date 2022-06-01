@@ -33,8 +33,19 @@ public class Epic extends Task{
         for (int i = subtaskIdList.size()-1; i >= 0; i--) {
             if (subtaskIdList.get(i) == subtaskId) {
                 subtaskIdList.remove(i);
+                break;
             }
         }
+    }
+
+    @Override
+    public void copy(Task task) {
+        if (task == null) {
+            return;
+        }
+        setName(task.getName());
+        setDescription(task.getDescription());
+        // Статус не меняем здесь т.к. это эпик и он синхронизируется по статусу подзадач
     }
 
     @Override
