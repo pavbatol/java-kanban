@@ -225,7 +225,7 @@ public class Manager {
 
     // 2.4 Создание. Сам объект должен передаваться в качестве параметра.
     // +++Создание для Task
-    public void createTask(String name, String description) {
+    private void createTask(String name, String description) {
         Task task = new Task(getNewId(), name, description);
         tasks.put(id, task);
     }
@@ -239,7 +239,7 @@ public class Manager {
     }
 
     // +++Создание для Subtask
-    public void createSubtask(String name, String description, int epicId) {
+    private void createSubtask(String name, String description, int epicId) {
         if (!isEpic(epicId)) {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
             return;
@@ -264,7 +264,7 @@ public class Manager {
     }
 
     // +++Создание для Epic
-    public void createEpic(String name, String description) {
+    private void createEpic(String name, String description) {
         Epic epic = new Epic(getNewId(), name, description);
         tasks.put(id, epic);
     }
@@ -277,7 +277,7 @@ public class Manager {
         createEpic(epic.getName(), epic.getDescription());
     }
 
-    // 2.5 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
+    // +++2.5 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
     public void updateAnyTask(int id, Object object) {
         if (object == null) {
             System.out.println("Задача НЕ обновлена, объект не инициализирован");
@@ -352,8 +352,26 @@ public class Manager {
     }
 
     // 3 Дополнительные методы:
-    // 3.1 Получение списка всех подзадач определённого эпика.
-
+    // +++3.1 Получение списка всех подзадач определённого эпика.
+    public ArrayList<Object> getTasksByEpic(int epicId) {
+        ArrayList<Object> resultList = new ArrayList<>();
+        // Проверим что это Эпик и он в списке
+        if (!isEpic(epicId)) {
+            System.out.println("Эпик с таким id не найден");
+            return null;
+        }
+        // Получаем список подзадач эпика
+        Epic epic = (Epic) tasks.get(epicId);
+        ArrayList<Integer> subtaskIdList = epic.getSubtaskIdList();
+        for (int subtaskId : subtaskIdList) {
+            if (!isSubtask(subtaskId)) {
+                continue;
+            }
+            // Собираем в ArrayList для выдачи
+            resultList.add(tasks.get(subtaskId));
+        }
+        return resultList;
+    }
 
 
 }

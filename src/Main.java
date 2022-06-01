@@ -129,7 +129,7 @@ public class Main {
         // Проверяем создания для Task
         manager.createTask(new Task("Task_0", "description_0"));
         manager.createTask(new Task(-1,"Task_1", "description_1"));
-        manager.createTask("Task_2", "description_2");
+//        manager.createTask("Task_2", "description_2");
 
         // Проверяем создания для Subtask !!! - эти субзадачи не должны создаться - неверный Эпик!!!
 //        manager.createSubtask(new Subtask("Subtask_0","description_0", 123));
@@ -139,12 +139,12 @@ public class Main {
         // Проверяем создания для Epic
         manager.createEpic(new Epic("Epic_0", "description_0"));
         manager.createEpic(new Epic(-1,"Epic_1", "description_1"));
-        manager.createEpic("Epic_2", "description_2");
+//        manager.createEpic("Epic_2", "description_2");
 
         // Еще раз создания для Subtask - Здесь уже должна создаться субзадача
         manager.createSubtask(new Subtask("Subtask_0", "description_0", 3));
         manager.createSubtask(new Subtask(-1, "Subtask_1", "description_1", 3));
-        manager.createSubtask("Subtask_2", "description_2", 4);
+//        manager.createSubtask("Subtask_2", "description_2", 4);
 
         // Смотрим результаты создания задач разных типов
         System.out.println(manager.tasks);

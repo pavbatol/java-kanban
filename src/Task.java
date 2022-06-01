@@ -21,7 +21,7 @@ public class Task {
         initializeThisFields(name, description);
     }
 
-    // Для конструктора
+    // Для конструктора (из-за "final int id", чтоб не дублировать код)
     private void initializeThisFields(String name, String description) {
         this.name = name;
         this.description = description;
@@ -56,6 +56,7 @@ public class Task {
         this.status = status;
     }
 
+    // Копирует в свои поля данные из объекта
     public void copy(Task task) {
         if (task == null) {
             return;

@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task{
-    private ArrayList<Integer> subtaskIdList;
+    private final ArrayList<Integer> subtaskIdList;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -46,6 +47,20 @@ public class Epic extends Task{
         setName(task.getName());
         setDescription(task.getDescription());
         // Статус не меняем здесь т.к. это эпик и он синхронизируется по статусу подзадач
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subtaskIdList, epic.subtaskIdList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtaskIdList);
     }
 
     @Override
