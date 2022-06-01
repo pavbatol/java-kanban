@@ -9,11 +9,6 @@ public class Epic extends Task{
         subtaskIdList = new ArrayList<>();
     }
 
-     public Epic(int id, String name, String description) {
-        super(id, name, description);
-        subtaskIdList = new ArrayList<>();
-    }
-
     public ArrayList<Integer> getSubtaskIdList() {
         return subtaskIdList;
     }
@@ -40,7 +35,7 @@ public class Epic extends Task{
     }
 
     @Override
-    public void copy(Task task) {
+    public void copySafely(Task task) {
         if (task == null) {
             return;
         }

@@ -12,17 +12,7 @@ public class Task {
     public TaskStatus status;
 
     public Task(String name, String description) {
-        id = -1;
-        initializeThisFields(name, description);
-    }
-
-    public Task(int id, String name, String description) {
-        this.id = id;
-        initializeThisFields(name, description);
-    }
-
-    // Для конструктора (из-за "final int id", чтоб не дублировать код)
-    private void initializeThisFields(String name, String description) {
+        id = Manager.getNewId();
         this.name = name;
         this.description = description;
         status = TaskStatus.NEW;
@@ -56,8 +46,8 @@ public class Task {
         this.status = status;
     }
 
-    // Копирует в свои поля данные из объекта
-    public void copy(Task task) {
+    // Копирует в свои поля только общие данные из объекта
+    public void copySafely(Task task) {
         if (task == null) {
             return;
         }

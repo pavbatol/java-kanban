@@ -7,7 +7,7 @@ enum TaskType {
     EPIC;
 }
 public class Manager {
-    private int id;
+    private static int id;
     public HashMap<Integer, Object> tasks;
 
     public Manager() {
@@ -15,16 +15,16 @@ public class Manager {
         tasks = new HashMap<>();
     }
 
-    public int getId() {
+    private static int getId() {
         return id;
     }
 
-    private void setId() {
-        id++;
+    private static void setId() {
+        id = getId() + 1;
     }
 
     // Установка и получение нового ID
-    private int getNewId() {
+    public static int getNewId() {
         setId();
         return getId();
     }
@@ -175,22 +175,6 @@ public class Manager {
             }
         }
         return resultList;
-
-        /*
-        public HashMap<Integer, Object> getTaskByType(String className) {
-            HashMap<Integer, Object> result = new HashMap<>();
-            for (int key : tasks.keySet() ) {
-                Object object = tasks.get(key);
-                if (object == null) {
-                    continue;
-                }
-                if (object.getClass().getName().equals(className)) {
-                    result.put(key, object);
-                }
-            }
-            return result;
-        }
-        */
     }
 
     // +++2.2 Удаление всех задач по типу.
@@ -225,29 +209,26 @@ public class Manager {
 
     // 2.4 Создание. Сам объект должен передаваться в качестве параметра.
     // +++Создание для Task
-    private void createTask(String name, String description) {
-        Task task = new Task(getNewId(), name, description);
-        tasks.put(id, task);
-    }
-
     public void createTask(Task task) {
         if (task == null) {
             System.out.println("Задача НЕ создана, объект не инициализирован");
             return;
         }
-        createTask(task.getName(), task.getDescription());
+        tasks.put(task.getId(), task);
     }
 
     // +++Создание для Subtask
-    private void createSubtask(String name, String description, int epicId) {
+    public void createSubtask(Subtask subtask) {
+        if (subtask == null) {
+            System.out.println("Подзадача НЕ создана, объект не инициализирован");
+            return;
+        }
+        int epicId = subtask.getEpicId();
         if (!isEpic(epicId)) {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
             return;
         }
-        int id = getNewId();
-        // Создаем и записываем подзадачу
-        Subtask subtask = new Subtask(id, name, description, epicId);
-        tasks.put(id, subtask);
+        tasks.put(subtask.getId(), subtask);
         // Записываем в список эпика id подзадачи
         Epic epic = (Epic) tasks.get(epicId);
         epic.addSubtaskId(id);
@@ -255,26 +236,13 @@ public class Manager {
         synchronizeEpicTaskStatus(subtask);
     }
 
-    public void createSubtask(Subtask subtask) {
-        if (subtask == null) {
-            System.out.println("Подзадача НЕ создана, объект не инициализирован");
-            return;
-        }
-        createSubtask(subtask.getName(), subtask.getDescription(), subtask.getEpicId());
-    }
-
     // +++Создание для Epic
-    private void createEpic(String name, String description) {
-        Epic epic = new Epic(getNewId(), name, description);
-        tasks.put(id, epic);
-    }
-
     public void createEpic(Epic epic) {
         if (epic == null) {
             System.out.println("Эпик НЕ создан, объект не инициализирован");
             return;
         }
-        createEpic(epic.getName(), epic.getDescription());
+        tasks.put(epic.getId(), epic);
     }
 
     // +++2.5 Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
@@ -302,20 +270,21 @@ public class Manager {
                     + "Тип с id = " + id + " = " + getTaskTypeById(id) + ", тип object = " + taskType);
             return;
         }
+
         // В зависимости от типа задачи
         switch (taskType) {
             case TASK:
                 Task originTask = (Task) tasks.get(id);
-                originTask.copy(newTask);
+                originTask.copySafely(newTask);
                 break;
             case SUBTASK:
                 Subtask originSubtask = (Subtask) tasks.get(id);
-                originSubtask.copy(newTask);
+                originSubtask.copySafely(newTask);
                 synchronizeEpicTaskStatus(originSubtask); // синхронизируем статус в эпике
                 break;
             case EPIC:
                 Epic originEpic = (Epic) tasks.get(id);
-                originEpic.copy(newTask);
+                originEpic.copySafely(newTask); // в Epic метод переопределен
                 break;
             default:
                 System.out.println("Задача НЕ обновлена, такой тип не поддерживается");
@@ -330,6 +299,8 @@ public class Manager {
         }
         // Если Subtask или Epic, то ищем связи и меняем/удаляем их
         if (isSubtask(id)) {
+            // Подготовим лист для сбора Эпиков в которых произойдут изменения
+            ArrayList<Epic> epicList = new ArrayList<>();
             for (int key : tasks.keySet()) {
                 if (!isEpic(key)) {
                     continue;
@@ -337,9 +308,13 @@ public class Manager {
                 Epic epic = (Epic) tasks.get(key);
                 if (epic != null && epic.getSubtaskIdList() != null) {
                     epic.removeSubtaskIdByValue(id); // удаляем id подзадачи из списка в эпике
+                    epicList.add(epic); //запоминаем Эпики
                 }
             }
-            tasks.remove(id);
+            tasks.remove(id); // удаляем и потом переберем измененные Эпики и синхронизируем статус по подзадачам
+            for (Epic epic : epicList) {
+                synchronizeEpicTaskStatus(epic);
+            }
         } else if (isEpic(id)) {
             Epic epic = (Epic) tasks.get(id);
             for (int subtaskId : epic.getSubtaskIdList()) {
