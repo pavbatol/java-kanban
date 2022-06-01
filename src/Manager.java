@@ -9,18 +9,10 @@ enum TaskType {
 public class Manager {
     private int id;
     public HashMap<Integer, Object> tasks;
-//    public HashMap<Integer, Task> tasks;
-//    public HashMap<Integer, Subtask> subtasks;
-//    public HashMap<Integer, Epic> epics;
-
-//    public ArrayList<HashMap<Integer, Object>> taskList;
 
     public Manager() {
         id = -1;
-//        taskList = new ArrayList<>();
         tasks = new HashMap<>();
-//        subtasks = new HashMap<>();
-//        epics = new HashMap<>();
     }
 
     public int getId() {
@@ -87,6 +79,110 @@ public class Manager {
             return TaskType.EPIC;
         } else {
             return null;
+        }
+    }
+
+    // Синхронизация статусов задач по отдельной задаче (если у субзадачи поменяли статус, надо отправить сюда)
+    public void synchronizeEpicTaskStatus(Subtask subtask) {
+        if (subtask == null) {
+            System.out.println("Статусы НЕ синхронизированы, объект не инициализирован");
+            return;
+        }
+        // Проверяем что Субзадача уже есть в коллекции
+        int id = subtask.getId();
+        if (!tasks.containsKey(id) || tasks.get(id) == null) {
+            System.out.println("Статусы НЕ синхронизированы, субзадачи нет в коллекции");
+            return;
+        }
+        // Если с Эпиком что-то не так - выходим
+        int epicId = subtask.getEpicId();
+        if (!tasks.containsKey(epicId) || tasks.get(epicId) == null) {
+            System.out.println("Статусы НЕ синхронизированы, Эпик не найден");
+            return;
+        }
+        // Проверяем статусы у всех подзадач Эпика
+        // У Эпика как минимум одна подзадача т.к. Subtask в параметрах метода получаем
+        Epic epic = (Epic) tasks.get(epicId);
+        ArrayList<Integer> subtaskIdList = epic.getSubtaskIdList();
+        int doneStatusCount = 0;
+        int newStatusCount = 0;
+
+        loop:
+        for (int subtaskId : subtaskIdList) {
+            if (!tasks.containsKey(subtaskId) || tasks.get(subtaskId) == null) {
+                continue;
+            }
+            TaskStatus subtaskStatus = ((Subtask) tasks.get(subtaskId)).status;
+            switch (subtaskStatus) {
+                case IN_PROGRESS:
+                    break loop; // можно прервать цикл, уже все ясно
+                case DONE:
+                    doneStatusCount++;
+                    break;
+                case NEW:
+                    newStatusCount++;
+                    break;
+            }
+        }
+        // Определяем новый статус
+        TaskStatus forChangeStatus = TaskStatus.IN_PROGRESS;
+        if (doneStatusCount == subtaskIdList.size()) {
+            forChangeStatus = TaskStatus.DONE;
+        } else if (newStatusCount == subtaskIdList.size()) {
+            forChangeStatus = TaskStatus.NEW;
+        }
+        // Записываем новый статус в эпик
+        if (forChangeStatus != epic.getStatus()) {
+            epic.setStatus(forChangeStatus);
+            tasks.put(epicId, epic);
+        }
+    }
+
+    public void synchronizeEpicTaskStatus(Epic epic) {
+        if (epic == null) {
+            System.out.println("Статусы НЕ синхронизированы, объект не инициализирован");
+            return;
+        }
+        // Если Эпика нет в коллекции - выходим
+        int epicId = epic.getId();
+        if (!tasks.containsKey(epicId)) {
+            System.out.println("Статусы НЕ синхронизированы, Эпик не найден");
+            return;
+        }
+        // Проверяем статусы у всех подзадач Эпика
+        ArrayList<Integer> subtaskIdList = epic.getSubtaskIdList();
+        int doneStatusCount = 0;
+        int newStatusCount = 0;
+
+        loop:
+        for (int subtaskId : subtaskIdList) {
+            if (!tasks.containsKey(subtaskId) || tasks.get(subtaskId) == null) {
+                continue;
+            }
+            // Получаем статус каждой субзадачи
+            TaskStatus subtaskStatus = ((Subtask) tasks.get(subtaskId)).status;
+            switch (subtaskStatus) {
+                case IN_PROGRESS:
+                    break loop; // можно прервать цикл, уже все ясно
+                case DONE:
+                    doneStatusCount++;
+                    break;
+                case NEW:
+                    newStatusCount++;
+                    break;
+            }
+        }
+        // Определяем новый статус
+        TaskStatus forChangeStatus = TaskStatus.IN_PROGRESS;
+        if (newStatusCount == subtaskIdList.size()) {   // даже если список был пустой сработает первым условием
+            forChangeStatus = TaskStatus.NEW;
+        } else if (doneStatusCount == subtaskIdList.size()) {
+            forChangeStatus = TaskStatus.DONE;
+        }
+        // Записываем новый статус в эпик
+        if (forChangeStatus != epic.getStatus()) {
+            epic.setStatus(forChangeStatus);
+//            tasks.put(epicId, epic); // это наверное лишнее
         }
     }
 
