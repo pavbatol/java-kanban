@@ -1,6 +1,7 @@
 import java.util.Objects;
 
 public class Subtask extends Task{
+    // TODO: 02.06.2022 needed final for epicId ???
     private final int epicId; // Принадлежность к эпику
 
     public Subtask(String name, String description, int epicId) {

@@ -1,13 +1,14 @@
 import java.util.Objects;
 
 public class Task {
-    private final int id;
+    private int id;
+    // TODO: 02.06.2022 Ниже надо все сделать приватным и сет гет наверное
     public String name;
     public String description;
     public TaskStatus status;
 
     public Task(String name, String description) {
-        id = Manager.getNewId();
+        id = -1;
         this.name = name;
         this.description = description;
         status = TaskStatus.NEW;
@@ -15,6 +16,10 @@ public class Task {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -39,16 +44,6 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
-    }
-
-    // Копирует в свои поля только обобщенные данные из объекта
-    public void copySafely(Task task) {
-        if (task == null) {
-            return;
-        }
-        setName(task.getName());
-        setDescription(task.getDescription());
-        setStatus(task.getStatus());
     }
 
     @Override
