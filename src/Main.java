@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Main {
 
@@ -64,10 +62,40 @@ public class Main {
         /*
         ---И, наконец, попробуйте удалить одну из задач и один из эпиков.
         */
-        manager.deleteTaskById(task_1.getId());
-        manager.deleteTaskById(subtask_1.getId());
-        manager.deleteTaskById(epic_2.getId());
+        manager.deleteTaskById(task_1.getId()); // удаляем задачу
+        manager.deleteTaskById(subtask_1.getId()); // удаляем подзадачу
+        manager.deleteTaskById(epic_2.getId()); // удаляем эпик
 
         System.out.println(manager.tasks);
+
+
+        /*
+        // ***** Для себя - Проверка всех остальных методов *****
+
+//        System.out.println("\nmanager.getTasksByType(TaskType.TASK)\n" + manager.getTasksByType(TaskType.TASK));
+//        System.out.println("\nmanager.getTasksByType(TaskType.SUBTASK)\n" + manager.getTasksByType(TaskType.SUBTASK));
+//        System.out.println("\nmanager.getTasksByType(TaskType.EPIC)\n" + manager.getTasksByType(TaskType.EPIC));
+
+
+//        manager.deleteTasksByType(TaskType.TASK);
+//        System.out.println("\nПосле deleteTasksByType(TaskType.TASK)\n" + manager.tasks);
+
+//        manager.deleteTasksByType(TaskType.SUBTASK);
+//        System.out.println("\nПосле deleteTasksByType(TaskType.SUBTASK)\n" + manager.tasks);
+
+//        manager.deleteTasksByType(TaskType.EPIC);
+//        System.out.println("\nПосле deleteTasksByType(TaskType.EPIC)\n" + manager.tasks);
+
+//        System.out.println("\nmanager.manager.getTaskById(task_1.getId()\n" + manager.getTaskById(task_1.getId()));
+//        System.out.println("\nmanager.manager.getTaskById(epic_1.getId())\n" + manager.getTaskById(epic_1.getId()));
+//        System.out.println("\nmanager.manager.getTaskById(subtask_1.getId())\n" + manager.getTaskById(subtask_1.getId()));
+
+
+//        System.out.println("\nmanager.getTasksByEpic(epic_1.getId()\n" + manager.getTasksByEpic(epic_1.getId()));
+//        System.out.println("\nmanager.getTasksByEpic(epic_2.getId()\n" + manager.getTasksByEpic(epic_2.getId()));
+
+        //*****
+    */
+
     }
 }

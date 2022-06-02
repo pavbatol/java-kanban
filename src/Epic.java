@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task{
-    private final ArrayList<Integer> subtaskIdList;
+    private final ArrayList<Integer> subtaskIdList; // Принадлежность подзадач эпику
 
     public Epic(String name, String description) {
         super(name, description);

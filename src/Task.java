@@ -1,10 +1,5 @@
 import java.util.Objects;
 
-enum TaskStatus {
-    NEW,
-    IN_PROGRESS,
-    DONE;
-}
 public class Task {
     private final int id;
     public String name;
@@ -46,7 +41,7 @@ public class Task {
         this.status = status;
     }
 
-    // Копирует в свои поля только общие данные из объекта
+    // Копирует в свои поля только обобщенные данные из объекта
     public void copySafely(Task task) {
         if (task == null) {
             return;

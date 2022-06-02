@@ -1,7 +1,7 @@
 import java.util.Objects;
 
 public class Subtask extends Task{
-    private final int epicId;
+    private final int epicId; // Принадлежность к эпику
 
     public Subtask(String name, String description, int epicId) {
         super(name, description);

@@ -1,11 +1,20 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
+// Тип задачи
 enum TaskType {
     TASK,
     SUBTASK,
-    EPIC;
+    EPIC
 }
+
+// Тип статуса задачи
+enum TaskStatus {
+    NEW,
+    IN_PROGRESS,
+    DONE
+}
+
 public class Manager {
     private static int id;
     public HashMap<Integer, Object> tasks;
@@ -23,13 +32,13 @@ public class Manager {
         id = getId() + 1;
     }
 
-    // Установка и получение нового ID
+    // Установка и получение нового id
     public static int getNewId() {
         setId();
         return getId();
     }
 
-    // Проверяет в коллекции по ID Эпик ли это
+    // Проверяет в коллекции по id Эпик ли это
     public boolean isEpic(int id) {
         if (!tasks.containsKey(id)) {
             return  false;
@@ -38,7 +47,7 @@ public class Manager {
         return object.getClass().getName().equals(Epic.class.getName());
     }
 
-    // Проверяет в коллекции по ID Субзадача ли это
+    // Проверяет в коллекции по id Подзадача ли это
     public boolean isSubtask(int id) {
         if (!tasks.containsKey(id)) {
             return  false;
@@ -90,25 +99,25 @@ public class Manager {
         return getTaskTypeByObject(tasks.get(id));
     }
 
-    // Синхронизация статуса Эпика (если у субзадачи поменяли статус, надо отправить сюда)
-    public void synchronizeEpicTaskStatus(Subtask subtask) {
+    // Синхронизация статуса Эпика (если у подзадачи поменяли статус, надо отправить сюда)
+    public void synchronizeEpicStatus(Subtask subtask) {
         if (subtask == null) {
             System.out.println("Статусы НЕ синхронизированы, объект не инициализирован");
             return;
         }
-        // Проверяем что Субзадача уже есть в коллекции
+        // Проверяем что Подзадача уже есть в коллекции
         int id = subtask.getId();
         if (!tasks.containsKey(id) || tasks.get(id) == null) {
-            System.out.println("Статусы НЕ синхронизированы, субзадачи нет в коллекции");
+            System.out.println("Статусы НЕ синхронизированы, подзадачи нет в коллекции");
             return;
         }
         // Получаем Эпик и отправляем в перегруженный метод
         int epicId = subtask.getEpicId();
         Epic epic = (Epic) tasks.get(epicId);
-        synchronizeEpicTaskStatus(epic);
+        synchronizeEpicStatus(epic);
     }
 
-    public void synchronizeEpicTaskStatus(Epic epic) {
+    public void synchronizeEpicStatus(Epic epic) {
         if (epic == null) {
             System.out.println("Статусы НЕ синхронизированы, объект не инициализирован");
             return;
@@ -129,7 +138,7 @@ public class Manager {
             if (!tasks.containsKey(subtaskId) || tasks.get(subtaskId) == null) {
                 continue;
             }
-            // Получаем статус каждой субзадачи
+            // Получаем статус каждой подзадачи
             TaskStatus subtaskStatus = ((Subtask) tasks.get(subtaskId)).status;
             switch (subtaskStatus) {
                 case IN_PROGRESS:
@@ -157,6 +166,7 @@ public class Manager {
     }
 
     // 2 Методы для каждого из типа задач(Задача/Эпик/Подзадача):
+
     // +++2.1 Получение списка всех задач по типу.
     public ArrayList<Object> getTasksByType(TaskType taskType) {
         ArrayList<Object> resultList = new ArrayList<>();
@@ -207,7 +217,8 @@ public class Manager {
         return tasks.getOrDefault(id, null);
     }
 
-    // 2.4 Создание. Сам объект должен передаваться в качестве параметра.
+    // +++2.4 Создание. Сам объект должен передаваться в качестве параметра.
+
     // +++Создание для Task
     public void createTask(Task task) {
         if (task == null) {
@@ -233,7 +244,7 @@ public class Manager {
         Epic epic = (Epic) tasks.get(epicId);
         epic.addSubtaskId(id);
         // Синхронизируем статус в эпике
-        synchronizeEpicTaskStatus(subtask);
+        synchronizeEpicStatus(subtask);
     }
 
     // +++Создание для Epic
@@ -280,7 +291,7 @@ public class Manager {
             case SUBTASK:
                 Subtask originSubtask = (Subtask) tasks.get(id);
                 originSubtask.copySafely(newTask);
-                synchronizeEpicTaskStatus(originSubtask); // синхронизируем статус в эпике
+                synchronizeEpicStatus(originSubtask); // синхронизируем статус в эпике
                 break;
             case EPIC:
                 Epic originEpic = (Epic) tasks.get(id);
@@ -313,7 +324,7 @@ public class Manager {
             }
             tasks.remove(id); // удаляем и потом переберем измененные Эпики и синхронизируем статус по подзадачам
             for (Epic epic : epicList) {
-                synchronizeEpicTaskStatus(epic);
+                synchronizeEpicStatus(epic);
             }
         } else if (isEpic(id)) {
             Epic epic = (Epic) tasks.get(id);
@@ -327,6 +338,7 @@ public class Manager {
     }
 
     // 3 Дополнительные методы:
+
     // +++3.1 Получение списка всех подзадач определённого эпика.
     public ArrayList<Object> getTasksByEpic(int epicId) {
         ArrayList<Object> resultList = new ArrayList<>();
@@ -347,6 +359,5 @@ public class Manager {
         }
         return resultList;
     }
-
 
 }
