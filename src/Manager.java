@@ -37,7 +37,10 @@ public class Manager {
                 continue;
             }
             // Получаем статус каждой подзадачи
-            TaskStatus subtaskStatus =  subtasks.get(subtaskId).getStatus(); // TODO: 02.06.2022 null ???
+            TaskStatus subtaskStatus = subtasks.get(subtaskId).getStatus();
+            if (subtaskStatus == null) {
+                continue;
+            }
             switch (subtaskStatus) {
                 case IN_PROGRESS:
                     break loop; // можно прервать цикл, уже все ясно
@@ -224,6 +227,7 @@ public class Manager {
         Epic originEpic = epics.get(id);
         originEpic.setName(epic.getName());
         originEpic.setDescription(epic.getDescription());
+        // Статус не меняем, он рассчитывается по статусам подзадач
     }
 
     /**

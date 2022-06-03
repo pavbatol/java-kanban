@@ -1,6 +1,3 @@
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 public class Main {
 
     public static void main(String[] args) {
@@ -116,7 +113,7 @@ public class Main {
         * ======= Для себя проверки  =======
         * Прежде закоментить выше тест по удалению и раскоментить метод ниже)
         */
-        // myTests(manager, taskId2, epicId1, subtaskId2);
+         // myTests(manager, taskId2, epicId1, subtaskId2);
 
     }
 
