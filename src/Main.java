@@ -60,6 +60,17 @@ public class Main {
         subtask2 = new Subtask("Subtask_2", "Subtask_1Subtask_1Subtask_2", -1);
         subtask3 = new Subtask("Subtask_3", "Subtask_3Subtask_3Subtask_3", -1);
 
+        // Проставляем им id задач, которые хотим обновить
+        task1.setId(taskId1);
+        task2.setId(taskId2);
+
+        epic1.setId(epicId1);
+        epic2.setId(epicId2);
+
+        subtask1.setId(subtaskId1);
+        subtask2.setId(subtaskId2);
+        subtask3.setId(subtaskId3);
+
         // Меняем статусы
         task1.setStatus(TaskStatus.IN_PROGRESS);
         task2.setStatus(TaskStatus.DONE);
@@ -72,21 +83,21 @@ public class Main {
         subtask3.setStatus(TaskStatus.DONE);
 
         // Обновляем оригиналы
-        manager.updateTask(taskId1, task1);
-        manager.updateTask(taskId2, task2);
+        manager.updateTask(task1);
+        manager.updateTask(task2);
 
-        manager.updateEpic(epicId1, epic1);
-        manager.updateEpic(epicId2, epic2);
+        manager.updateEpic(epic1);
+        manager.updateEpic(epic2);
 
-        manager.updateSubtask(subtaskId1, subtask1);
-        manager.updateSubtask(subtaskId2, subtask2);
-        manager.updateSubtask(subtaskId3, subtask3);
+        manager.updateSubtask(subtask1);
+        manager.updateSubtask(subtask2);
+        manager.updateSubtask(subtask3);
 
         // Еще раз поменяем у эпиков, они уже должны были сами рассчитаться, пробуем изменить
         epic1.setStatus(TaskStatus.NEW);
         epic2.setStatus(TaskStatus.NEW);
-        manager.updateEpic(epicId1, epic1);
-        manager.updateEpic(epicId2, epic2);
+        manager.updateEpic(epic1);
+        manager.updateEpic(epic2);
 
         //Печать
         System.out.println("После изменения статусов\n");
@@ -113,8 +124,7 @@ public class Main {
         * ======= Для себя проверки  =======
         * Прежде закоментить выше тест по удалению и раскоментить метод ниже)
         */
-         // myTests(manager, taskId2, epicId1, subtaskId2);
-
+        //  myTests(manager, taskId2, epicId1, subtaskId2);
     }
 
     private static void myTests(Manager manager, int taskId2, int epicId1, int subtaskId2) {
@@ -132,6 +142,46 @@ public class Main {
          * 2.2 Удаление всех задач.
          */
         removeObjects(manager);
+
+        /**
+         *  Проверка автоматическоой смены статуса у эпика
+         */
+        checkUpdatedStatus(manager);
+    }
+
+    private static void checkUpdatedStatus(Manager manager) {
+        Epic epic3 = new Epic("Epic_3", "Epic_3Epic_3Epic_3");
+        manager.addEpic(epic3);
+        int epicId3 = epic3.getId();
+
+        System.out.println("Создали новый епик проверяем что статус NEW");
+        System.out.println(manager.getEpicById(epicId3));
+        System.out.println("-----------");
+
+        Subtask subtask5 = new Subtask("Subtask_5", "Subtask_5Subtask_5Subtask_5", epicId3);
+        manager.addSubtask(subtask5);
+
+        System.out.println("Добавили подзадачу(NEW), проверили что статус NEW");
+        System.out.println(manager.getEpicById(epicId3));
+        System.out.println(manager.getSubtasksByEpic(epicId3));
+        System.out.println("-----------");
+
+        subtask5.setStatus(TaskStatus.DONE);
+        manager.updateSubtask(subtask5);
+        System.out.println("Добавили подзадачу(DONE), проверили что статус DONE");
+        System.out.println(manager.getEpicById(epicId3));
+        System.out.println(manager.getSubtasksByEpic(epicId3));
+        System.out.println("-----------");
+
+        Subtask subtask6 = new Subtask("Subtask_6", "Subtask_6Subtask_6Subtask_6", epicId3);
+        manager.addSubtask(subtask6);
+        subtask6.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateSubtask(subtask6);
+
+        System.out.println("Добавили подзадачу(DONE) и подзадачу(IN_PROGRESS), проверили что статус IN_PROGRESS");
+        System.out.println(manager.getEpicById(epicId3));
+        System.out.println(manager.getSubtasksByEpic(epicId3));
+        System.out.println("-----------");
     }
 
     private static void removeObjects(Manager manager) {

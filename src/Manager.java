@@ -31,8 +31,11 @@ public class Manager {
         int doneStatusCount = 0; // считать DON
         int newStatusCount = 0; // считать NEW
 
-        loop:
+        boolean isBreak = false;
         for (int subtaskId : subtaskIds) {
+            if (isBreak) {
+                break;
+            }
             if (!subtasks.containsKey(subtaskId) || subtasks.get(subtaskId) == null) {
                 continue;
             }
@@ -43,7 +46,8 @@ public class Manager {
             }
             switch (subtaskStatus) {
                 case IN_PROGRESS:
-                    break loop; // можно прервать цикл, уже все ясно
+                    isBreak = true; // можно прервать цикл, уже все ясно
+                    break;
                 case DONE:
                     doneStatusCount++;
                     break;
@@ -180,11 +184,12 @@ public class Manager {
     */
 
     // +++Обновление для Task
-    public void updateTask(int id, Task task) {
+    public void updateTask(Task task) {
         if (task == null) {
             System.out.println("Задача Task НЕ обновлена, объект не инициализирован");
             return;
         }
+        int id = task.getId();
         if (!tasks.containsKey(id)) {
             System.out.println("Задача Task НЕ обновлена, id не найден");
             return;
@@ -196,11 +201,12 @@ public class Manager {
     }
 
     // +++Обновление для Subtask
-    public void updateSubtask(int id, Subtask subtask) {
+    public void updateSubtask(Subtask subtask) {
         if (subtask == null) {
             System.out.println("Задача Subtask НЕ обновлена, объект не инициализирован");
             return;
         }
+        int id = subtask.getId();
         if (!subtasks.containsKey(id)) {
             System.out.println("Задача Subtask НЕ обновлена, id не найден");
             return;
@@ -215,11 +221,12 @@ public class Manager {
     }
 
     // +++Обновление для Epic
-    public void updateEpic(int id, Epic epic) {
+    public void updateEpic(Epic epic) {
         if (epic == null) {
             System.out.println("Задача Epic НЕ обновлена, объект не инициализирован");
             return;
         }
+        int id = epic.getId();
         if (!epics.containsKey(id)) {
             System.out.println("Задача Epic НЕ обновлена, id не найден");
             return;
