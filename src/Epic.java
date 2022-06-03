@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task{
-    private final ArrayList<Integer> subtaskIds; // Принадлежность подзадач эпику
+    private final ArrayList<Integer> subtaskIds; // Список id подзадач
 
     public Epic(String name, String description) {
         super(name, description);
@@ -24,6 +24,10 @@ public class Epic extends Task{
                 break;
             }
         }
+    }
+
+    public void clearSubtaskIds() {
+        subtaskIds.clear();
     }
 
     @Override
@@ -50,4 +54,5 @@ public class Epic extends Task{
                 ", subtaskId=" + subtaskIds.toString() +
                 '}' + "\n";
     }
+
 }

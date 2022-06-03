@@ -21,7 +21,6 @@ public class Main {
         manager.addEpic(epic1);
         manager.addEpic(epic2);
 
-
         // Подзадачи
         Subtask subtask1 = new Subtask("Subtask_1", "Subtask_1Subtask_1Subtask_1", epic1.getId());
         Subtask subtask2 = new Subtask("Subtask_2", "Subtask_1Subtask_1Subtask_2", epic1.getId());
@@ -53,7 +52,7 @@ public class Main {
         * +++Проверьте, что статус задачи и подзадачи сохранился, а статус эпика рассчитался по статусам подзадач.
         */
 
-        // Новые ссылки сделаем
+        // Установим новые ссылки, чтобы не поменять статусы у оригиналов
         task1 = new Task("Task_1", "Task_1Task_1Task_1");
         task2 = new Task("Task_2", "Task_2Task_2Task_2");
 
@@ -75,7 +74,7 @@ public class Main {
         subtask2.setStatus(TaskStatus.DONE);
         subtask3.setStatus(TaskStatus.DONE);
 
-        // Обновляем
+        // Обновляем оригиналы
         manager.updateTask(taskId1, task1);
         manager.updateTask(taskId2, task2);
 
@@ -112,14 +111,69 @@ public class Main {
         System.out.println(manager.epics);
         System.out.println(manager.subtasks + "\n");
 
+
         /**
-         *  Для себя проверка - Получение списка всех подзадач определённого эпика.
+        * ======= Для себя проверки  =======
+        * Прежде закоментить выше тест по удалению и раскоментить метод ниже)
+        */
+        // myTests(manager, taskId2, epicId1, subtaskId2);
+
+    }
+
+    private static void myTests(Manager manager, int taskId2, int epicId1, int subtaskId2) {
+        /**
+         * 2.3 Получение по идентификатору.
          */
+        getObjectsById(manager, taskId2, epicId1, subtaskId2);
 
-        subtask2 = new Subtask("Subtask_2", "Subtask_1Subtask_1Subtask_2", epicId1);
+        /**
+         *  3.1 Получение списка всех подзадач определённого эпика.
+         */
+        getSubtasksByEpic(manager, epicId1);
+
+        /**
+         * 2.2 Удаление всех задач.
+         */
+        removeObjects(manager);
+    }
+
+    private static void removeObjects(Manager manager) {
+        manager.removeTasks();
+        System.out.println("После удаления Tasks\n");
+        System.out.println(manager.tasks);
+        System.out.println(manager.epics);
+        System.out.println(manager.subtasks + "\n");
+
+        manager.removeSubtasks();
+        System.out.println("После удаления Subtasks\n");
+        System.out.println(manager.tasks);
+        System.out.println(manager.epics);
+        System.out.println(manager.subtasks + "\n");
+
+        manager.removeEpics();
+        System.out.println("После удаления Epics\n");
+        System.out.println(manager.tasks);
+        System.out.println(manager.epics);
+        System.out.println(manager.subtasks + "\n");
+    }
+
+    private static void getObjectsById(Manager manager, int taskId2, int epicId1, int subtaskId2) {
+        Task task =  manager.getTaskById(taskId2);
+        Epic epic =  manager.getEpicById(epicId1);
+        Subtask subtask =  manager.getSubtaskById(subtaskId2);
+        System.out.println("Получение задач по id (taskId2 = " + taskId2 + ", epicId1 = " + epicId1
+                + ", subtaskId2 = " + subtaskId2 + "\n" );
+        System.out.println(task);
+        System.out.println(epic);
+        System.out.println(subtask);
+    }
+
+    private static void getSubtasksByEpic(Manager manager, int epicId1) {
+        Subtask subtask2;
+        subtask2 = new Subtask("Subtask_4", "Subtask_1Subtask_1Subtask_4", epicId1);
         manager.addSubtask(subtask2);
-        System.out.println("Для себя проверка - Получение списка всех подзадач определённого эпика\n");
-        System.out.println(manager.getSubtasksByEpic(epicId1));
-
+        System.out.println("Получение списка всех подзадач определённого эпика");
+        System.out.println("Была добавлена подзадача name = Subtask_4\n");
+        System.out.println(manager.getSubtasksByEpic(epicId1) + "\n");
     }
 }

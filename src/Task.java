@@ -2,7 +2,6 @@ import java.util.Objects;
 
 public class Task {
     private int id;
-    // TODO: 02.06.2022 Ниже надо все сделать приватным и сет гет наверное
     public String name;
     public String description;
     public TaskStatus status;

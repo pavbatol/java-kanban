@@ -1,8 +1,13 @@
 import java.util.Objects;
 
 public class Subtask extends Task{
-    // TODO: 02.06.2022 needed final for epicId ???
     private final int epicId; // Принадлежность к эпику
+    /**
+     *  По замечанию №4:
+     *  Исходил из того, что подзадача не может существовать без эпика.
+     *  По тестам вроде надобности не возникло создавать без эпика и не может перемещаться из эпика в эпик.
+     *  P.S. по всем остальным замечаниям по все проекту все исправил, спасибо за подробные разъяснения!
+     */
 
     public Subtask(String name, String description, int epicId) {
         super(name, description);
