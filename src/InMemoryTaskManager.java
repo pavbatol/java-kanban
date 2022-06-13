@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class InMemoryTaskManager implements TaskManager { //<T extends Task>
+public class InMemoryTaskManager implements TaskManager {
     private int id;
-    protected HashMap<Integer, Task> tasks;
-    protected HashMap<Integer, Subtask> subtasks;
-    protected HashMap<Integer, Epic> epics;
-    protected List<Task> lastViewedTasks; // Последние просмотренные задачи
+    private HashMap<Integer, Task> tasks;
+    private HashMap<Integer, Subtask> subtasks;
+    private HashMap<Integer, Epic> epics;
+    private List<Task> lastViewedTasks; // Последние просмотренные задачи
 
     public InMemoryTaskManager() {
         id = -1;
@@ -18,7 +18,7 @@ public class InMemoryTaskManager implements TaskManager { //<T extends Task>
     }
 
     // Синхронизировать статус у Эпика
-    public void synchronizeEpicStatus(int epicId) {
+    private void synchronizeEpicStatus(int epicId) {
         if (!epics.containsKey(epicId)) {
             System.out.println("Статусы НЕ синхронизированы, id не найден");
             return;
@@ -72,7 +72,7 @@ public class InMemoryTaskManager implements TaskManager { //<T extends Task>
     }
 
     // Добавление последней просмотренной задачи
-    public void addLastViewedTask(Task lastViewedTask) {
+    private void addLastViewedTask(Task lastViewedTask) {
         lastViewedTasks.add(lastViewedTask);
         if (lastViewedTasks.size() > 10) {
             lastViewedTasks.remove(0);

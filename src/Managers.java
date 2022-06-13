@@ -1,5 +1,6 @@
 public class Managers {
-//    public TaskManager getDefault() {
-//
-//    }
+    public static TaskManager getDefault() {
+        TaskManager inMemoryTaskManager = new InMemoryTaskManager();
+        return inMemoryTaskManager;
+    }
 }
