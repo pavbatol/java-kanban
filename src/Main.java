@@ -1,5 +1,6 @@
 public class Main {
-
+    private static final String LINE_SEPARATOR = "-----------";
+    
     public static void main(String[] args) {
         InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
 
@@ -43,6 +44,11 @@ public class Main {
         System.out.println(inMemoryTaskManager.tasks);
         System.out.println(inMemoryTaskManager.epics);
         System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(LINE_SEPARATOR);
+
+        System.out.println("История просмотра");
+        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.println(LINE_SEPARATOR);
 
         /**
         * +++Измените статусы созданных объектов, распечатайте.
@@ -104,20 +110,29 @@ public class Main {
         System.out.println(inMemoryTaskManager.tasks);
         System.out.println(inMemoryTaskManager.epics);
         System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(LINE_SEPARATOR);
 
+        System.out.println("История просмотра");
+        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.println(LINE_SEPARATOR);
 
         /**
         * +++И, наконец, попробуйте удалить одну из задач и один из эпиков.
         */
 
-//        inMemoryTaskManager.removeTaskById(taskId1); // удаляем задачу
-//        inMemoryTaskManager.removeSubtaskById(subtaskId1); // удаляем подзадачу
-//        inMemoryTaskManager.removeEpicById(epicId2); // удаляем эпик
-//
-//        System.out.println("После удаления\n");
-//        System.out.println(inMemoryTaskManager.tasks);
-//        System.out.println(inMemoryTaskManager.epics);
-//        System.out.println(inMemoryTaskManager.subtasks + "\n");
+        inMemoryTaskManager.removeTaskById(taskId1); // удаляем задачу
+        inMemoryTaskManager.removeSubtaskById(subtaskId1); // удаляем подзадачу
+        inMemoryTaskManager.removeEpicById(epicId2); // удаляем эпик
+
+        System.out.println("После удаления\n");
+        System.out.println(inMemoryTaskManager.tasks);
+        System.out.println(inMemoryTaskManager.epics);
+        System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(LINE_SEPARATOR);
+
+        System.out.println("История просмотра");
+        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.println(LINE_SEPARATOR);
 
 
         /**
@@ -132,11 +147,6 @@ public class Main {
          * 2.3 Получение по идентификатору.
          */
         getObjectsById(inMemoryTaskManager, taskId2, epicId1, subtaskId2);
-
-        /**
-         * Возвращать последние 10 просмотренных задач
-         */
-        getHistory(inMemoryTaskManager);
 
         /**
          *  3.1 Получение списка всех подзадач определённого эпика.
@@ -162,7 +172,9 @@ public class Main {
 
         System.out.println("Создали новый епик проверяем что статус NEW");
         System.out.println(inMemoryTaskManager.getEpicById(epicId3));
-        System.out.println("-----------");
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
 
         Subtask subtask5 = new Subtask("Subtask_5", "Subtask_5Subtask_5Subtask_5", epicId3);
         inMemoryTaskManager.addSubtask(subtask5);
@@ -170,14 +182,18 @@ public class Main {
         System.out.println("Добавили подзадачу(NEW), проверили что статус NEW");
         System.out.println(inMemoryTaskManager.getEpicById(epicId3));
         System.out.println(inMemoryTaskManager.getSubtasksByEpic(epicId3));
-        System.out.println("-----------");
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
 
         subtask5.setStatus(TaskStatus.DONE);
         inMemoryTaskManager.updateSubtask(subtask5);
         System.out.println("Добавили подзадачу(DONE), проверили что статус DONE");
         System.out.println(inMemoryTaskManager.getEpicById(epicId3));
         System.out.println(inMemoryTaskManager.getSubtasksByEpic(epicId3));
-        System.out.println("-----------");
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
 
         Subtask subtask6 = new Subtask("Subtask_6", "Subtask_6Subtask_6Subtask_6", epicId3);
         inMemoryTaskManager.addSubtask(subtask6);
@@ -187,7 +203,9 @@ public class Main {
         System.out.println("Добавили подзадачу(DONE) и подзадачу(IN_PROGRESS), проверили что статус IN_PROGRESS");
         System.out.println(inMemoryTaskManager.getEpicById(epicId3));
         System.out.println(inMemoryTaskManager.getSubtasksByEpic(epicId3));
-        System.out.println("-----------");
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
     }
 
     private static void removeObjects(InMemoryTaskManager inMemoryTaskManager) {
@@ -195,19 +213,28 @@ public class Main {
         System.out.println("После удаления Tasks\n");
         System.out.println(inMemoryTaskManager.tasks);
         System.out.println(inMemoryTaskManager.epics);
-        System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(inMemoryTaskManager.subtasks);
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
 
         inMemoryTaskManager.removeSubtasks();
         System.out.println("После удаления Subtasks\n");
         System.out.println(inMemoryTaskManager.tasks);
         System.out.println(inMemoryTaskManager.epics);
-        System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(inMemoryTaskManager.subtasks);
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
 
         inMemoryTaskManager.removeEpics();
         System.out.println("После удаления Epics\n");
         System.out.println(inMemoryTaskManager.tasks);
         System.out.println(inMemoryTaskManager.epics);
-        System.out.println(inMemoryTaskManager.subtasks + "\n");
+        System.out.println(inMemoryTaskManager.subtasks);
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
     }
 
     private static void getObjectsById(InMemoryTaskManager inMemoryTaskManager, int taskId2, int epicId1, int subtaskId2) {
@@ -219,12 +246,17 @@ public class Main {
         System.out.println(task);
         System.out.println(epic);
         System.out.println(subtask);
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
+
     }
 
     private static void getHistory(InMemoryTaskManager inMemoryTaskManager) {
         // История последних просмотренных
-        System.out.println("История последних просмотренных \n");
-        System.out.println(inMemoryTaskManager.getHistory() + "\n");
+        System.out.println("История просмотра");
+        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.println(LINE_SEPARATOR);
     }
 
     private static void getSubtasksByEpic(InMemoryTaskManager inMemoryTaskManager, int epicId1) {
@@ -233,6 +265,9 @@ public class Main {
         inMemoryTaskManager.addSubtask(subtask2);
         System.out.println("Получение списка всех подзадач определённого эпика");
         System.out.println("Была добавлена подзадача name = Subtask_4\n");
-        System.out.println(inMemoryTaskManager.getSubtasksByEpic(epicId1) + "\n");
+        System.out.println(inMemoryTaskManager.getSubtasksByEpic(epicId1));
+        System.out.println(LINE_SEPARATOR);
+
+        getHistory(inMemoryTaskManager);
     }
 }
