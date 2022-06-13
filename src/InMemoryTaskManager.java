@@ -1,18 +1,20 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager implements TaskManager { //<T extends Task>
     private int id;
-    public HashMap<Integer, Task> tasks;
-    public HashMap<Integer, Subtask> subtasks;
-    public HashMap<Integer, Epic> epics;
+    protected HashMap<Integer, Task> tasks;
+    protected HashMap<Integer, Subtask> subtasks;
+    protected HashMap<Integer, Epic> epics;
+    protected List<Task> lastViewedTasks; // Последние просмотренные задачи
 
     public InMemoryTaskManager() {
         id = -1;
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
         epics = new HashMap<>();
-
+        lastViewedTasks = new ArrayList<>();
     }
 
     // Синхронизировать статус у Эпика
@@ -66,6 +68,14 @@ public class InMemoryTaskManager implements TaskManager {
         // Записываем новый статус в эпик
         if (forChangeStatus != epic.getStatus()) {
             epic.setStatus(forChangeStatus);
+        }
+    }
+
+    // Добавление последней просмотренной задачи
+    public void addLastViewedTask(Task lastViewedTask) {
+        lastViewedTasks.add(lastViewedTask);
+        if (lastViewedTasks.size() > 10) {
+            lastViewedTasks.remove(0);
         }
     }
 
@@ -129,19 +139,28 @@ public class InMemoryTaskManager implements TaskManager {
     // +++Получение для Task
     @Override
     public Task getTaskById(int id) {
-        return tasks.getOrDefault(id, null);
+        if (!tasks.containsKey(id))  return null;
+        Task task = tasks.get(id);
+        addLastViewedTask(task);
+        return task;
     }
 
     // +++Получение для Subtask
     @Override
     public Subtask getSubtaskById(int id) {
-        return subtasks.getOrDefault(id, null);
+        if (!subtasks.containsKey(id))  return null;
+        Subtask subtask = subtasks.get(id);
+        addLastViewedTask(subtask);
+        return subtask;
     }
 
     // +++Получение для Epic
     @Override
     public Epic getEpicById(int id) {
-        return epics.getOrDefault(id, null);
+        if (!epics.containsKey(id))  return null;
+        Epic epic = epics.get(id);
+        addLastViewedTask(epic);
+        return epic;
     }
 
     /**
@@ -321,6 +340,15 @@ public class InMemoryTaskManager implements TaskManager {
             epicSubtasks.add(subtasks.get(subtaskId));
         }
         return epicSubtasks;
+    }
+
+    /**
+     * Возвращать последние 10 просмотренных задач
+     */
+
+    @Override
+    public List<Task> getHistory() {
+        return lastViewedTasks;
     }
 
 }

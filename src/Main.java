@@ -110,33 +110,39 @@ public class Main {
         * +++И, наконец, попробуйте удалить одну из задач и один из эпиков.
         */
 
-        inMemoryTaskManager.removeTaskById(taskId1); // удаляем задачу
-        inMemoryTaskManager.removeSubtaskById(subtaskId1); // удаляем подзадачу
-        inMemoryTaskManager.removeEpicById(epicId2); // удаляем эпик
-
-        System.out.println("После удаления\n");
-        System.out.println(inMemoryTaskManager.tasks);
-        System.out.println(inMemoryTaskManager.epics);
-        System.out.println(inMemoryTaskManager.subtasks + "\n");
+//        inMemoryTaskManager.removeTaskById(taskId1); // удаляем задачу
+//        inMemoryTaskManager.removeSubtaskById(subtaskId1); // удаляем подзадачу
+//        inMemoryTaskManager.removeEpicById(epicId2); // удаляем эпик
+//
+//        System.out.println("После удаления\n");
+//        System.out.println(inMemoryTaskManager.tasks);
+//        System.out.println(inMemoryTaskManager.epics);
+//        System.out.println(inMemoryTaskManager.subtasks + "\n");
 
 
         /**
         * ======= Для себя проверки  =======
         * Прежде закоментить выше тест по удалению и раскоментить метод ниже)
         */
-        //  myTests(manager, taskId2, epicId1, subtaskId2);
+          testMySelf(inMemoryTaskManager, taskId2, epicId1, subtaskId2);
     }
 
-    private static void myTests(InMemoryTaskManager inMemoryTaskManager, int taskId2, int epicId1, int subtaskId2) {
+    private static void testMySelf(InMemoryTaskManager inMemoryTaskManager, int taskId2, int epicId1, int subtaskId2) {
         /**
          * 2.3 Получение по идентификатору.
          */
         getObjectsById(inMemoryTaskManager, taskId2, epicId1, subtaskId2);
 
         /**
+         * Возвращать последние 10 просмотренных задач
+         */
+        getHistory(inMemoryTaskManager);
+
+        /**
          *  3.1 Получение списка всех подзадач определённого эпика.
          */
         getSubtasksByEpic(inMemoryTaskManager, epicId1);
+
 
         /**
          * 2.2 Удаление всех задач.
@@ -213,6 +219,12 @@ public class Main {
         System.out.println(task);
         System.out.println(epic);
         System.out.println(subtask);
+    }
+
+    private static void getHistory(InMemoryTaskManager inMemoryTaskManager) {
+        // История последних просмотренных
+        System.out.println("История последних просмотренных \n");
+        System.out.println(inMemoryTaskManager.getHistory() + "\n");
     }
 
     private static void getSubtasksByEpic(InMemoryTaskManager inMemoryTaskManager, int epicId1) {
