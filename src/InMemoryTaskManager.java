@@ -1,13 +1,13 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
     private int id;
     public HashMap<Integer, Task> tasks;
     public HashMap<Integer, Subtask> subtasks;
     public HashMap<Integer, Epic> epics;
 
-    public Manager() {
+    public InMemoryTaskManager() {
         id = -1;
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
@@ -74,16 +74,19 @@ public class Manager {
     */
 
     // +++Получение для Task
+    @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
     // +++Получение для Subtask
+    @Override
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
 
     // +++Получение для Epic
+    @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
@@ -93,11 +96,13 @@ public class Manager {
     */
 
     // +++Удаление для Task
+    @Override
     public void removeTasks() {
         tasks.clear();
     }
 
     // +++Удаление для Subtask
+    @Override
     public void removeSubtasks() {
         subtasks.clear();
         // Необходимо поменять в эпиках статус после удаления всех подзадач и очистить список подзадач
@@ -110,6 +115,7 @@ public class Manager {
     }
 
     // +++Удаление для Epic
+    @Override
     public void removeEpics() {
         epics.clear();
         // Необходимо удалить все подзадачи, т.к. эпиков больше нет
@@ -121,16 +127,19 @@ public class Manager {
     */
 
     // +++Получение для Task
+    @Override
     public Task getTaskById(int id) {
         return tasks.getOrDefault(id, null);
     }
 
     // +++Получение для Subtask
+    @Override
     public Subtask getSubtaskById(int id) {
         return subtasks.getOrDefault(id, null);
     }
 
     // +++Получение для Epic
+    @Override
     public Epic getEpicById(int id) {
         return epics.getOrDefault(id, null);
     }
@@ -140,6 +149,7 @@ public class Manager {
     */
 
     // +++Создание для Task
+    @Override
     public void addTask(Task task) {
         if (task == null) {
             System.out.println("Задача НЕ создана, объект не инициализирован");
@@ -150,6 +160,7 @@ public class Manager {
     }
 
     // +++Создание для Subtask
+    @Override
     public void addSubtask(Subtask subtask) {
         if (subtask == null) {
             System.out.println("Подзадача НЕ создана, объект не инициализирован");
@@ -170,6 +181,7 @@ public class Manager {
     }
 
     // +++Создание для Epic
+    @Override
     public void addEpic(Epic epic) {
         if (epic == null) {
             System.out.println("Эпик НЕ создан, объект не инициализирован");
@@ -184,6 +196,7 @@ public class Manager {
     */
 
     // +++Обновление для Task
+    @Override
     public void updateTask(Task task) {
         if (task == null) {
             System.out.println("Задача Task НЕ обновлена, объект не инициализирован");
@@ -201,6 +214,7 @@ public class Manager {
     }
 
     // +++Обновление для Subtask
+    @Override
     public void updateSubtask(Subtask subtask) {
         if (subtask == null) {
             System.out.println("Задача Subtask НЕ обновлена, объект не инициализирован");
@@ -221,6 +235,7 @@ public class Manager {
     }
 
     // +++Обновление для Epic
+    @Override
     public void updateEpic(Epic epic) {
         if (epic == null) {
             System.out.println("Задача Epic НЕ обновлена, объект не инициализирован");
@@ -242,6 +257,7 @@ public class Manager {
     */
 
     // +++Удаление для Task
+    @Override
     public void removeTaskById(int id) {
         if (!tasks.containsKey(id)) {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
@@ -251,6 +267,7 @@ public class Manager {
     }
 
     // +++Удаление для Subtask
+    @Override
     public void removeSubtaskById(int id) {
         if (!subtasks.containsKey(id)) {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
@@ -269,6 +286,7 @@ public class Manager {
     }
 
     // +++Удаление для Epic
+    @Override
     public void removeEpicById(int id) {
         if (!epics.containsKey(id)) {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
@@ -285,6 +303,7 @@ public class Manager {
     * +++3.1 Получение списка всех подзадач определённого эпика.
     */
 
+    @Override
     public ArrayList<Subtask> getSubtasksByEpic(int epicId) {
         ArrayList<Subtask> epicSubtasks = new ArrayList<>();
         if (!epics.containsKey(epicId)) {
