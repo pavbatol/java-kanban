@@ -131,7 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
     // +++Получение для Task
     @Override
     public Task getTaskById(int id) {
-        if (!tasks.containsKey(id))  return null;
+        if (!tasks.containsKey(id)) return null;
         Task task = tasks.get(id);
         historyManager.add(task);
         return task;
@@ -140,7 +140,7 @@ public class InMemoryTaskManager implements TaskManager {
     // +++Получение для Subtask
     @Override
     public Subtask getSubtaskById(int id) {
-        if (!subtasks.containsKey(id))  return null;
+        if (!subtasks.containsKey(id)) return null;
         Subtask subtask = subtasks.get(id);
         historyManager.add(subtask);
         return subtask;
@@ -149,7 +149,7 @@ public class InMemoryTaskManager implements TaskManager {
     // +++Получение для Epic
     @Override
     public Epic getEpicById(int id) {
-        if (!epics.containsKey(id))  return null;
+        if (!epics.containsKey(id)) return null;
         Epic epic = epics.get(id);
         historyManager.add(epic);
         return epic;
