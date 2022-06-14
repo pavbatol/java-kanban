@@ -4,17 +4,17 @@ import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id;
-    private HashMap<Integer, Task> tasks;
-    private HashMap<Integer, Subtask> subtasks;
-    private HashMap<Integer, Epic> epics;
-    private List<Task> lastViewedTasks; // Последние просмотренные задачи
+    private final HashMap<Integer, Task> tasks;
+    private final HashMap<Integer, Subtask> subtasks;
+    private final HashMap<Integer, Epic> epics;
+    private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
         id = -1;
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
         epics = new HashMap<>();
-        lastViewedTasks = new ArrayList<>();
+        historyManager = Managers.getDefaultHistory();
     }
 
     // Синхронизировать статус у Эпика
@@ -68,14 +68,6 @@ public class InMemoryTaskManager implements TaskManager {
         // Записываем новый статус в эпик
         if (forChangeStatus != epic.getStatus()) {
             epic.setStatus(forChangeStatus);
-        }
-    }
-
-    // Добавление последней просмотренной задачи
-    private void addLastViewedTask(Task lastViewedTask) {
-        lastViewedTasks.add(lastViewedTask);
-        if (lastViewedTasks.size() > 10) {
-            lastViewedTasks.remove(0);
         }
     }
 
@@ -141,7 +133,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(int id) {
         if (!tasks.containsKey(id))  return null;
         Task task = tasks.get(id);
-        addLastViewedTask(task);
+        historyManager.add(task);
         return task;
     }
 
@@ -150,7 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask getSubtaskById(int id) {
         if (!subtasks.containsKey(id))  return null;
         Subtask subtask = subtasks.get(id);
-        addLastViewedTask(subtask);
+        historyManager.add(subtask);
         return subtask;
     }
 
@@ -159,7 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpicById(int id) {
         if (!epics.containsKey(id))  return null;
         Epic epic = epics.get(id);
-        addLastViewedTask(epic);
+        historyManager.add(epic);
         return epic;
     }
 
@@ -348,7 +340,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        return lastViewedTasks;
+        return historyManager.getHistory();
     }
 
 }
