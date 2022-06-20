@@ -1,3 +1,11 @@
+package managers;
+
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Task;
+import tasks.TaskStatus;
+import util.Managers;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,12 +201,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (task == null) {
-            System.out.println("Задача Task НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Tasks.Task НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = task.getId();
         if (!tasks.containsKey(id)) {
-            System.out.println("Задача Task НЕ обновлена, id не найден");
+            System.out.println("Задача Tasks.Task НЕ обновлена, id не найден");
             return;
         }
         Task originTask = tasks.get(id);
@@ -210,12 +218,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtask == null) {
-            System.out.println("Задача Subtask НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Tasks.Subtask НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = subtask.getId();
         if (!subtasks.containsKey(id)) {
-            System.out.println("Задача Subtask НЕ обновлена, id не найден");
+            System.out.println("Задача Tasks.Subtask НЕ обновлена, id не найден");
             return;
         }
         Subtask originSubtask = subtasks.get(id);
@@ -230,12 +238,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic) {
         if (epic == null) {
-            System.out.println("Задача Epic НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Tasks.Epic НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = epic.getId();
         if (!epics.containsKey(id)) {
-            System.out.println("Задача Epic НЕ обновлена, id не найден");
+            System.out.println("Задача Tasks.Epic НЕ обновлена, id не найден");
             return;
         }
         Epic originEpic = epics.get(id);
