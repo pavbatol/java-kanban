@@ -53,7 +53,7 @@ public interface TaskManager {
     void removeEpicById(int id);
 
     // Получение списка всех подзадач определённого эпика.
-    ArrayList<Subtask> getSubtasksByEpicId(int epicId);
+    List<Subtask> getSubtasksByEpicId(int epicId);
 
     // Возвращать последние 10 просмотренных задач
     List<Task> getHistory();

@@ -10,16 +10,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int id;
+    private int itemId;
     private final Map<Integer, Task> tasks;
     private final Map<Integer, Subtask> subtasks;
     private final Map<Integer, Epic> epics;
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
-        id = -1;
+        itemId = -1;
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
         epics = new HashMap<>();
@@ -39,22 +40,14 @@ public class InMemoryTaskManager implements TaskManager {
         }
         // Проверяем статусы у всех подзадач Эпика
         List<Integer> subtaskIds = epic.getSubtaskIds();
-        int doneStatusCount = 0; // считать DON
-        int newStatusCount = 0; // считать NEW
-
+        int doneStatusCount = 0; // считать статус DON
+        int newStatusCount = 0; // считать статус NEW
         boolean isBreak = false;
         for (int subtaskId : subtaskIds) {
-            if (isBreak) {
-                break;
-            }
-            if (!subtasks.containsKey(subtaskId) || subtasks.get(subtaskId) == null) {
-                continue;
-            }
-            // Получаем статус каждой подзадачи
-            TaskStatus subtaskStatus = subtasks.get(subtaskId).getStatus();
-            if (subtaskStatus == null) {
-                continue;
-            }
+            if (isBreak) break;
+            if (!subtasks.containsKey(subtaskId) || subtasks.get(subtaskId) == null) continue;
+            TaskStatus subtaskStatus = subtasks.get(subtaskId).getStatus(); // Получаем статус каждой подзадачи
+            if (subtaskStatus == null) continue;
             switch (subtaskStatus) {
                 case IN_PROGRESS:
                     isBreak = true; // можно прервать цикл, уже все ясно
@@ -161,7 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача НЕ создана, объект не инициализирован");
             return;
         }
-        task.setId(++id);
+        task.setId(++itemId);
         tasks.put(task.getId(), task);
     }
 
@@ -176,7 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
             return;
         }
-        subtask.setId(++id);
+        subtask.setId(++itemId);
         subtasks.put(subtask.getId(), subtask);
         // Записываем в список эпика id подзадачи
         Epic epic = epics.get(epicId);
@@ -191,7 +184,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпик НЕ создан, объект не инициализирован");
             return;
         }
-        epic.setId(++id);
+        epic.setId(++itemId);
         epics.put(epic.getId(), epic);
     }
 
@@ -288,10 +281,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
             return;
         }
-        Epic epic = epics.get(id);
-        for (int subtaskId : epic.getSubtaskIds()) {
-            subtasks.remove(subtaskId); // вместе с эпиком удаляем все его подзадачи
-        }
+        epics.get(id).getSubtaskIds().forEach(subtasks::remove); // вместе с эпиком удаляем все его подзадачи
         epics.remove(id);
     }
 
@@ -299,21 +289,16 @@ public class InMemoryTaskManager implements TaskManager {
     * Получение списка всех подзадач определённого эпика.
     */
     @Override
-    public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
-        ArrayList<Subtask> epicSubtasks = new ArrayList<>();
+    public List<Subtask> getSubtasksByEpicId(int epicId) {
+        List<Subtask> epicSubtasks = new ArrayList<>();
         if (!epics.containsKey(epicId)) {
             System.out.println("Эпик с таким id не найден");
             return null;
         }
         // Получаем список подзадач эпика
-        Epic epic = epics.get(epicId);
-        List<Integer> subtaskIds = epic.getSubtaskIds();
-        for (int subtaskId : subtaskIds) {
-            if (!subtasks.containsKey(subtaskId)) {
-                continue;
-            }
-            // Собираем в ArrayList для выдачи
-            epicSubtasks.add(subtasks.get(subtaskId));
+        for (int subtaskId : epics.get(epicId).getSubtaskIds()) {
+            if (!subtasks.containsKey(subtaskId)) continue;
+            epicSubtasks.add(subtasks.get(subtaskId)); // Собираем в ArrayList для выдачи
         }
         return epicSubtasks;
     }
