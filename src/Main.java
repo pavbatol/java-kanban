@@ -41,7 +41,6 @@ public class Main {
         // Распечатаем списки эпиков, задач и подзадач
         System.out.println("После создания объектов");
         printAllListsOfTasks(taskManager);
-        printHistory(taskManager);
 
         /**
         * Изменить статусы созданных объектов. Проверить статусы
@@ -84,7 +83,6 @@ public class Main {
 
         System.out.println("После изменения статусов");
         printAllListsOfTasks(taskManager);
-        printHistory(taskManager);
 
         /**
         * Удалить по id
@@ -93,9 +91,8 @@ public class Main {
         taskManager.removeSubtaskById(subtaskId1);
         taskManager.removeEpicById(epicId2);
 
-        System.out.println("После удаления");
+        System.out.println("После удаления по id: " + taskId1 + ", " +  subtaskId1 + ", "  +epicId2);
         printAllListsOfTasks(taskManager);
-        printHistory(taskManager);
 
         /**
         * Дополнительные проверки
@@ -123,20 +120,22 @@ public class Main {
         taskManager.addEpic(epic3);
         int epicId3 = epic3.getId();
 
-        System.out.println("Создали новый эпик проверяем что статус NEW (путем просмотра задачи по id)");
-        System.out.println(taskManager.getEpicById(epicId3) + "\n" + LINE_SEPARATOR);
+        System.out.println("Создали новый эпик проверяем что статус NEW (просмотр Эпика по id)");
+        System.out.println("\t" +taskManager.getEpicById(epicId3) + "\n" + LINE_SEPARATOR);
         printHistory(taskManager); //История просмотра
 
         Subtask subtask5 = new Subtask("Subtask_5", "Subtask_5Subtask_5Subtask_5", epicId3);
         taskManager.addSubtask(subtask5);
 
-        System.out.println("Добавили подзадачу (NEW), проверили что статус NEW (путем просмотра задачи по id)");
+        System.out.println("Добавили подзадачу (NEW), проверили что статус NEW (просмотр Эпика по id " +
+                "и получения всех его подзадач)");
         printEpicRelations(taskManager, epicId3);
         printHistory(taskManager); //История просмотра
 
         subtask5.setStatus(TaskStatus.DONE);
         taskManager.updateSubtask(subtask5);
-        System.out.println("Изменили подзадачу (DONE), проверили что статус DONE (путем просмотра задачи по id)");
+        System.out.println("Изменили подзадачу (DONE), проверили что статус DONE (просмотр Эпика по id " +
+                "и получения всех его подзадач)");
         printEpicRelations(taskManager, epicId3);
         printHistory(taskManager); //История просмотра
 
@@ -145,24 +144,25 @@ public class Main {
         subtask6.setStatus(TaskStatus.IN_PROGRESS);
         taskManager.updateSubtask(subtask6);
 
-        System.out.println("Добавили подзадачу (IN_PROGRESS), проверили что статус IN_PROGRESS (путем просмотра задачи по id)");
+        System.out.println("Добавили подзадачу (IN_PROGRESS), проверили что статус IN_PROGRESS (просмотр Эпика по id " +
+                "и получения всех его подзадач)");
         printEpicRelations(taskManager, epicId3);
         printHistory(taskManager); //История просмотра
     }
 
     private static void removeAllListsOfTasks(TaskManager taskManager) {
         taskManager.removeTasks();
-        System.out.println("После удаления Tasks\n");
+        System.out.println("После удаления Tasks");
         printAllListsOfTasks(taskManager);
         printHistory(taskManager); //История просмотра
 
         taskManager.removeSubtasks();
-        System.out.println("После удаления Subtasks\n");
+        System.out.println("После удаления Subtasks");
         printAllListsOfTasks(taskManager);
         printHistory(taskManager); //История просмотра
 
         taskManager.removeEpics();
-        System.out.println("После удаления Epics\n");
+        System.out.println("После удаления Epics");
         printAllListsOfTasks(taskManager);
         printHistory(taskManager); //История просмотра
     }
@@ -172,38 +172,38 @@ public class Main {
         Epic epic =  taskManager.getEpicById(epicId1);
         Subtask subtask =  taskManager.getSubtaskById(subtaskId2);
         System.out.println("Получение задач по id (taskId2 = " + taskId2 + ", epicId1 = " + epicId1
-                + ", subtaskId2 = " + subtaskId2 + ")\n" );
-        System.out.println(task);
-        System.out.println(epic);
-        System.out.println(subtask + "\n" + LINE_SEPARATOR);
+                + ", subtaskId2 = " + subtaskId2);
+        System.out.println("\t" + task);
+        System.out.println("\t" + epic);
+        System.out.println("\t" + subtask + "\n" + LINE_SEPARATOR);
         printHistory(taskManager); //История просмотра
 
     }
 
     private static void printHistory(TaskManager taskManager) {
         System.out.println("История просмотра");
-        System.out.println(taskManager.getHistory() + "\n" + LINE_SEPARATOR);
+        taskManager.getHistory().forEach(task -> System.out.println("\t" + task));
+        System.out.println(LINE_SEPARATOR);
     }
 
     private static void printGottenSubtasksByEpicId(TaskManager taskManager, int epicId1) {
         Subtask subtask2;
-        subtask2 = new Subtask("Subtask_4", "Subtask_1Subtask_1Subtask_4", epicId1);
+        subtask2 = new Subtask("Subtask_4", "Subtask_4Subtask_4Subtask_4", epicId1);
         taskManager.addSubtask(subtask2);
-        System.out.println("Получение списка всех подзадач эпика. Была добавлена подзадача name = Subtask_4");
-        System.out.println(taskManager.getSubtasksByEpicId(epicId1) + "\n" + LINE_SEPARATOR);
+        System.out.println("Получение списка всех подзадач эпика (epicId1 = " + epicId1 + "). Была добавлена подзадача name = Subtask_4");
+        taskManager.getSubtasksByEpicId(epicId1).forEach(subtask -> System.out.println("\t" + subtask));
+        System.out.println(LINE_SEPARATOR);
         printHistory(taskManager); //История просмотра
     }
 
     private static void printAllListsOfTasks(TaskManager taskManager) {
-//        System.out.println(taskManager.getTasks());
-//        System.out.println(taskManager.getEpics());
-//        System.out.println(taskManager.getSubtasks() + "\n" + LINE_SEPARATOR);
-
-        System.out.println("\ttaskManager = " + taskManager.toString().replace("\n", "\n\t") + "\n" + LINE_SEPARATOR);
+        System.out.println("\ttaskManager = " + taskManager.toString().replace("\n", "\n\t")
+                + "\n" + LINE_SEPARATOR);
     }
 
     private static void printEpicRelations(TaskManager taskManager, int epicId) {
-        System.out.println(taskManager.getEpicById(epicId));
-        System.out.println(taskManager.getSubtasksByEpicId(epicId) + "\n" + LINE_SEPARATOR);
+        System.out.println("\t" +taskManager.getEpicById(epicId));
+        taskManager.getSubtasksByEpicId(epicId).forEach(task -> System.out.println("\t" + task));
+        System.out.println(LINE_SEPARATOR);
     }
 }
