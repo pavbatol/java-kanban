@@ -20,4 +20,13 @@ public class InMemoryHistoryManager implements HistoryManager {
     public List<Task> getHistory() {
         return lastViewedTasks;
     }
+
+    @Override
+    public String toString() {
+        final String[] str = {""};
+        lastViewedTasks.forEach(task -> str[0] += "\n\t\t" + task);
+        return "InMemoryHistoryManager{" +
+                "\n\tlastViewedTasks=" + str[0] + "\n" +
+                '}';
+    }
 }

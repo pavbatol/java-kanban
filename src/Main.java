@@ -195,9 +195,11 @@ public class Main {
     }
 
     private static void printAllListsOfTasks(TaskManager taskManager) {
-        System.out.println(taskManager.getTasks());
-        System.out.println(taskManager.getEpics());
-        System.out.println(taskManager.getSubtasks() + "\n" + LINE_SEPARATOR);
+//        System.out.println(taskManager.getTasks());
+//        System.out.println(taskManager.getEpics());
+//        System.out.println(taskManager.getSubtasks() + "\n" + LINE_SEPARATOR);
+
+        System.out.println("\ttaskManager = " + taskManager.toString().replace("\n", "\n\t") + "\n" + LINE_SEPARATOR);
     }
 
     private static void printEpicRelations(TaskManager taskManager, int epicId) {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -290,15 +291,15 @@ public class InMemoryTaskManager implements TaskManager {
     */
     @Override
     public List<Subtask> getSubtasksByEpicId(int epicId) {
-        List<Subtask> epicSubtasks = new ArrayList<>();
         if (!epics.containsKey(epicId)) {
             System.out.println("Эпик с таким id не найден");
             return null;
         }
-        // Получаем список подзадач эпика
+        List<Subtask> epicSubtasks = new ArrayList<>();
+        // Получаем список подзадач эпика и собираем в ArrayList для выдачи
         for (int subtaskId : epics.get(epicId).getSubtaskIds()) {
             if (!subtasks.containsKey(subtaskId)) continue;
-            epicSubtasks.add(subtasks.get(subtaskId)); // Собираем в ArrayList для выдачи
+            epicSubtasks.add(subtasks.get(subtaskId));
         }
         return epicSubtasks;
     }
@@ -311,4 +312,24 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
+    @Override
+    public String toString() {
+        final Map<String, String> strs = new HashMap<>(Map.of(
+                "tasks", "",
+                "epics", "",
+                "subtasks", ""));
+
+        // Для каждого ключа составляем соответствующую строку
+        tasks.forEach((id, task) -> strs.put("tasks",  strs.get("tasks") + "\t\t" + task.toString() + "\n"));
+        epics.forEach((id, task) -> strs.put("epics", strs.get("epics") + "\t\t" + task.toString() + "\n"));
+        subtasks.forEach((id, task) -> strs.put("subtasks", strs.get("subtasks") + "\t\t" + task.toString() + "\n"));
+
+        return "InMemoryTaskManager{" +
+                "\n\titemId=" + itemId + " (последний отданный id)" + //"," +
+                "\n\ttasks=\n" + strs.get("tasks") +
+                "\tepics=\n" + strs.get("epics") +
+                "\tsubtasks=\n" + strs.get("subtasks") +
+                "\thistoryManager=" + historyManager.toString().replace("\n", "\n\t") + "\n" +
+                '}';
+    }
 }
