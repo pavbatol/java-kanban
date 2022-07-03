@@ -11,9 +11,7 @@ public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
 
-        /**
-        * Создать 2 задачи, один эпик с 2 подзадачами, а другой эпик с 1 подзадачей.
-        */
+        /* Создать 2 задачи, один эпик с 2 подзадачами, а другой эпик с 1 подзадачей. */
         Task task1 = new Task("Task_1", "Task_1Task_1Task_1");
         Task task2 = new Task("Task_2", "Task_2Task_2Task_2");
         taskManager.addTask(task1);
@@ -42,9 +40,7 @@ public class Main {
         System.out.println("После создания объектов");
         printAllListsOfTasks(taskManager);
 
-        /**
-        * Изменить статусы созданных объектов. Проверить статусы
-        */
+        /* Изменить статусы созданных объектов. Проверить статусы. */
         // Установим новые ссылки, чтобы не поменять статусы у оригиналов
         task1 = new Task("Task_1", "Task_1Task_1Task_1");
         task2 = new Task("Task_2", "Task_2Task_2Task_2");
@@ -84,9 +80,7 @@ public class Main {
         System.out.println("После изменения статусов");
         printAllListsOfTasks(taskManager);
 
-        /**
-        * Удалить по id
-        */
+        /* Удалить по id */
         taskManager.removeTaskById(taskId1);
         taskManager.removeSubtaskById(subtaskId1);
         taskManager.removeEpicById(epicId2);
@@ -94,10 +88,7 @@ public class Main {
         System.out.println("После удаления по id: " + taskId1 + ", " +  subtaskId1 + ", "  +epicId2);
         printAllListsOfTasks(taskManager);
 
-        /**
-        * Дополнительные проверки
-        * Для полноты картины, можно прежде закомментировать выше тест 'Удалить по id'
-        */
+        /* Дополнительные проверки. Для полноты картины, можно прежде закомментировать выше тест 'Удалить по id' */
           testMySelf(taskManager, taskId2, epicId1, subtaskId2);
     }
 
