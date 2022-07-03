@@ -50,7 +50,7 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", subtaskId=" + subtaskIds.toString() +
-                '}' ;//+ "\n";
+                '}';
     }
 
 }
