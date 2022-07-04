@@ -44,7 +44,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             this.head = null;
             this.tail = null;
             this.size = 0;
-            this.sizeMax = sizeMax;
+            this.sizeMax = sizeMax <= 0 ? 10 : sizeMax; // Если пришло некорректное число - установим 10
         }
 
         private final Map<Integer, Node<E>> nodes = new HashMap<>(); // key = taskId, value = Node of CustomLinkedList
@@ -90,7 +90,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             final E element = f.data;
             final Node<E> next = f.next;
             f.data = null;
-            f.next = null; // help GC
+            f.next = null;
             head = next;
             if (next == null)
                 tail = null;
@@ -148,7 +148,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return result;
         }
 
-        public class Node<T> {
+        private class Node<T> {
             public T data;
             public Node<T> next;
             public Node<T> prev;
@@ -159,7 +159,6 @@ public class InMemoryHistoryManager implements HistoryManager {
                 this.prev = prev;
             }
         }
-
     }
 }
 

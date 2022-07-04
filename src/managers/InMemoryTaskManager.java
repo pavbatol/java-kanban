@@ -179,7 +179,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTasks() {
         tasks.forEach((id, task) -> historyManager.remove(id)); // удаляем из истории
         tasks.clear();
-        // TODO: 03.07.2022  add historyManager.remove()
     }
 
     @Override
@@ -193,7 +192,6 @@ public class InMemoryTaskManager implements TaskManager {
                 epic.clearSubtaskIds();
             }
         }
-        // TODO: 03.07.2022  add historyManager.remove()
     }
 
     @Override
@@ -203,7 +201,6 @@ public class InMemoryTaskManager implements TaskManager {
         // Необходимо удалить все подзадачи, и их же из истории т.к. эпиков больше нет
         subtasks.forEach((id, subtask) -> historyManager.remove(id));
         subtasks.clear();
-        // TODO: 03.07.2022  add historyManager.remove()
     }
 
     /**
@@ -270,7 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     /**
-     * Возвращать последние 10 просмотренных задач
+     * Возвращать последние просмотренные задачи
      */
     @Override
     public List<Task> getHistory() {
@@ -348,8 +345,4 @@ public class InMemoryTaskManager implements TaskManager {
                 "\thistoryManager=" + historyManager.toString().replace("\n", "\n\t") + "\n" +
                 '}';
     }
-
-
-
-
 }
