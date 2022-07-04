@@ -10,7 +10,6 @@ public class Main {
     
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
-
         // создайте две задачи, эпик с тремя подзадачами и эпик без подзадач;
         Task task1 = new Task("Task_1", "Task_1Task_1Task_1");
         Task task2 = new Task("Task_2", "Task_2Task_2Task_2");
