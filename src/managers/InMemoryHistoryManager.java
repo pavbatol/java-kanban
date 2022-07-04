@@ -7,52 +7,47 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import java.util.*;
-
 public class InMemoryHistoryManager implements HistoryManager {
-//    private final List<Task> lastViewedTasks = new ArrayList<>();
-    private final CustomLinkedList<Task> lastViewedTasks = new CustomLinkedList<>();
+    private final CustomLinkedList<Task> lastViewedTasks = new CustomLinkedList<>(10);
 
     @Override
     public void add(Task task) {
         lastViewedTasks.addTask(task);
-
-
-
-
-
-//        lastViewedTasks.add(task);
-        if (lastViewedTasks.size() > 10) {
-            lastViewedTasks.removeTaskById(0); // TODO: 03.07.2022  change to removeFirst() as in a LinkedList
-        }
     }
 
     @Override
     public void remove(int id) {
-        lastViewedTasks.removeTaskById(id); // TODO: 03.07.2022  Повторяющиеся тоже удалить
+        lastViewedTasks.removeTaskById(id);
     }
 
     @Override
     public List<Task> getHistory() {
-//        return lastViewedTasks; // TODO: 03.07.2022 Return with the method of CustomLinkedList : List<E> getTasks()
         return lastViewedTasks.getTasks();
     }
 
     @Override
     public String toString() {
         final String[] str = {""};
-        lastViewedTasks.forEach(task -> str[0] += "\n\t\t" + task);
+        lastViewedTasks.getTasks().forEach(task -> str[0] += "\n\t\t" + task);
         return "InMemoryHistoryManager{" +
                 "\n\tlastViewedTasks=" + str[0] + "\n" +
                 '}';
     }
 
-
-    class CustomLinkedList<E extends Task>{
+    private class CustomLinkedList<E extends Task> {
         private Node<E> head;
         private Node<E> tail;
-        private int size = 0;
-        private final Map<Integer, Node<E>> nodes = new HashMap<>(); // key= taskId, value= Node of CustomLinkedList
+        private int size;
+        private final int sizeMax; // ограничение на максимальное кол-во элементов
+
+        public CustomLinkedList(int sizeMax) {
+            this.head = null;
+            this.tail = null;
+            this.size = 0;
+            this.sizeMax = sizeMax;
+        }
+
+        private final Map<Integer, Node<E>> nodes = new HashMap<>(); // key = taskId, value = Node of CustomLinkedList
 
         private void linkLast(E e) {
             final Node<E> tl = tail; // запомним хвост
@@ -90,17 +85,50 @@ public class InMemoryHistoryManager implements HistoryManager {
             return element;
         }
 
+        private E unlinkFirst(Node<E> f) {
+            // assert f == first && f != null;
+            final E element = f.data;
+            final Node<E> next = f.next;
+            f.data = null;
+            f.next = null; // help GC
+            head = next;
+            if (next == null)
+                tail = null;
+            else
+                next.prev = null;
+            size--;
+            return element;
+        }
+
         private E removeNode(Node<E> x) {
+            if (x == null)
+                return null;
             return unlink(x);
         }
 
+        /**
+         * Добавляет элемент "task" в список. Не добавит, если task == null, так как требуются поле объекта id.
+         * @param task Элемент.
+         */
         public void addTask(E task) {
+            if (task == null)
+                return;
+            // Если такая задача уже есть - удалим ее из списка
+            removeTaskById(task.getId());
+
+            // Добавим элемент и запишем узел в HashMap
             linkLast(task);
             nodes.put(task.getId(), tail);
+
+            // Проверка на максимальный размер
+            if (size > sizeMax) {
+                unlinkFirst(head);
+            }
         }
 
-
         public E removeTaskById(int taskId) {
+            if (!nodes.containsKey(taskId))
+                return null;
             Node<E> x = nodes.get(taskId);
             nodes.remove(taskId);
             return removeNode(x);
@@ -111,7 +139,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         public List<E> getTasks() {
-            List<E> result = new ArrayList<>(size); // ?? (size);
+            List<E> result = new ArrayList<>(size);
             Node<E> x = head;
             while (x != null) {
                 result.add(x.data);
@@ -119,20 +147,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             }
             return result;
         }
-
-//        @Override
-//        public void accept(E e) {
-//
-//        }
-
-//        public void forEach(Consumer<? super E> action) {
-//            Objects.requireNonNull(action);
-//            for (E t : this) {
-//                action.accept(t);
-//            }
-//        }
-
-
     }
 }
 
