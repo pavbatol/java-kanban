@@ -53,10 +53,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             final Node<E> tl = tail; // запомним хвост
             final Node<E> newNode = new Node<>(tl, e, null);
             tail = newNode;
-            if (tl == null) // значит список был пуст и это будет единственный узел в списке
+            if (tl == null) { // значит список был пуст и это будет единственный узел в списке
                 head = newNode;
-            else
+            } else {
                 tl.next = newNode;
+            }
             size++;
         }
 
@@ -92,10 +93,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             f.data = null;
             f.next = null;
             head = next;
-            if (next == null)
+            if (next == null) {
                 tail = null;
-            else
+            } else {
                 next.prev = null;
+            }
             size--;
             return element;
         }
