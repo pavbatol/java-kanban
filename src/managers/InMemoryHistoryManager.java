@@ -39,15 +39,15 @@ public class InMemoryHistoryManager implements HistoryManager {
         private Node<E> tail;
         private int size;
         private final int sizeMax; // ограничение на максимальное кол-во элементов
+        private final Map<Integer, Node<E>> nodes; // key = taskId, value = Node of CustomLinkedList
 
         public CustomLinkedList(int sizeMax) {
             this.head = null;
             this.tail = null;
             this.size = 0;
             this.sizeMax = sizeMax <= 0 ? 10 : sizeMax; // Если пришло некорректное число - установим 10
+            nodes = new HashMap<>();
         }
-
-        private final Map<Integer, Node<E>> nodes = new HashMap<>(); // key = taskId, value = Node of CustomLinkedList
 
         private void linkLast(E e) {
             final Node<E> tl = tail; // запомним хвост
