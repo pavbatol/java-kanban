@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class Task {
     private int id;
-    public String name;
-    public String description;
-    public TaskStatus status;
+    private String name;
+    private String description;
+    private TaskStatus status;
 
     public Task(String name, String description) {
         id = -1;
