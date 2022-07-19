@@ -325,6 +325,12 @@ public class InMemoryTaskManager implements TaskManager {
         return ++itemId;
     }
 
+    public HistoryManager getHistoryManager() { // TODO: 19.07.2022 Нужен ли
+        return historyManager;
+    }
+
+
+
     @Override
     public String toString() {
         final Map<String, String> strs = new HashMap<>(Map.of(

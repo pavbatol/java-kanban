@@ -1,3 +1,4 @@
+import managers.FileBackedTasksManager;
 import util.Managers;
 import tasks.Epic;
 import tasks.Subtask;
@@ -5,10 +6,68 @@ import tasks.Task;
 import tasks.TaskStatus;
 import managers.TaskManager;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Main {
     private static final String LINE_SEPARATOR = "-----------";
     
     public static void main(String[] args) {
+//        File file = new File("resources "+ File.separator + "test.csv");
+//        Path file = Paths.get("resources", "test.csv");
+        FileBackedTasksManager taskManager = new FileBackedTasksManager();
+        FileBackedTasksManager.main();
+
+/*        Task task1 = new Task("Name_Task_1", "Description_Task_1");
+        Task task2 = new Task("Name_Task_2", "Description_Task_2");
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        Epic epic1 = new Epic("Name_Epic_1", "Description_Epic");
+        Epic epic2 = new Epic("Name_Epic_2", "Description_Epic_2");
+        taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+        Subtask subtask1 = new Subtask("Name_Subtask_1", "Description_Subtask_1", epic1.getId());
+        Subtask subtask2 = new Subtask("Name_Subtask_2", "Description_Subtask_2", epic1.getId());
+        Subtask subtask3 = new Subtask("Name_Subtask_3", "Description_Subtask_3", epic1.getId());
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
+        System.out.println("После создания объектов");
+        printAllListsOfTasks(taskManager);
+
+        taskManager.getTaskById(task1.getId());
+        taskManager.getSubtaskById(subtask2.getId());
+        taskManager.getEpicById(epic1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getTaskById(task2.getId());
+        taskManager.getSubtaskById(subtask3.getId());
+        taskManager.getEpicById(epic1.getId());
+        taskManager.getTaskById(task1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getSubtaskById(subtask1.getId());
+        taskManager.getSubtaskById(subtask1.getId());
+        taskManager.getTaskById(task1.getId());
+        System.out.println("После вызова всех задач в хаотичном порядке и по несколько раз");
+        printHistory(taskManager);
+
+        System.out.println("Перевод задач в строку");
+        System.out.println(taskManager.toString(task1));
+        System.out.println(taskManager.toString(epic1));
+        System.out.println(taskManager.toString(subtask1));
+
+        System.out.println(LINE_SEPARATOR +"\nПолучение задачи из строки");
+        Task task10 = taskManager.fromString(taskManager.toString(task1)); // + "t"
+        System.out.println(task10 != null ? task10.toString() : null);
+        Task epic10 = taskManager.fromString(taskManager.toString(epic1)); // + "e"
+        System.out.println(epic10 != null ? epic10.toString() : null);
+        Task subtask10 = taskManager.fromString(taskManager.toString(subtask1)); // + ",s"
+        System.out.println(subtask10 != null ? subtask10.toString() : null);
+
+        System.out.println(LINE_SEPARATOR +"\nПеревод Истроии в строку");
+        System.out.println(FileBackedTasksManager.toString(taskManager.historyManager));*/
+
+        /*
         TaskManager taskManager = Managers.getDefault();
         // создайте две задачи, эпик с тремя подзадачами и эпик без подзадач;
         Task task1 = new Task("Task_1", "Task_1Task_1Task_1");
@@ -71,6 +130,7 @@ public class Main {
         System.out.println("После удаления задач: Epic_1, id = " + epic1.getId()
                 + ", с ним должны удалиться просмотры всех subtask");
         printHistory(taskManager);
+        */
     }
 
     private static void testMySelf(TaskManager taskManager, int taskId2, int epicId1, int subtaskId2) {
