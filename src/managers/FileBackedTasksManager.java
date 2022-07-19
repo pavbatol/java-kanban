@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static tasks.TaskType.*;
+import static util.Functions.getTaskType;
+import static util.Functions.isPositiveInt;
 
 public class FileBackedTasksManager extends InMemoryTaskManager{
     final Path path;
@@ -91,7 +92,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     public static FileBackedTasksManager loadFromFile(Path path) {
         FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
         try (FileReader reader = new FileReader(path.toString(), StandardCharsets.UTF_8);
-                BufferedReader br = new BufferedReader(reader)) {
+             BufferedReader br = new BufferedReader(reader)) {
             boolean nextHasHistory = false;
             while (br.ready()) {
                 String str = br.readLine().trim();
@@ -109,7 +110,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                     } else {
                         Task task = taskManager.fromStringTask(str);
                         if (task != null) {
-                            TaskType taskType = taskManager.getTaskType(task);
+                            TaskType taskType = getTaskType(task);
                             switch (taskType) {
                                 case TASK:
                                     taskManager.tasks.put(task.getId(), task);
@@ -151,14 +152,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         sb.append(toString(getHistoryManager()));
         // Записываем в файл
         try (FileWriter fileWriter = new FileWriter(path.toString(), StandardCharsets.UTF_8);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(sb.toString());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка записи");
         }
     }
 
-    private String toString(Task task) {  // TODO: 18.07.2022 Сделать private
+    private String toString(Task task) {
         if (task == null) {
             System.out.println("Перевод в строку НЕ выполнен, объект не инициализирован");
             return null;
@@ -240,24 +241,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             task.setStatus(status);
         }
         return task;
-    }
-
-    public static boolean isPositiveInt(String str) {
-        try {
-            return Integer.parseInt(str) >= 0;
-        } catch(NumberFormatException e){
-            return false;
-        }
-    }
-
-    public TaskType getTaskType(Task task) {
-        TaskType type = TASK;
-        if (task.getClass() == Subtask.class) {
-            type = SUBTASK;
-        } else if (task.getClass() == Epic.class) {
-            type = EPIC;
-        }
-        return type;
     }
 
     @Override
