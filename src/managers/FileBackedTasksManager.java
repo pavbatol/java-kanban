@@ -16,11 +16,11 @@ import static util.Functions.isPositiveInt;
 
 public class FileBackedTasksManager extends InMemoryTaskManager{
     final Path path;
-    final int minNumberOfDataInLine; // Минимальное количество данных в строке
+    final int minNumberOfDataInLine;
     public FileBackedTasksManager(Path path) {
         super();
         this.path = path;
-        this.minNumberOfDataInLine = 5;
+        this.minNumberOfDataInLine = 5; // Минимальное количество данных в строке
     }
 
     public static void main(Path path) {
