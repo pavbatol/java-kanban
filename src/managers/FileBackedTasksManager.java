@@ -3,13 +3,10 @@ package managers;
 import exceptions.ManagerSaveException;
 import tasks.*;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,15 +16,15 @@ import static tasks.TaskType.*;
 public class FileBackedTasksManager extends InMemoryTaskManager{
     final Path path;
     final int minNumberOfDataInLine; // Минимальное количество данных в строке
-    public FileBackedTasksManager() {
+    public FileBackedTasksManager(Path path) {
         super();
-        this.path = Paths.get("my_test_resources", "aaa", "bbb", "test.csv");
+        this.path = path;
         this.minNumberOfDataInLine = 5;
     }
 
-    public static void main() {
+    public static void main(Path path) {
         final String lineSeparator = "-----------";
-        FileBackedTasksManager taskManager =  new FileBackedTasksManager();
+        FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
 
         Task task1 = new Task("Name_Task_1", "Description_Task_1");
         Task task2 = new Task("Name_Task_2", "Description_Task_2");
@@ -44,7 +41,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         taskManager.addSubtask(subtask2);
         taskManager.addSubtask(subtask3);
         System.out.println("После создания объектов");
-        System.out.println("\ttaskManager = " + taskManager.toString().replace("\n", "\n\t"));
+        System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
         taskManager.getTaskById(task1.getId());
         taskManager.getSubtaskById(subtask2.getId());
@@ -61,6 +58,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         System.out.println(lineSeparator +"\nИстория просмотра (после вызова всех задач в хаотичном порядке)");
         taskManager.getHistory().forEach(task -> System.out.println("\t" + task));
 
+        /*
         System.out.println(lineSeparator +"\nПеревод задач в строку");
         System.out.println(taskManager.toString(task1));
         System.out.println(taskManager.toString(task2));
@@ -89,6 +87,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
         System.out.println(lineSeparator +"\nПеревод Истории в строку");
         System.out.println(toString(taskManager.getHistoryManager()));
+        */
+
+        System.out.println(lineSeparator +"\nПосле просмотра объектов");
+        System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
+
+        FileBackedTasksManager tm =  loadFromFile(path);
+        System.out.println(lineSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
+        System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
+
 
 //        System.out.println(taskManager.path.getFileName());
 //        System.out.println(taskManager.path.getParent());
@@ -118,17 +125,50 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return result;
     }
 
-//    static FileBackedTasksManager loadFromFile(File file) {
-//        try (FileReader reader = new FileReader(filename,StandardCharsets.UTF_8);
-//             BufferedReader br = new BufferedReader(reader)) {
-//            while (br.ready()) {
-//                result.add(br.readLine());
-//            }
-//        } catch (IOException e) {
-//            System.out.println("Ошибка чтения.");
-//        }
-//
-//    }
+    public static FileBackedTasksManager loadFromFile(Path path) {
+        FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
+        try (FileReader reader = new FileReader(path.toString(), StandardCharsets.UTF_8);
+                BufferedReader br = new BufferedReader(reader)) {
+            boolean nextHasHistory = false;
+            while (br.ready()) {
+                String str = br.readLine().trim();
+                if (!str.isEmpty()) {
+                    if (nextHasHistory) {
+                        fromStringHistory(str).forEach(id -> {
+                            if (taskManager.tasks.containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.tasks.get(id));
+                            } else if (taskManager.subtasks.containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.subtasks.get(id));
+                            } else if (taskManager.epics.containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.epics.get(id));
+                            }
+                        });
+                    } else {
+                        Task task = taskManager.fromStringTask(str);
+                        if (task != null) {
+                            TaskType taskType = taskManager.getTaskType(task);
+                            switch (taskType) {
+                                case TASK:
+                                    taskManager.tasks.put(task.getId(), task);
+                                    break;
+                                case SUBTASK:
+                                    taskManager.subtasks.put(task.getId(), (Subtask) task);
+                                    break;
+                                case EPIC:
+                                    taskManager.epics.put(task.getId(), (Epic) task);
+                                    break;
+                            }
+                        }
+                    }
+                } else {
+                    nextHasHistory = true;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Ошибка чтения.");
+        }
+        return taskManager;
+    }
 
     private void save() throws ManagerSaveException {
         // Создаем директории
@@ -160,14 +200,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             System.out.println("Перевод в строку НЕ выполнен, объект не инициализирован");
             return null;
         }
-        //Определим тип задачи
-        TaskType type = TASK;
-        if (task.getClass() == Subtask.class) {
-            type = SUBTASK;
-        } else if (task.getClass() == Epic.class) {
-            type = EPIC;
-        }
-        // Собираем: id,type,name,status,description,relations
+        //Определим тип задачи и Собираем: id,type,name,status,description,relations
+        TaskType type = getTaskType(task);
         StringBuilder sb = new StringBuilder();
         sb.append(task.getId()).
                 append(",").append(type.name()).
@@ -251,6 +285,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         } catch(NumberFormatException e){
             return false;
         }
+    }
+
+    public TaskType getTaskType(Task task) {
+        TaskType type = TASK;
+        if (task.getClass() == Subtask.class) {
+            type = SUBTASK;
+        } else if (task.getClass() == Epic.class) {
+            type = EPIC;
+        }
+        return type;
     }
 
     @Override

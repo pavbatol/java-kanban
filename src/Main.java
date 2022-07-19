@@ -6,7 +6,6 @@ import tasks.Task;
 import tasks.TaskStatus;
 import managers.TaskManager;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,8 +15,9 @@ public class Main {
     public static void main(String[] args) {
 //        File file = new File("resources "+ File.separator + "test.csv");
 //        Path file = Paths.get("resources", "test.csv");
-        FileBackedTasksManager taskManager = new FileBackedTasksManager();
-        FileBackedTasksManager.main();
+        Path path = Paths.get("my_test_resources", "aaa", "bbb", "test.csv");
+        FileBackedTasksManager taskManager = new FileBackedTasksManager(path);
+        FileBackedTasksManager.main(path);
 
 /*        Task task1 = new Task("Name_Task_1", "Description_Task_1");
         Task task2 = new Task("Name_Task_2", "Description_Task_2");

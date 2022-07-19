@@ -13,9 +13,9 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
     private int itemId;
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Subtask> subtasks;
-    private final Map<Integer, Epic> epics;
+    protected final Map<Integer, Task> tasks; // TODO: 19.07.2022 Было private
+    protected final Map<Integer, Subtask> subtasks; // TODO: 19.07.2022 Было private
+    protected final Map<Integer, Epic> epics; // TODO: 19.07.2022 Было private
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
