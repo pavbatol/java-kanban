@@ -30,7 +30,6 @@ public interface TaskManager {
     Epic getEpicById(int id);
 
     //Добавить задачу
-    // TODO: 13.06.2022 Можно перегрузить метод
     void addTask(Task task);
 
     void addSubtask(Subtask subtask);
@@ -38,7 +37,6 @@ public interface TaskManager {
     void addEpic(Epic epic);
 
     //Обновить задачу
-    // TODO: 13.06.2022 Можно перегрузить метод
     void updateTask(Task task);
 
     void updateSubtask(Subtask subtask);
