@@ -58,49 +58,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         System.out.println(lineSeparator +"\nИстория просмотра (после вызова всех задач в хаотичном порядке)");
         taskManager.getHistory().forEach(task -> System.out.println("\t" + task));
 
-        /*
-        System.out.println(lineSeparator +"\nПеревод задач в строку");
-        System.out.println(taskManager.toString(task1));
-        System.out.println(taskManager.toString(task2));
-        System.out.println(taskManager.toString(epic1));
-        System.out.println(taskManager.toString(epic2));
-        System.out.println(taskManager.toString(subtask1));
-        System.out.println(taskManager.toString(subtask2));
-        System.out.println(taskManager.toString(subtask3));
-
-        System.out.println(lineSeparator +"\nПолучение задачи из строки");
-        Task task10 = taskManager.fromStringTask(taskManager.toString(task1));
-        System.out.println(task10 != null ? task10.toString() : null);
-        Task task20 = taskManager.fromStringTask(taskManager.toString(task2));
-        System.out.println(task20 != null ? task20.toString() : null);
-        Task epic10 = taskManager.fromStringTask(taskManager.toString(epic1));
-        System.out.println(epic10 != null ? epic10.toString() : null);
-        Task epic20 = taskManager.fromStringTask(taskManager.toString(epic2));
-        System.out.println(epic20 != null ? epic20.toString() : null);
-        Task subtask10 = taskManager.fromStringTask(taskManager.toString(subtask1));
-        System.out.println(subtask10 != null ? subtask10.toString() : null);
-        Task subtask20 = taskManager.fromStringTask(taskManager.toString(subtask2));
-        System.out.println(subtask20 != null ? subtask20.toString() : null);
-        Task subtask30 = taskManager.fromStringTask(taskManager.toString(subtask3));
-        System.out.println(subtask30 != null ? subtask30.toString() : null);
-
-
-        System.out.println(lineSeparator +"\nПеревод Истории в строку");
-        System.out.println(toString(taskManager.getHistoryManager()));
-        */
-
         System.out.println(lineSeparator +"\nПосле просмотра объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
         FileBackedTasksManager tm =  loadFromFile(path);
         System.out.println(lineSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
         System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
-
-
-//        System.out.println(taskManager.path.getFileName());
-//        System.out.println(taskManager.path.getParent());
-//        System.out.println(taskManager.path);
-
     }
 
     public static String toString(HistoryManager manager) {
