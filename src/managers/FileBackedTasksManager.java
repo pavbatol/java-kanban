@@ -15,8 +15,8 @@ import static util.Functions.getTaskType;
 import static util.Functions.isPositiveInt;
 
 public class FileBackedTasksManager extends InMemoryTaskManager{
-    final Path path;
-    final int minNumberOfDataInLine;
+    final private Path path;
+    final private int minNumberOfDataInLine;
     public FileBackedTasksManager(Path path) {
         super();
         this.path = path;
@@ -89,6 +89,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return result;
     }
 
+    // TODO: 20.07.2022 Еще обновить надо itemId (Создавать задачи через метод добавления)
     public static FileBackedTasksManager loadFromFile(Path path) {
         FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
         try (FileReader reader = new FileReader(path.toString(), StandardCharsets.UTF_8);
@@ -96,7 +97,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             boolean nextHasHistory = false;
             while (br.ready()) {
                 String str = br.readLine().trim();
-                if (!str.isEmpty()) {
+                if (!str.isEmpty()) { // TODO: 20.07.2022 Наполнять историю через вызов просмотра задач по id
                     if (nextHasHistory) {
                         fromStringHistory(str).forEach(id -> {
                             if (taskManager.tasks.containsKey(id)) {
@@ -107,7 +108,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                                 taskManager.getHistoryManager().add(taskManager.epics.get(id));
                             }
                         });
-                    } else {
+                    } else { // TODO: 20.07.2022 Создавать задачи через метод добавления и обновлять нужные поля
                         Task task = taskManager.fromStringTask(str);
                         if (task != null) {
                             TaskType taskType = getTaskType(task);
@@ -182,7 +183,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             case EPIC:
                 if (((Epic) task).getSubtaskIds().size() == 0) {
                     sb.append(",");
-                } else {
+                } else { // TODO: 20.07.2022 Не надо, если создавать задачи через метод добавления
                     ((Epic) task).getSubtaskIds().forEach(subtaskId -> sb.append(",").append(subtaskId));
                 }
                 break;

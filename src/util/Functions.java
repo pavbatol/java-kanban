@@ -19,6 +19,7 @@ public final class Functions {
         }
     }
 
+    // TODO: 20.07.2022 Проверить на null
     public static TaskType getTaskType(Task task) {
         TaskType type = TASK;
         if (task.getClass() == Subtask.class) {

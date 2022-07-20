@@ -26,9 +26,6 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager = Managers.getDefaultHistory();
     }
 
-    /**
-     * Добавить задачу
-     */
     @Override
     public void addTask(Task task) {
         if (task == null) {
@@ -69,9 +66,6 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(epic.getId(), epic);
     }
 
-    /**
-     * Обновление
-     */
     @Override
     public void updateTask(Task task) {
         if (task == null) {
@@ -126,9 +120,6 @@ public class InMemoryTaskManager implements TaskManager {
         // Статус не меняем, он рассчитывается по статусам подзадач
     }
 
-    /**
-     * Удаление по идентификатору.
-     */
     @Override
     public void removeTaskById(int id) {
         if (!tasks.containsKey(id)) {
@@ -172,9 +163,6 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
     }
 
-    /**
-     * Удаление всех задач.
-     */
     @Override
     public void removeTasks() {
         tasks.forEach((id, task) -> historyManager.remove(id)); // удаляем из истории
@@ -203,9 +191,6 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.clear();
     }
 
-    /**
-     * Получение по идентификатору.
-     */
     @Override
     public Task getTaskById(int id) {
         if (!tasks.containsKey(id)) return null;
@@ -230,9 +215,6 @@ public class InMemoryTaskManager implements TaskManager {
         return epic;
     }
 
-    /**
-     * Получение списка всех задач
-    */
     @Override
     public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
@@ -248,9 +230,6 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(epics.values());
     }
 
-    /**
-    * Получение списка всех подзадач определённого эпика.
-    */
     @Override
     public List<Subtask> getSubtasksByEpicId(int epicId) {
         if (!epics.containsKey(epicId)) {
@@ -266,9 +245,6 @@ public class InMemoryTaskManager implements TaskManager {
         return epicSubtasks;
     }
 
-    /**
-     * Возвращать последние просмотренные задачи
-     */
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
@@ -325,11 +301,10 @@ public class InMemoryTaskManager implements TaskManager {
         return ++itemId;
     }
 
+    // TODO: 20.07.2022 Можно убрать. А наполнение сделать вызовом просмотра задач
     public HistoryManager getHistoryManager() { // TODO: 19.07.2022 Нужен ли
         return historyManager;
     }
-
-
 
     @Override
     public String toString() {
