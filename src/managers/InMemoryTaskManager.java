@@ -13,9 +13,9 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
     private int itemId;
-    protected final Map<Integer, Task> tasks; // TODO: 19.07.2022 Было private
-    protected final Map<Integer, Subtask> subtasks; // TODO: 19.07.2022 Было private
-    protected final Map<Integer, Epic> epics; // TODO: 19.07.2022 Было private
+    private final Map<Integer, Task> tasks;
+    private final Map<Integer, Subtask> subtasks;
+    private final Map<Integer, Epic> epics; 
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
@@ -301,7 +301,8 @@ public class InMemoryTaskManager implements TaskManager {
         return ++itemId;
     }
 
-    // TODO: 20.07.2022 Можно убрать. А наполнение сделать вызовом просмотра задач
+    // TODO: 20.07.2022 Можно убрать. А наполнение сделать вызовом просмотра задач,
+    //  но пока нужно для toString(HistoryManager manager)
     public HistoryManager getHistoryManager() { // TODO: 19.07.2022 Нужен ли
         return historyManager;
     }

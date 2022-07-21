@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static util.Functions.getTaskType;
-import static util.Functions.isPositiveInt;
+import static util.Functions.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager{
     final private Path path;
@@ -41,6 +40,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
         taskManager.addSubtask(subtask3);
+        subtask1.setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.updateSubtask(subtask1);
+        subtask2.setStatus(TaskStatus.DONE);
+        taskManager.updateSubtask(subtask2);
         System.out.println("После создания объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
@@ -89,40 +92,32 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return result;
     }
 
-    // TODO: 20.07.2022 Еще обновить надо itemId (Создавать задачи через метод добавления)
     public static FileBackedTasksManager loadFromFile(Path path) {
         FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
-        try (FileReader reader = new FileReader(path.toString(), StandardCharsets.UTF_8);
-             BufferedReader br = new BufferedReader(reader)) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path.toString(), StandardCharsets.UTF_8))) {
             boolean nextHasHistory = false;
             while (br.ready()) {
                 String str = br.readLine().trim();
-                if (!str.isEmpty()) { // TODO: 20.07.2022 Наполнять историю через вызов просмотра задач по id
+                if (!str.isEmpty()) {
                     if (nextHasHistory) {
-                        fromStringHistory(str).forEach(id -> {
-                            if (taskManager.tasks.containsKey(id)) {
-                                taskManager.getHistoryManager().add(taskManager.tasks.get(id));
-                            } else if (taskManager.subtasks.containsKey(id)) {
-                                taskManager.getHistoryManager().add(taskManager.subtasks.get(id));
-                            } else if (taskManager.epics.containsKey(id)) {
-                                taskManager.getHistoryManager().add(taskManager.epics.get(id));
-                            }
-                        });
-                    } else { // TODO: 20.07.2022 Создавать задачи через метод добавления и обновлять нужные поля
+                        fromStringHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
+                    } else {
                         Task task = taskManager.fromStringTask(str);
                         if (task != null) {
+                            int taskId = task.getId();
                             TaskType taskType = getTaskType(task);
                             switch (taskType) {
                                 case TASK:
-                                    taskManager.tasks.put(task.getId(), task);
+                                    taskManager.addTask(task);
                                     break;
                                 case SUBTASK:
-                                    taskManager.subtasks.put(task.getId(), (Subtask) task);
+                                    taskManager.addSubtask((Subtask) task);
                                     break;
                                 case EPIC:
-                                    taskManager.epics.put(task.getId(), (Epic) task);
+                                    taskManager.addEpic((Epic) task);
                                     break;
                             }
+                            task.setId(taskId);
                         }
                     }
                 } else {
@@ -183,7 +178,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             case EPIC:
                 if (((Epic) task).getSubtaskIds().size() == 0) {
                     sb.append(",");
-                } else { // TODO: 20.07.2022 Не надо, если создавать задачи через метод добавления
+                } else {
                     ((Epic) task).getSubtaskIds().forEach(subtaskId -> sb.append(",").append(subtaskId));
                 }
                 break;
@@ -228,14 +223,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                 break;
             case EPIC:
                 task = new Epic(name, description);
-                for (int i = 5; i < parts.length; i++) {
-                    if (isPositiveInt(parts[i].trim())) {
-                        ((Epic) task).addSubtaskById(Integer.parseInt(parts[i].trim()));
-                    } else {
-                        task = null; // Задачу с некорректными данными не будем создавать
-                        break;
-                    }
-                }
+                break;
         }
         if (task != null) {
             task.setId(id);
