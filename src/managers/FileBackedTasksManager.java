@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static util.Functions.*;
 
@@ -80,16 +81,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     }
 
     public static List<Integer> fromStringHistory(String value) {
-        List<Integer> result = new ArrayList<>();
+        // TODO: 26.07.2022 Удалить закоменченное
+//        List<Integer> result = new ArrayList<>();
+//        if (value != null) {
+//            for (String part : value.split(",")) {
+//                part = part.trim();
+//                if (isPositiveInt(part)) {
+//                    result.add(Integer.parseInt(part));
+//                }
+//            }
+//        }
+//        return result;
         if (value != null) {
-            for (String part : value.split(",")) {
-                part = part.trim();
-                if (isPositiveInt(part)) {
-                    result.add(Integer.parseInt(part));
-                }
-            }
+            return Arrays.stream(value.split(","))
+                    .filter(part -> isPositiveInt(part.trim()))
+                    .map(part -> Integer.parseInt(part.trim()))
+                    .collect(Collectors.toList());
         }
-        return result;
+        return new ArrayList<>();
     }
 
     public static FileBackedTasksManager loadFromFile(Path path) {
@@ -98,9 +107,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             boolean nextHasHistory = false;
             while (br.ready()) {
                 String str = br.readLine().trim();
-                if (!str.isEmpty()) {
+                if (!str.isEmpty()) { // Если строка пустая, помечаем, что следующая содержит историю
                     if (nextHasHistory) {
                         fromStringHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
+                        break;
                     } else {
                         Task task = taskManager.fromStringTask(str);
                         if (task != null) {
