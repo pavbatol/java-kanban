@@ -27,7 +27,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         final String lineSeparator = "-----------";
         FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
-        Task task1 = new Task("Name_Task_1", "Description_Task_1");
+        Task task1 = new Task("Имя_Задачи_1", "Описание_Задачи_1");
         Task task2 = new Task("Name_Task_2", "Description_Task_2");
         taskManager.addTask(task1);
         taskManager.addTask(task2);
