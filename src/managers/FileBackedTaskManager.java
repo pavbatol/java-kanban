@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 
 import static util.Functions.*;
 
-public class FileBackedTasksManager extends InMemoryTaskManager{
+public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
     final private int minNumberOfDataInLine;
-    public FileBackedTasksManager(Path path) {
+    public FileBackedTaskManager(Path path) {
         super();
         this.path = path;
         this.minNumberOfDataInLine = 5; // Минимальное количество данных в строке
@@ -25,7 +25,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     public static void main(Path path) {
         final String lineSeparator = "-----------";
-        FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
+        FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
         Task task1 = new Task("Name_Task_1", "Description_Task_1");
         Task task2 = new Task("Name_Task_2", "Description_Task_2");
@@ -66,7 +66,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         System.out.println(lineSeparator +"\nПосле просмотра объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
-        FileBackedTasksManager tm =  loadFromFile(path);
+        FileBackedTaskManager tm =  loadFromFile(path);
         System.out.println(lineSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
         System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
     }
@@ -80,18 +80,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return sb.toString();
     }
 
-    public static List<Integer> fromStringHistory(String value) {
-        // TODO: 26.07.2022 Удалить закоменченное
-//        List<Integer> result = new ArrayList<>();
-//        if (value != null) {
-//            for (String part : value.split(",")) {
-//                part = part.trim();
-//                if (isPositiveInt(part)) {
-//                    result.add(Integer.parseInt(part));
-//                }
-//            }
-//        }
-//        return result;
+    public static List<Integer> fromStringOfHistory(String value) {
         if (value != null) {
             return Arrays.stream(value.split(","))
                     .filter(part -> isPositiveInt(part.trim()))
@@ -101,18 +90,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return new ArrayList<>();
     }
 
-    public static FileBackedTasksManager loadFromFile(Path path) {
-        FileBackedTasksManager taskManager =  new FileBackedTasksManager(path);
+    public static FileBackedTaskManager loadFromFile(Path path) {
+        FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
         try (BufferedReader br = new BufferedReader(new FileReader(path.toString(), StandardCharsets.UTF_8))) {
             boolean nextHasHistory = false;
             while (br.ready()) {
                 String str = br.readLine().trim();
                 if (!str.isEmpty()) { // Если строка пустая, помечаем, что следующая содержит историю
                     if (nextHasHistory) {
-                        fromStringHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
+                        fromStringOfHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
                         break;
                     } else {
-                        Task task = taskManager.fromStringTask(str);
+                        Task task = taskManager.fromStringOfTask(str);
                         if (task != null) {
                             int taskId = task.getId();
                             TaskType taskType = getTaskType(task);
@@ -141,22 +130,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     }
 
     private void save() throws ManagerSaveException {
-        // Создаем директории
         if (!Files.exists(path.getParent())) {
             try {
                 Files.createDirectories(path.getParent());
             } catch (IOException e) {
-                throw new ManagerSaveException("Ошибка создания директории");
+                throw new ManagerSaveException("Ошибка создания директорий");
             }
         }
-        // Составляем строку
         StringBuilder sb = new StringBuilder();
         getTasks().forEach(task -> sb.append(toString(task)).append("\n"));
         getEpics().forEach(task -> sb.append(toString(task)).append("\n"));
         getSubtasks().forEach(task -> sb.append(toString(task)).append("\n"));
         sb.append("\n");
         sb.append(toString(getHistoryManager()));
-        // Записываем в файл
         try (FileWriter fileWriter = new FileWriter(path.toString(), StandardCharsets.UTF_8);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(sb.toString());
@@ -196,7 +182,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return sb.toString();
     }
 
-    private Task fromStringTask(String value) {
+    private Task fromStringOfTask(String value) {
         if (value == null) {
             System.out.println("Перевод строки в задачу НЕ выполнен, строка не инициализирована");
             return null;
@@ -206,7 +192,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             System.out.println("Перевод в задачу НЕ выполнен, мало данных в строке: " + Arrays.toString(parts));
             return null;
         }
-        // Воссоздание задачи
         String name = parts[2].trim();
         String description = parts[4].trim();
         int id;
@@ -226,8 +211,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                 task = new Task(name, description);
                 break;
             case SUBTASK:
-                if (parts.length > 5 && isPositiveInt(parts[5])) {
-                    int epicId = Integer.parseInt(parts[5]);
+                if (parts.length > minNumberOfDataInLine && isPositiveInt(parts[minNumberOfDataInLine])) {
+                    int epicId = Integer.parseInt(parts[minNumberOfDataInLine]);
                     task = new Subtask(name, description, epicId); // Задачу не создаем если нет к какому Эпику привязан
                 }
                 break;
