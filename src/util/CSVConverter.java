@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import static util.Functions.getTaskType;
 import static util.Functions.isPositiveInt;
 
-public final class CSVTaskConverter {
-    private CSVTaskConverter() {
+public final class CSVConverter {
+    private CSVConverter() {
     }
 
     public static String toString(HistoryManager manager) {

@@ -129,6 +129,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         return taskManager;
     }
 
+    // TODO: 31.07.2022 Наверное надо записать заголовки столбцов (и учесть в loadFromFile)
     private void save() throws ManagerSaveException {
         if (!Files.exists(path.getParent())) {
             try {
