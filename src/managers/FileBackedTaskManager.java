@@ -91,7 +91,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
     }
 
     public static FileBackedTaskManager loadFromFile(Path path) {
-        FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
+        final FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
         try (BufferedReader br = new BufferedReader(new FileReader(path.toString(), StandardCharsets.UTF_8))) {
             boolean nextHasHistory = false;
             while (br.ready()) {
