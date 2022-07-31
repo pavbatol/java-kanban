@@ -34,7 +34,7 @@ public final class CSVConverter {
         return new ArrayList<>();
     }
 
-    private static String toString(Task task) {
+    public static String toString(Task task) {
         if (task == null) {
             System.out.println("Перевод в строку НЕ выполнен, объект не инициализирован");
             return null;
@@ -65,7 +65,7 @@ public final class CSVConverter {
         return sb.toString();
     }
 
-    private static Task fromStringOfTask(String value) {
+    public static Task fromStringOfTask(String value) {
         if (value == null) {
             System.out.println("Перевод строки в задачу НЕ выполнен, строка не инициализирована");
             return null;
