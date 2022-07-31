@@ -74,9 +74,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         final FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
         try (BufferedReader br = new BufferedReader(new FileReader(path.toString(), StandardCharsets.UTF_8))) {
             boolean nextHasHistory = false;
+            int i = -1;
             while (br.ready()) {
+                i++;
                 String str = br.readLine().trim();
-                if (!str.isEmpty()) { // Если строка пустая, помечаем, что следующая содержит историю
+                if (i == 0) continue;
+                if (!str.isEmpty()) {
                     if (nextHasHistory) {
                         CSVConverter.fromStringOfHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
                         break;
@@ -109,7 +112,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         return taskManager;
     }
 
-    // TODO: 31.07.2022 Наверное надо записать заголовки столбцов (и учесть в loadFromFile)
     private void save() throws ManagerSaveException {
         if (!Files.exists(path.getParent())) {
             try {
@@ -119,6 +121,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
             }
         }
         StringBuilder sb = new StringBuilder();
+        sb.append(CSVConverter.getHeads()).append("\n");
         getTasks().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));
         getEpics().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));
         getSubtasks().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));

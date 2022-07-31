@@ -15,25 +15,6 @@ public final class CSVConverter {
     private CSVConverter() {
     }
 
-    public static String toString(HistoryManager manager) {
-        StringBuilder sb = new StringBuilder();
-        manager.getHistory().forEach(task -> sb.append(task.getId()).append(","));
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length()-1); // последнюю запятую
-        }
-        return sb.toString();
-    }
-
-    public static List<Integer> fromStringOfHistory(String value) {
-        if (value != null) {
-            return Arrays.stream(value.split(","))
-                    .filter(part -> isPositiveInt(part.trim()))
-                    .map(part -> Integer.parseInt(part.trim()))
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
-    }
-
     public static String toString(Task task) {
         if (task == null) {
             System.out.println("Перевод в строку НЕ выполнен, объект не инициализирован");
@@ -65,6 +46,15 @@ public final class CSVConverter {
         return sb.toString();
     }
 
+    public static String toString(HistoryManager manager) {
+        StringBuilder sb = new StringBuilder();
+        manager.getHistory().forEach(task -> sb.append(task.getId()).append(","));
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length()-1); // последнюю запятую
+        }
+        return sb.toString();
+    }
+
     public static Task fromStringOfTask(String value) {
         if (value == null) {
             System.out.println("Перевод строки в задачу НЕ выполнен, строка не инициализирована");
@@ -87,7 +77,7 @@ public final class CSVConverter {
             type = TaskType.valueOf(parts[1].trim());
             status = TaskStatus.valueOf(parts[3].trim());
         } catch (IllegalArgumentException e) {
-            System.out.println("Перевод строки в задачу НЕ выполнен, некорректные данные");
+            System.out.println("Перевод строки в задачу НЕ выполнен, некорректные данные: " + value);
             return null;
         }
         switch (type) {
@@ -110,4 +100,21 @@ public final class CSVConverter {
         }
         return task;
     }
+
+    public static List<Integer> fromStringOfHistory(String value) {
+        if (value != null) {
+            return Arrays.stream(value.split(","))
+                    .filter(part -> isPositiveInt(part.trim()))
+                    .map(part -> Integer.parseInt(part.trim()))
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    public static String getHeads() {
+        return "id,type,name,status,description,relations"; //relations = epic
+    }
+
+
+
 }
