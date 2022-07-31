@@ -159,11 +159,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         //Определим тип задачи и Собираем: id,type,name,status,description,relations
         TaskType type = getTaskType(task);
         StringBuilder sb = new StringBuilder();
-        sb.append(task.getId()).
-                append(",").append(type.name()).
-                append(",").append(task.getName()).
-                append(",").append(task.getStatus()).
-                append(",").append(task.getDescription());
+        sb.append(task.getId())
+                .append(",").append(type.name())
+                .append(",").append(task.getName())
+                .append(",").append(task.getStatus())
+                .append(",").append(task.getDescription());
         switch (type) {
             case TASK:
                 sb.append(",");

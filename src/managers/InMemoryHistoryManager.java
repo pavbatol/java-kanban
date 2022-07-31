@@ -46,7 +46,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             this.tail = null;
             this.size = 0;
             this.sizeMax = sizeMax <= 0 ? 10 : sizeMax; // Если пришло некорректное число - установим 10
-            nodes = new HashMap<>();
+            nodes = new HashMap<>(this.sizeMax);
         }
 
         private void linkLast(E e) {
@@ -118,14 +118,15 @@ public class InMemoryHistoryManager implements HistoryManager {
             // Если такая задача уже есть - удалим ее из списка
             removeTaskById(task.getId());
 
+            // Проверка на максимальный размер
+            if (size >= sizeMax) {
+                unlinkFirst(head);
+            }
+
             // Добавим элемент и запишем узел в HashMap
             linkLast(task);
             nodes.put(task.getId(), tail);
 
-            // Проверка на максимальный размер
-            if (size > sizeMax) {
-                unlinkFirst(head);
-            }
         }
 
         public E removeTaskById(int taskId) {
