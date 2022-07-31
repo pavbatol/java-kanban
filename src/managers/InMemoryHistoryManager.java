@@ -86,22 +86,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             return element;
         }
 
-        private E unlinkFirst(Node<E> f) {
-            // assert f == first && f != null;
-            final E element = f.data;
-            final Node<E> next = f.next;
-            f.data = null;
-            f.next = null;
-            head = next;
-            if (next == null) {
-                tail = null;
-            } else {
-                next.prev = null;
-            }
-            size--;
-            return element;
-        }
-
         private E removeNode(Node<E> x) {
             if (x == null)
                 return null;
@@ -120,7 +104,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
             // Проверка на максимальный размер
             if (size >= sizeMax) {
-                unlinkFirst(head);
+                removeTaskById(head.data.getId()); //  && head != null -> unlinkFirst(head);
             }
 
             // Добавим элемент и запишем узел в HashMap
