@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +23,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         this.path = path;
     }
 
-    public static void main(Path path) {
+    public static void main(String[] args) {
         final String lineSeparator = "-----------";
+        Path path = Paths.get(args[0]);
         FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
         Task task1 = new Task("Имя_Задачи_1", "Описание_Задачи_1");
