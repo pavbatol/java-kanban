@@ -25,6 +25,19 @@ public final class Functions {
         }
     }
 
+    public static TaskType getTaskType(Class<?> cl) {
+        if (cl == null) return null;
+        TaskType type = null;
+        if (cl == Task.class) {
+            type = TASK;
+        } else  if (cl == Subtask.class) {
+            type = SUBTASK;
+        } else if (cl == Epic.class) {
+            type = EPIC;
+        }
+        return type;
+    }
+
     /**
      * Получить тип задачи
      * @param task Задача
@@ -32,15 +45,8 @@ public final class Functions {
      */
     public static TaskType getTaskType(Task task) {
         if (task == null) return null;
-        TaskType type = null;
-        if ((task.getClass() == Task.class) ) {
-            type = TASK;
-        } else  if (task.getClass() == Subtask.class) {
-            type = SUBTASK;
-        } else if (task.getClass() == Epic.class) {
-            type = EPIC;
-        }
-        return type;
+        Class<?> cl = task.getClass();
+        return getTaskType(cl);
     }
 
     /**

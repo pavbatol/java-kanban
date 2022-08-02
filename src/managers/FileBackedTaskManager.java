@@ -86,7 +86,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                         Task task = CSVConverter.fromStringOfTask(str);
                         if (task != null) {
                             int taskId = task.getId();
-                            TaskType taskType = getTaskType(task);
+                            TaskType taskType = getTaskType(task); // TODO: 02.08.2022 Заменить на task.getType()
                             switch (taskType) {
                                 case TASK:
                                     taskManager.addTask(task);

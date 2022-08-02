@@ -3,7 +3,7 @@ package tasks;
 import java.util.Objects;
 
 public class Subtask extends Task {
-    private int epicId; // Принадлежность к эпику
+    private int epicId;
 
     public Subtask(String name, String description, int epicId) {
         super(name, description);
@@ -14,6 +14,7 @@ public class Subtask extends Task {
         return epicId;
     }
 
+    // TODO: 02.08.2022 Подзадачи не менют свой Эпик. Возможно этот метод не нужен
     public void setEpicId(int epicId) {
         this.epicId = epicId;
     }
@@ -39,6 +40,7 @@ public class Subtask extends Task {
                 ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status=" + getStatus() +
+                ", type=" + getType() +
                 ", epicId=" + epicId +
                 '}';
     }

@@ -21,7 +21,7 @@ public final class CSVConverter {
             return null;
         }
         //Определим тип задачи и Собираем: id,type,name,status,description,relations
-        TaskType type = getTaskType(task);
+        TaskType type = getTaskType(task); // TODO: 02.08.2022 Заменить на task.getType()
         StringBuilder sb = new StringBuilder();
         sb.append(task.getId())
                 .append(",").append(type.name())

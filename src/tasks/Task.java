@@ -1,18 +1,27 @@
 package tasks;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
+
+import static util.Functions.getTaskType;
 
 public class Task {
     private int id;
     private String name;
     private String description;
     private TaskStatus status;
+    private final TaskType type;
+    private int duration;
+    private LocalDateTime startTime;
 
     public Task(String name, String description) {
         id = -1;
         this.name = name;
         this.description = description;
         status = TaskStatus.NEW;
+        type = getTaskType(getClass());
+        duration = 0;
+        startTime = null;
     }
 
     public int getId() {
@@ -47,6 +56,30 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getType() {
+        return type;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return  getStartTime().plusMinutes(getDuration());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,6 +100,7 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
+                ", type=" + type +
                 '}';
     }
 }
