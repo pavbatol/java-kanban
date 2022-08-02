@@ -69,55 +69,72 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (task == null) {
-            System.out.println("Задача Tasks.Task НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Task НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = task.getId();
         if (!tasks.containsKey(id)) {
-            System.out.println("Задача Tasks.Task НЕ обновлена, id не найден");
+            System.out.println("Задача Task НЕ обновлена, id не найден");
             return;
         }
         Task originTask = tasks.get(id);
-        originTask.setName(task.getName());
-        originTask.setDescription(task.getDescription());
-        originTask.setStatus(task.getStatus());
+        if (originTask != null) {
+            originTask.setName(task.getName());
+            originTask.setDescription(task.getDescription());
+            originTask.setStatus(task.getStatus());
+            originTask.setDuration(task.getDuration());
+            originTask.setStartTime(task.getStartTime());
+        } else {
+            System.out.println("Задача Task НЕ обновлена, по id " + id + " лежит null");
+        }
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtask == null) {
-            System.out.println("Задача Tasks.Subtask НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Subtask НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = subtask.getId();
         if (!subtasks.containsKey(id)) {
-            System.out.println("Задача Tasks.Subtask НЕ обновлена, id не найден");
+            System.out.println("Задача Subtask НЕ обновлена, id не найден");
             return;
         }
         Subtask originSubtask = subtasks.get(id);
-        originSubtask.setName(subtask.getName());
-        originSubtask.setDescription(subtask.getDescription());
-        originSubtask.setStatus(subtask.getStatus());
-        // синхронизируем статус в эпике
-        int epicId = originSubtask.getEpicId();
-        synchronizeEpicStatus(epicId);
+        if (originSubtask != null) {
+            originSubtask.setName(subtask.getName());
+            originSubtask.setDescription(subtask.getDescription());
+            originSubtask.setStatus(subtask.getStatus());
+            originSubtask.setDuration(subtask.getDuration());
+            originSubtask.setStartTime(subtask.getStartTime());
+            synchronizeEpicStatus(subtask.getEpicId()); // синхронизируем статус в эпике
+        } else {
+            System.out.println("Задача Subtask НЕ обновлена, по id " + id + " лежит null");
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         if (epic == null) {
-            System.out.println("Задача Tasks.Epic НЕ обновлена, объект не инициализирован");
+            System.out.println("Задача Epic НЕ обновлена, объект не инициализирован");
             return;
         }
         int id = epic.getId();
         if (!epics.containsKey(id)) {
-            System.out.println("Задача Tasks.Epic НЕ обновлена, id не найден");
+            System.out.println("Задача Epic НЕ обновлена, id не найден");
             return;
         }
         Epic originEpic = epics.get(id);
-        originEpic.setName(epic.getName());
-        originEpic.setDescription(epic.getDescription());
-        // Статус не меняем, он рассчитывается по статусам подзадач
+        if (originEpic != null) {
+            originEpic.setName(epic.getName());
+            originEpic.setDescription(epic.getDescription());
+            originEpic.setDuration(epic.getDuration());
+            originEpic.setStartTime(epic.getStartTime());
+            originEpic.setEndTime(epic.getEndTime());
+            // Статус не меняем, он рассчитывается по статусам подзадач. Тип тоже не меняем, как и везде.
+        } else {
+            System.out.println("Задача Epic НЕ обновлена, по id " + id + " лежит null");
+        }
     }
 
     @Override
