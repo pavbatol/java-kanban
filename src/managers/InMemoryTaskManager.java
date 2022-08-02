@@ -49,11 +49,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtask.setId(getNewId());
         subtasks.put(subtask.getId(), subtask);
-        // Записываем в список эпика id подзадачи
         Epic epic = epics.get(epicId);
-        epic.addSubtaskById(subtask.getId());
-        // Синхронизируем статус в эпике
-        synchronizeEpicStatus(epicId);
+        epic.addSubtaskById(subtask.getId()); // Записываем в список эпика id подзадачи
+        synchronizeEpicWithSubtasks(epicId); // Синхронизируем статус и врем в эпике
     }
 
     @Override
@@ -107,7 +105,7 @@ public class InMemoryTaskManager implements TaskManager {
             originSubtask.setStatus(subtask.getStatus());
             originSubtask.setDuration(subtask.getDuration());
             originSubtask.setStartTime(subtask.getStartTime());
-            synchronizeEpicStatus(subtask.getEpicId()); // синхронизируем статус в эпике
+            synchronizeEpicWithSubtasks(subtask.getEpicId()); // синхронизируем статус и время в эпике
         } else {
             System.out.println("Задача Subtask НЕ обновлена, по id " + id + " лежит null");
         }
@@ -128,10 +126,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (originEpic != null) {
             originEpic.setName(epic.getName());
             originEpic.setDescription(epic.getDescription());
-            originEpic.setDuration(epic.getDuration());
-            originEpic.setStartTime(epic.getStartTime());
-            originEpic.setEndTime(epic.getEndTime());
-            // Статус не меняем, он рассчитывается по статусам подзадач. Тип тоже не меняем, как и везде.
+            // Статус, duration, startTime, endTime не меняем, они рассчитывается по подзадачам
         } else {
             System.out.println("Задача Epic НЕ обновлена, по id " + id + " лежит null");
         }
@@ -156,11 +151,10 @@ public class InMemoryTaskManager implements TaskManager {
         int epicId = subtasks.get(id).getEpicId();
         subtasks.remove(id);
         historyManager.remove(id);
-        // Смотрим Эпик к которому он принадлежал
         if (epics.containsKey(epicId)) {
             Epic epic = epics.get(epicId);
             epic.removeSubtaskById(id); // У Эпика удаляем подзадачу
-            synchronizeEpicStatus(epicId); // У Эпика синхронизируем статус по подзадачам
+            synchronizeEpicWithSubtasks(epicId); // У Эпика синхронизируем статус и время по подзадачам
         }
     }
 
@@ -267,18 +261,12 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    // Синхронизировать статус у Эпика
     private void synchronizeEpicStatus(int epicId) {
-        if (!epics.containsKey(epicId)) {
-            System.out.println("Статусы НЕ синхронизированы, id не найден");
+        if (!epics.containsKey(epicId) || epics.get(epicId) == null) {
+            System.out.println("Объект не найден");
             return;
         }
         Epic epic = epics.get(epicId);
-        if (epic == null) {
-            System.out.println("Статусы НЕ синхронизированы, объект не инициализирован");
-            return;
-        }
-        // Проверяем статусы у всех подзадач Эпика
         List<Integer> subtaskIds = epic.getSubtaskIds();
         int doneStatusCount = 0; // считать статус DON
         int newStatusCount = 0; // считать статус NEW
@@ -286,7 +274,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (int subtaskId : subtaskIds) {
             if (isBreak) break;
             if (!subtasks.containsKey(subtaskId) || subtasks.get(subtaskId) == null) continue;
-            TaskStatus subtaskStatus = subtasks.get(subtaskId).getStatus(); // Получаем статус каждой подзадачи
+            TaskStatus subtaskStatus = subtasks.get(subtaskId).getStatus();
             if (subtaskStatus == null) continue;
             switch (subtaskStatus) {
                 case IN_PROGRESS:
@@ -313,7 +301,46 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    //Генератор id
+    private void synchronizeEpicTimes(int epicId){
+        if (!epics.containsKey(epicId) || epics.get(epicId) == null) {
+            System.out.println("Объект не найден");
+            return;
+        }
+        Epic epic = epics.get(epicId);
+        boolean isAtLeastOneStart = false;
+        boolean isAtLeastOneEnd = false;
+        for (Integer id : epic.getSubtaskIds()) {
+            if (!subtasks.containsKey(id) || subtasks.get(id) == null) {
+                continue;
+            }
+            Subtask subtask = subtasks.get(id);
+            epic.setDuration(epic.getDuration() + subtask.getDuration()); // суммируем длительность
+            if (subtask.getStartTime() != null) {
+                isAtLeastOneStart = true;
+                if (epic.getStartTime() == null || epic.getStartTime().isAfter(subtask.getStartTime())) {
+                    epic.setStartTime(subtask.getStartTime());
+                }
+            }
+            if (subtask.getEndTime() != null) {
+                isAtLeastOneEnd = true;
+                if (epic.getEndTime() == null || epic.getEndTime().isBefore(subtask.getEndTime())) {
+                    epic.setEndTime(subtask.getEndTime());
+                }
+            }
+        }
+        if (!isAtLeastOneStart) {
+            epic.setStartTime(null); // Если вдруг был рассинхрон (в эпике указано, но ни в одной подзадаче не указано)
+        }
+        if (!isAtLeastOneEnd) {
+            epic.setEndTime(null);
+        }
+    }
+
+    private void synchronizeEpicWithSubtasks(int epicId) {
+        synchronizeEpicStatus(epicId);
+        synchronizeEpicTimes(epicId);
+    }
+
     private int getNewId() {
         return ++itemId;
     }
