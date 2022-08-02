@@ -13,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static util.Functions.getAnyTypeTaskById;
-
 public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
     public FileBackedTaskManager(Path path) {
@@ -83,7 +81,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                 if (i == 0) continue;
                 if (!str.isEmpty()) {
                     if (nextHasHistory) {
-                        CSVConverter.fromStringOfHistory(str).forEach(id -> getAnyTypeTaskById(id,taskManager));
+                        CSVConverter.fromStringOfHistory(str).forEach(id -> {
+                            if (taskManager.getTasksKeeper().containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.getTasksKeeper().get(id));
+                            } else if (taskManager.getSubtasksKeeper().containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.getSubtasksKeeper().get(id));
+                            } else if (taskManager.getEpicsKeeper().containsKey(id)) {
+                                taskManager.getHistoryManager().add(taskManager.getEpicsKeeper().get(id));
+                            }
+                        });
                         break;
                     } else {
                         Task task = CSVConverter.fromStringOfTask(str);
@@ -92,13 +98,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                             maxId = Math.max(taskId, maxId);
                             switch (task.getType()) {
                                 case TASK:
-                                    taskManager.addTask(task);
+                                    taskManager.getTasksKeeper().put(task.getId(), task);
                                     break;
                                 case SUBTASK:
-                                    taskManager.addSubtask((Subtask) task);
+                                    taskManager.getSubtasksKeeper().put(task.getId(), (Subtask) task);
                                     break;
                                 case EPIC:
-                                    taskManager.addEpic((Epic) task);
+                                    taskManager.getEpicsKeeper().put(task.getId(), (Epic) task);
                                     break;
                             }
                             task.setId(taskId);

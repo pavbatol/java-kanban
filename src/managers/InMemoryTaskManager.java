@@ -345,6 +345,18 @@ public class InMemoryTaskManager implements TaskManager {
         return ++itemId;
     }
 
+    protected Map<Integer, Task> getTasksKeeper() {
+        return tasks;
+    }
+
+    protected Map<Integer, Subtask> getSubtasksKeeper() {
+        return subtasks;
+    }
+
+    protected Map<Integer, Epic> getEpicsKeeper() {
+        return epics;
+    }
+
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
