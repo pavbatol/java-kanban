@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
@@ -67,6 +68,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         FileBackedTaskManager tm =  loadFromFile(path);
         System.out.println(lineSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
         System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
+
+
+        //Печатаем сортированный список
+        task1.setStartTime(LocalDateTime.now());
+        subtask2.setStartTime(LocalDateTime.now());
+        subtask1.setStartTime(LocalDateTime.now());
+        taskManager.getPrioritizedTasks().forEach(task -> System.out.println("\t" + task));
     }
 
     public static FileBackedTaskManager loadFromFile(Path path) {

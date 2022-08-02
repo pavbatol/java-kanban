@@ -6,10 +6,7 @@ import tasks.Task;
 import tasks.TaskStatus;
 import util.Managers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected int itemId;
@@ -359,6 +356,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     public HistoryManager getHistoryManager() {
         return historyManager;
+    }
+
+    public TreeSet<Task> getPrioritizedTasks() {
+        TreeSet<Task> result = new TreeSet<>((task1, task2) -> {
+            if (task1.getStartTime() == null) {
+                return 1;
+            } else if (task2.getStartTime() == null) {
+                return -1;
+            } else {
+                return task1.getStartTime().isAfter(task2.getStartTime()) ? 1
+                        : task1.getStartTime().isBefore(task2.getStartTime()) ? -1 : 0;
+            }
+        });
+        tasks.forEach((id, task) -> {if (task != null) result.add(task);});
+        subtasks.forEach((id, task) -> {if (task != null) result.add(task);});
+        return result;
     }
 
     @Override
