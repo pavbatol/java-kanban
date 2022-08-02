@@ -76,6 +76,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         try (BufferedReader br = new BufferedReader(new FileReader(path.toString(), StandardCharsets.UTF_8))) {
             boolean nextHasHistory = false;
             int i = -1;
+            int maxId = 0;
             while (br.ready()) {
                 i++;
                 String str = br.readLine().trim();
@@ -88,6 +89,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                         Task task = CSVConverter.fromStringOfTask(str);
                         if (task != null) {
                             int taskId = task.getId();
+                            maxId = Math.max(taskId, maxId);
                             switch (task.getType()) {
                                 case TASK:
                                     taskManager.addTask(task);
@@ -106,6 +108,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                     nextHasHistory = true;
                 }
             }
+            taskManager.itemId = maxId;
         } catch (IOException e) {
             System.out.println("Ошибка чтения.");
         }

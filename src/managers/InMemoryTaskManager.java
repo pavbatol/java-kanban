@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int itemId;
+    protected int itemId;
     private final Map<Integer, Task> tasks;
     private final Map<Integer, Subtask> subtasks;
     private final Map<Integer, Epic> epics;
