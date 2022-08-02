@@ -1,7 +1,10 @@
 package managers;
 
 import exceptions.ManagerSaveException;
-import tasks.*;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Task;
+import tasks.TaskStatus;
 import util.CSVConverter;
 
 import java.io.*;
@@ -11,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static util.Functions.getAnyTypeTaskById;
-import static util.Functions.getTaskType;
 
 public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
@@ -86,8 +88,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                         Task task = CSVConverter.fromStringOfTask(str);
                         if (task != null) {
                             int taskId = task.getId();
-                            TaskType taskType = getTaskType(task); // TODO: 02.08.2022 Заменить на task.getType()
-                            switch (taskType) {
+                            switch (task.getType()) {
                                 case TASK:
                                     taskManager.addTask(task);
                                     break;

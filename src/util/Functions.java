@@ -43,11 +43,12 @@ public final class Functions {
      * @param task Задача
      * @return TaskType  или null
      */
-    public static TaskType getTaskType(Task task) {
-        if (task == null) return null;
-        Class<?> cl = task.getClass();
-        return getTaskType(cl);
-    }
+    // TODO: 02.08.2022 Удалить
+//    public static TaskType getTaskType(Task task) {
+//        if (task == null) return null;
+//        Class<?> cl = task.getClass();
+//        return getTaskType(cl);
+//    }
 
     /**
      * Получить тип задачи
@@ -55,11 +56,12 @@ public final class Functions {
      * @param tm Task-менеджер
      * @return TaskType  или null
      */
-    public static TaskType getTaskType(int taskId, TaskManager tm) {
-        if (tm == null) return null;
-        Task task = getAnyTypeTaskById(taskId, tm);
-        return getTaskType(task);
-    }
+    // TODO: 02.08.2022 Удалить
+//    public static TaskType getTaskType(int taskId, TaskManager tm) {
+//        if (tm == null) return null;
+//        Task task = getAnyTypeTaskById(taskId, tm);
+//        return getTaskType(task);
+//    }
 
     /**
      * Получить задачу по id в независимости от ее типа

@@ -301,9 +301,7 @@ public class InMemoryTaskManager implements TaskManager {
         return ++itemId;
     }
 
-    // TODO: 20.07.2022 Можно убрать. А наполнение сделать вызовом просмотра задач,
-    //  но пока нужно для toString(HistoryManager manager)
-    public HistoryManager getHistoryManager() { // TODO: 19.07.2022 Нужен ли
+    public HistoryManager getHistoryManager() {
         return historyManager;
     }
 
