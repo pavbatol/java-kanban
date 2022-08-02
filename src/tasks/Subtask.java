@@ -41,6 +41,8 @@ public class Subtask extends Task {
                 ", description='" + getDescription() + '\'' +
                 ", status=" + getStatus() +
                 ", type=" + getType() +
+                ", duration=" + getDuration() +
+                ", startTime=" + (getStartTime() != null ? getStartTime().toString() : null) +
                 ", epicId=" + epicId +
                 '}';
     }

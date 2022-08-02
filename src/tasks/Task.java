@@ -101,6 +101,8 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", type=" + type +
+                ", duration=" + duration +
+                ", startTime=" + (startTime != null ? startTime.toString() : null) +
                 '}';
     }
 }
