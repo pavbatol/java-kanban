@@ -49,9 +49,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         subtask2.setStatus(TaskStatus.DONE);
         taskManager.updateSubtask(subtask2);
 
+        // время
         task1.setStartTime(LocalDateTime.now());
-        subtask2.setStartTime(LocalDateTime.now());
-        subtask1.setStartTime(LocalDateTime.now());
+        task1.setDuration(20);
+        taskManager.updateTask(task1);
+
+        subtask2.setStartTime(LocalDateTime.now().plusMinutes(20));
+        subtask2.setDuration(20);
+        taskManager.updateSubtask(subtask2);
+        //System.out.println(task1.getEndTime());
+        //System.out.println(subtask2.getStartTime());
+
+        subtask1.setStartTime(null);
+        taskManager.updateSubtask(subtask1);
+
+
 
         System.out.println("После создания объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
@@ -80,6 +92,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
 
         //Печатаем сортированный список
+        System.out.println(blockSeparator +"\nПосле сортировки по времени старта задачи");
         taskManager.getPrioritizedTasks().forEach(task -> System.out.println("\t" + task));
     }
 

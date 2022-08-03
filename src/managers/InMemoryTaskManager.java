@@ -1,10 +1,12 @@
 package managers;
 
+import exceptions.ValidateException;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 import util.Managers;
+import validators.CrossingTimeValidator;
 
 import java.util.*;
 
@@ -88,6 +90,14 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача Task НЕ обновлена, id не найден");
             return;
         }
+
+        try {
+            new CrossingTimeValidator(getPrioritizedTasks()).validate(task);
+        } catch (ValidateException e) {
+            System.out.println(e.getMessage() + " Задача Task НЕ обновлена");
+            return;
+        }
+
         Task originTask = tasks.get(id);
         if (originTask != null) {
             originTask.setName(task.getName());
@@ -112,6 +122,14 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача Subtask НЕ обновлена, id не найден");
             return;
         }
+
+        try {
+            new CrossingTimeValidator(getPrioritizedTasks()).validate(subtask);
+        } catch (ValidateException e) {
+            System.out.println(e.getMessage() + " Задача Subtask НЕ обновлена");
+            return;
+        }
+
         Subtask originSubtask = subtasks.get(id);
         if (originSubtask != null) {
             originSubtask.setName(subtask.getName());
@@ -137,11 +155,19 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача Epic НЕ обновлена, id не найден");
             return;
         }
+
+        try {
+            new CrossingTimeValidator(getPrioritizedTasks()).validate(epic);
+        } catch (ValidateException e) {
+            System.out.println(e.getMessage() + " Задача Epic НЕ обновлена");
+            return;
+        }
+
         Epic originEpic = epics.get(id);
         if (originEpic != null) {
             originEpic.setName(epic.getName());
             originEpic.setDescription(epic.getDescription());
-            // Статус, duration, startTime, endTime не меняем, они рассчитывается по подзадачам
+            // ... Статус, duration, startTime, endTime не меняем, они рассчитывается по подзадачам
             neededPrioritySort = true;
         } else {
             System.out.println("Задача Epic НЕ обновлена, по id " + id + " лежит null");
