@@ -16,13 +16,14 @@ import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
+    final private String lineSep = "\n"; // maybe System.lineSeparator()
     public FileBackedTaskManager(Path path) {
         super();
         this.path = path;
     }
 
     public static void main(String[] args) {
-        final String lineSeparator = "-----------";
+        final String blockSeparator = "-----------";
         Path path = Paths.get("", args);
         FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
@@ -30,20 +31,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         Task task2 = new Task("Name_Task_2", "Description_Task_2");
         taskManager.addTask(task1);
         taskManager.addTask(task2);
+
         Epic epic1 = new Epic("Name_Epic_1", "Description_Epic");
         Epic epic2 = new Epic("Name_Epic_2", "Description_Epic_2");
         taskManager.addEpic(epic1);
         taskManager.addEpic(epic2);
+
         Subtask subtask1 = new Subtask("Name_Subtask_1", "Description_Subtask_1", epic1.getId());
         Subtask subtask2 = new Subtask("Name_Subtask_2", "Description_Subtask_2", epic1.getId());
         Subtask subtask3 = new Subtask("Name_Subtask_3", "Description_Subtask_3", epic1.getId());
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
         taskManager.addSubtask(subtask3);
+
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
         taskManager.updateSubtask(subtask1);
         subtask2.setStatus(TaskStatus.DONE);
         taskManager.updateSubtask(subtask2);
+
+        task1.setStartTime(LocalDateTime.now());
+        subtask2.setStartTime(LocalDateTime.now());
+        subtask1.setStartTime(LocalDateTime.now());
+
         System.out.println("После создания объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
@@ -59,21 +68,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         taskManager.getSubtaskById(subtask1.getId());
         taskManager.getSubtaskById(subtask1.getId());
         taskManager.getTaskById(task1.getId());
-        System.out.println(lineSeparator +"\nИстория просмотра (после вызова всех задач в хаотичном порядке)");
+
+        System.out.println(blockSeparator +"\nИстория просмотра (после вызова всех задач в хаотичном порядке)");
         taskManager.getHistory().forEach(task -> System.out.println("\t" + task));
 
-        System.out.println(lineSeparator +"\nПосле просмотра объектов");
+        System.out.println(blockSeparator +"\nПосле просмотра объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
 
         FileBackedTaskManager tm =  loadFromFile(path);
-        System.out.println(lineSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
+        System.out.println(blockSeparator +"\nПосле создания нового FileBackedTasksManager из файла");
         System.out.println("\tВторой taskManager = " + tm.toString().replace("\n", "\n\t"));
 
-
         //Печатаем сортированный список
-        task1.setStartTime(LocalDateTime.now());
-        subtask2.setStartTime(LocalDateTime.now());
-        subtask1.setStartTime(LocalDateTime.now());
         taskManager.getPrioritizedTasks().forEach(task -> System.out.println("\t" + task));
     }
 
@@ -83,6 +89,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
             boolean nextHasHistory = false;
             int i = -1;
             int maxId = 0;
+            // TODO: 03.08.2022 Переделать на for и Files.readString(Path.of(path)); ???
             while (br.ready()) {
                 i++;
                 String str = br.readLine().trim();
@@ -138,11 +145,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
             }
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(CSVConverter.getHeads()).append("\n");
-        getTasks().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));
-        getEpics().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));
-        getSubtasks().forEach(task -> sb.append(CSVConverter.toString(task)).append("\n"));
-        sb.append("\n");
+        sb.append(CSVConverter.getHeads()).append(lineSep);
+        getTasks().forEach(task -> sb.append(CSVConverter.toString(task)).append(lineSep));
+        getEpics().forEach(task -> sb.append(CSVConverter.toString(task)).append(lineSep));
+        getSubtasks().forEach(task -> sb.append(CSVConverter.toString(task)).append(lineSep));
+        sb.append(lineSep);
         sb.append(CSVConverter.toString(getHistoryManager()));
         try (FileWriter fileWriter = new FileWriter(path.toString(), StandardCharsets.UTF_8);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
