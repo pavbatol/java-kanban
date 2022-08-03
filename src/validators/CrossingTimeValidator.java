@@ -36,7 +36,7 @@ public class CrossingTimeValidator implements Validator {
             LocalDateTime tEnd = t.getEndTime();
             if ((taskStart.isEqual(tStart) || (taskStart.isAfter(tStart) && taskStart.isBefore(tEnd)))
                     || (taskEnd.isEqual(tEnd)  || (taskEnd.isBefore(tEnd) && taskEnd.isAfter(tStart)))) {
-                throw new ValidateCrossingTimeException( "!!! " + getClass().getSimpleName() +
+                throw new ValidateCrossingTimeException("!!! " + getClass().getSimpleName() +
                         ": Недопустимо пересечение по времени.");
             }
         }

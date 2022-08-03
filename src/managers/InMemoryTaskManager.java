@@ -7,6 +7,8 @@ import tasks.Task;
 import tasks.TaskStatus;
 import util.Managers;
 import validators.CrossingTimeValidator;
+import validators.DurationTimeValidator;
+import validators.Validator;
 
 import java.util.*;
 
@@ -91,12 +93,13 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        try {
-            new CrossingTimeValidator(getPrioritizedTasks()).validate(task);
-        } catch (ValidateException e) {
-            System.out.println(e.getMessage() + " Задача Task НЕ обновлена");
-            return;
-        }
+        getTaskValidators().forEach(validator -> {
+            try {
+                validator.validate(task);
+            } catch (ValidateException e) {
+                System.out.println(e.getMessage() + " Задача Task НЕ обновлена");
+            }
+        });
 
         Task originTask = tasks.get(id);
         if (originTask != null) {
@@ -123,12 +126,13 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        try {
-            new CrossingTimeValidator(getPrioritizedTasks()).validate(subtask);
-        } catch (ValidateException e) {
-            System.out.println(e.getMessage() + " Задача Subtask НЕ обновлена");
-            return;
-        }
+        getTaskValidators().forEach(validator -> {
+            try {
+                validator.validate(subtask);
+            } catch (ValidateException e) {
+                System.out.println(e.getMessage() + " Задача Subtask НЕ обновлена");
+            }
+        });
 
         Subtask originSubtask = subtasks.get(id);
         if (originSubtask != null) {
@@ -156,12 +160,13 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        try {
-            new CrossingTimeValidator(getPrioritizedTasks()).validate(epic);
-        } catch (ValidateException e) {
-            System.out.println(e.getMessage() + " Задача Epic НЕ обновлена");
-            return;
-        }
+        getTaskValidators().forEach(validator -> {
+            try {
+                validator.validate(epic);
+            } catch (ValidateException e) {
+                System.out.println(e.getMessage() + " Задача Epic НЕ обновлена");
+            }
+        });
 
         Epic originEpic = epics.get(id);
         if (originEpic != null) {
@@ -405,7 +410,7 @@ public class InMemoryTaskManager implements TaskManager {
         return epics;
     }
 
-    public HistoryManager getHistoryManager() {
+    protected HistoryManager getHistoryManager() {
         return historyManager;
     }
 
@@ -423,6 +428,12 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.forEach((id, task) -> {if (task != null) prioritizedTasks.add(task);});
     }
 
+    private List<Validator> getTaskValidators(){
+        return List.of(
+                new CrossingTimeValidator(getPrioritizedTasks()),
+                new DurationTimeValidator()
+        );
+    }
 
     @Override
     public String toString() {
