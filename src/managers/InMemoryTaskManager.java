@@ -23,7 +23,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap<>();
         epics = new HashMap<>();
         historyManager = Managers.getDefaultHistory();
-        neededPrioritySort = false;
+        neededPrioritySort = true;  // Flag for sorting tasks, /true for first, for the cause of after loadFromFile()/
         prioritizedTasks = new TreeSet<>((task1, task2) -> {
             if (task1.getStartTime() == null) {
                 return 1;
