@@ -3,8 +3,6 @@ package tasks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest {
@@ -42,6 +40,5 @@ class SubtaskTest {
         String str = subtask.toString();
         boolean is = str.length() > 0;
         assertTrue(is);
-
     }
 }

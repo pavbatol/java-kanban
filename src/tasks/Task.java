@@ -85,12 +85,26 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && name.equals(task.name) && description.equals(task.description) && status == task.status;
+        return id == task.id
+                && name.equals(task.name)
+                && description.equals(task.description)
+                && status == task.status
+                && type == task.type
+                && duration == task.duration
+                && startTime == task.startTime;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, status);
+        return Objects.hash(
+                id,
+                name,
+                description,
+                status,
+                type,
+                duration,
+                startTime
+        );
     }
 
     @Override
