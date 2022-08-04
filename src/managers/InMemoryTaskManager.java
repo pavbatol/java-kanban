@@ -41,26 +41,27 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void addTask(Task task) {
+    public int addTask(Task task) {
         if (task == null) {
             System.out.println("Задача НЕ создана, объект не инициализирован");
-            return;
+            return -1;
         }
         task.setId(getNewId());
         tasks.put(task.getId(), task);
         neededPrioritySort = true;
+        return task.getId();
     }
 
     @Override
-    public void addSubtask(Subtask subtask) {
+    public int addSubtask(Subtask subtask) {
         if (subtask == null) {
             System.out.println("Подзадача НЕ создана, объект не инициализирован");
-            return;
+            return -1;
         }
         int epicId = subtask.getEpicId();
         if (!epics.containsKey(epicId)) {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
-            return;
+            return -1;
         }
         subtask.setId(getNewId());
         subtasks.put(subtask.getId(), subtask);
@@ -68,17 +69,19 @@ public class InMemoryTaskManager implements TaskManager {
         epic.addSubtaskById(subtask.getId()); // Записываем в список эпика id подзадачи
         synchronizeEpicWithSubtasks(epicId); // Синхронизируем статус и врем в эпике
         neededPrioritySort = true;
+        return subtask.getId();
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public int addEpic(Epic epic) {
         if (epic == null) {
             System.out.println("Эпик НЕ создан, объект не инициализирован");
-            return;
+            return -1;
         }
         epic.setId(getNewId());
         epics.put(epic.getId(), epic);
         neededPrioritySort = true;
+        return epic.getId();
     }
 
     @Override
