@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static tasks.TaskStatus.*;
 
 class TaskTest {
     Task task;
 
     @BeforeEach
     void setUp() {
-        task = new Task("name", "description");
+        task = new Task("name", "description", NEW);
     }
 
     @Test
@@ -72,7 +73,7 @@ class TaskTest {
     void getType() {
         TaskType type = task.getType();
         assertEquals(TaskType.TASK, type);
-        Subtask subtask = new Subtask("name", "description", 0);
+        Subtask subtask = new Subtask("name", "description", NEW, 0);
         type = subtask.getType();
         assertEquals(TaskType.SUBTASK, type);
         Epic epic = new Epic("name", "description");
@@ -114,7 +115,7 @@ class TaskTest {
 
     @Test
     void testEquals() {
-        Task task2 = new Task("name", "description");
+        Task task2 = new Task("name", "description", NEW);
         boolean is = task.equals(task2);
         assertTrue(is);
         task2.setId(0);
@@ -124,7 +125,7 @@ class TaskTest {
 
     @Test
     void testHashCode() {
-        Task task2 = new Task("name", "description");
+        Task task2 = new Task("name", "description", NEW);
         boolean is = task.hashCode() == task2.hashCode();
         assertTrue(is);
         task2.setId(0);

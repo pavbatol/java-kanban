@@ -14,11 +14,11 @@ public class Task {
     private int duration;
     private LocalDateTime startTime;
 
-    public Task(String name, String description) {
+    public Task(String name, String description, TaskStatus status) {
         id = -1;
         this.name = name;
         this.description = description;
-        status = TaskStatus.NEW;
+        this.status = status;
         type = getTaskType(getClass());
         duration = 0;
         startTime = null;

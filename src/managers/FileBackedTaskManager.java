@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
+import static tasks.TaskStatus.*;
+
 public class FileBackedTaskManager extends InMemoryTaskManager{
     final private Path path;
     final private String lineSep = "\n"; // maybe System.lineSeparator()
@@ -27,8 +29,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         Path path = Paths.get("", args);
         FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
-        Task task1 = new Task("Имя_Задачи_1", "Описание_Задачи_1");
-        Task task2 = new Task("Name_Task_2", "Description_Task_2");
+        Task task1 = new Task("Имя_Задачи_1", "Описание_Задачи_1", NEW);
+        Task task2 = new Task("Name_Task_2", "Description_Task_2", NEW);
         taskManager.addTask(task1);
         taskManager.addTask(task2);
 
@@ -37,16 +39,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         taskManager.addEpic(epic1);
         taskManager.addEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Name_Subtask_1", "Description_Subtask_1", epic1.getId());
-        Subtask subtask2 = new Subtask("Name_Subtask_2", "Description_Subtask_2", epic1.getId());
-        Subtask subtask3 = new Subtask("Name_Subtask_3", "Description_Subtask_3", epic1.getId());
+        Subtask subtask1 = new Subtask("Name_Subtask_1", "Description_Subtask_1", NEW, epic1.getId());
+        Subtask subtask2 = new Subtask("Name_Subtask_2", "Description_Subtask_2", NEW, epic1.getId());
+        Subtask subtask3 = new Subtask("Name_Subtask_3", "Description_Subtask_3", NEW, epic1.getId());
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
         taskManager.addSubtask(subtask3);
 
-        subtask1.setStatus(TaskStatus.IN_PROGRESS);
+        subtask1.setStatus(IN_PROGRESS);
         taskManager.updateSubtask(subtask1);
-        subtask2.setStatus(TaskStatus.DONE);
+        subtask2.setStatus(DONE);
         taskManager.updateSubtask(subtask2);
 
         // время

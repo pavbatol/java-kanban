@@ -4,13 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static tasks.TaskStatus.*;
 
 class SubtaskTest {
     Subtask subtask;
 
     @BeforeEach
     public void beforeEach() {
-        subtask = new Subtask("name", "description", 1);
+        subtask = new Subtask("name", "description", NEW, 1);
     }
     @Test
     void getEpicId() {
@@ -20,14 +21,14 @@ class SubtaskTest {
 
     @Test
     void testEquals() {
-        Subtask subtask1 = new Subtask("name", "description", 1);
+        Subtask subtask1 = new Subtask("name", "description", NEW, 1);
         boolean is = subtask.equals(subtask1);
         assertTrue(is);
     }
 
     @Test
     void testHashCode() {
-        Subtask subtask1 = new Subtask("name", "description", 1);
+        Subtask subtask1 = new Subtask("name", "description", NEW, 1);
         boolean is = subtask.hashCode() == subtask1.hashCode();
         assertTrue(is);
         subtask1.setId(0);

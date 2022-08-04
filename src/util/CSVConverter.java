@@ -90,12 +90,12 @@ public final class CSVConverter {
         }
         switch (type) {
             case TASK:
-                task = new Task(name, description);
+                task = new Task(name, description,status);
                 break;
             case SUBTASK:
                 if (parts.length > relationsIndex  && isPositiveInt(parts[relationsIndex])) {
                     int epicId = Integer.parseInt(parts[relationsIndex]);
-                    task = new Subtask(name, description, epicId); //Задачу не создаем если нет к какому Эпику привязан
+                    task = new Subtask(name, description, status, epicId); //Задачу не создаем если нет к какому Эпику привязан
                 }
                 break;
             case EPIC:
@@ -114,7 +114,7 @@ public final class CSVConverter {
         }
         if (task != null) {
             task.setId(id);
-            task.setStatus(status);
+            task.setStatus(status); // TODO: 04.08.2022 Статус только требуется для Эпика
             task.setDuration(duration);
             task.setStartTime(startTime);
         }
