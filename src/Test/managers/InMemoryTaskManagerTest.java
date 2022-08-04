@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tasks.TaskStatus.IN_PROGRESS;
-import static tasks.TaskStatus.NEW;
+import static tasks.TaskStatus.*;
 
 class InMemoryTaskManagerTest {
 
@@ -44,12 +43,11 @@ class InMemoryTaskManagerTest {
         // Нет эпика
         Subtask subtask = new Subtask("Name", "Description", NEW, 0);
         int id = taskManager.addSubtask(subtask);
-
         Subtask savedSubtask = taskManager.getSubtaskById(id);
 
         assertNull(savedSubtask, "Задача найдена.");
 
-        //есть эпик
+        // Есть эпик
         final Epic epic = new Epic("Name", "Description");
         taskManager.addEpic(epic);
         subtask = new Subtask("Name", "Description", NEW, epic.getId());
@@ -64,6 +62,33 @@ class InMemoryTaskManagerTest {
         assertNotNull(subtasks, "Задачи на возвращаются.");
         assertEquals(1, subtasks.size(), "Неверное количество задач.");
         assertEquals(savedSubtask, subtasks.get(0), "Задачи не совпадают.");
+
+        // Статус эпика (на начало в наличии одна подзадача - savedSubtask)
+        Subtask subtask2 = new Subtask("Name", "Description", NEW, epic.getId());
+        taskManager.addSubtask(subtask2);
+
+        assertEquals(NEW, epic.getStatus(), "Неверный статус эпика");
+
+        savedSubtask.setStatus(DONE);
+        subtask2.setStatus(DONE);
+        Subtask subtask3 = new Subtask("Name", "Description", DONE, epic.getId());
+        taskManager.addSubtask(subtask3);
+
+        assertEquals(DONE, epic.getStatus(), "Неверный статус эпика");
+
+        Subtask subtask4 = new Subtask("Name", "Description", NEW, epic.getId());
+        taskManager.addSubtask(subtask4);
+
+        assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
+
+        savedSubtask.setStatus(IN_PROGRESS);
+        subtask2.setStatus(IN_PROGRESS);
+        subtask3.setStatus(IN_PROGRESS);
+        subtask4.setStatus(IN_PROGRESS);
+        Subtask subtask5 = new Subtask("Name", "Description", IN_PROGRESS, epic.getId());
+        taskManager.addSubtask(subtask5);
+
+        assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
     }
 
     @Test
@@ -107,17 +132,46 @@ class InMemoryTaskManagerTest {
         updatedTask = taskManager.getTaskById(id);
 
         assertNotNull(updatedTask, "Задача не найдена.");
-        assertEquals(task, savedTask, "Задачи не совпадают.");
 
         final List<Task> tasks = taskManager.getTasks();
 
         assertNotNull(tasks, "Задачи на возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
-        assertEquals(newTask, updatedTask, "Задачи не совпадают.");
+        assertEquals(newTask, updatedTask, "Задачи не совпадают."); // ссылки у задач разные
     }
 
     @Test
     void updateSubtask() {
+        final Epic epic = new Epic("Name", "Description");
+        final int epicId = taskManager.addEpic(epic);
+        final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
+        final int id = taskManager.addSubtask(subtask);
+        final Subtask savedSubtask = taskManager.getSubtaskById(id);
+        final Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
+
+        newSubtask.setId(id + 1);
+        newSubtask.setName("newName");
+        newSubtask.setDescription("newDescription");
+        newSubtask.setStatus(IN_PROGRESS);
+        newSubtask.setDuration(subtask.getDuration() + 10);
+        newSubtask.setStartTime(LocalDateTime.now());
+
+        taskManager.updateSubtask(newSubtask);
+        Subtask updatedSubtask = taskManager.getSubtaskById(id);
+
+        assertNotEquals(newSubtask, updatedSubtask); // был установлен несуществующий id
+
+        newSubtask.setId(id);
+        taskManager.updateSubtask(newSubtask);
+        updatedSubtask = taskManager.getSubtaskById(id);
+
+        assertNotNull(updatedSubtask, "Задача не найдена.");
+
+        final List<Subtask> subtasks = taskManager.getSubtasks();
+
+        assertNotNull(subtask, "Задачи на возвращаются.");
+        assertEquals(1, subtasks.size(), "Неверное количество задач.");
+        assertEquals(newSubtask, updatedSubtask, "Задачи не совпадают."); // ссылки у задач разные
     }
 
     @Test
