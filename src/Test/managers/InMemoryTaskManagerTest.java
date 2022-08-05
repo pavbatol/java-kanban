@@ -72,7 +72,6 @@ class InMemoryTaskManagerTest {
         testEpicStatusForSubtaskAdd();
     }
 
-
     @Test
     void addEpic() {
         final Epic epic = new Epic("Name", "Description");
@@ -193,7 +192,6 @@ class InMemoryTaskManagerTest {
         assertEquals(newEpic.getId(), epic.getId(), "id не равны");
         assertEquals(newEpic.getName(), epic.getName(), "Имя не равны");
         assertEquals(newEpic.getDescription(), epic.getDescription(), "Описание не равны");
-
     }
 
     @Test
@@ -225,9 +223,9 @@ class InMemoryTaskManagerTest {
         task1.setStartTime(LocalDateTime.of(2022,8,5,12,0));
         task2.setStartTime(LocalDateTime.of(2022,8,5,15,0));
         task3.setStartTime(LocalDateTime.of(2022,8,5,18,0));
-        task1.setDuration(60 * 8);
+        task1.setDuration(10);
         task2.setDuration(10);
-        task3.setDuration(20);
+        task3.setDuration(10);
         int idForDel;
 
         assertEquals(3, epic.getSubtaskIds().size(), "Размер списка не равен");
@@ -244,7 +242,7 @@ class InMemoryTaskManagerTest {
         assertFalse(epic.getSubtaskIds().contains(idForDel), "Эпик содержит значение: " + idForDel);
         assertEquals(IN_PROGRESS, epic.getStatus());
         assertEquals("2022-08-05T12:00", epic.getStartTime().toString(), "Время start в Эпике неверно");
-        assertEquals("2022-08-05T20:00", epic.getEndTime().toString(), "Время end в Эпике неверно");
+        assertEquals("2022-08-05T18:10", epic.getEndTime().toString(), "Время end в Эпике неверно");
 
         idForDel = id1;
         taskManager.removeSubtaskById(idForDel);
@@ -254,7 +252,7 @@ class InMemoryTaskManagerTest {
         assertFalse(epic.getSubtaskIds().contains(idForDel), "Эпик содержит значение: " + idForDel);
         assertEquals(DONE, epic.getStatus());
         assertEquals("2022-08-05T18:00", epic.getStartTime().toString(), "Время start в Эпике неверно");
-        assertEquals("2022-08-05T18:20", epic.getEndTime().toString(), "Время end в Эпике неверно");
+        assertEquals("2022-08-05T18:10", epic.getEndTime().toString(), "Время end в Эпике неверно");
 
         idForDel = id3;
         taskManager.removeSubtaskById(idForDel);
@@ -265,9 +263,6 @@ class InMemoryTaskManagerTest {
         assertEquals(NEW, epic.getStatus());
         assertNull(epic.getStartTime(), "Время start в Эпике неверно");
         assertNull(epic.getEndTime(), "Время end в Эпике неверно");
-
-//        testEpicStatusForSubtaskAdd
-
     }
 
     @Test
@@ -301,26 +296,104 @@ class InMemoryTaskManagerTest {
 
     @Test
     void removeTasks() {
+        final Task task1 = new Task("Name", "Description", NEW);
+        final Task task2 = new Task("Name", "Description", NEW);
+        final Task task3 = new Task("Name", "Description", NEW);
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        taskManager.addTask(task3);
+
+        assertEquals(3, taskManager.getTasks().size(), "Неверный размер списка");
+
+        taskManager.removeTasks();
+
+        assertEquals(0, taskManager.getTasks().size(), "Задачи не удалены");
     }
 
     @Test
     void removeSubtasks() {
+        Epic epic = new Epic("Name", "Description");
+        int epicId = taskManager.addEpic(epic);
+        final Subtask task1 = new Subtask("Name", "Description", NEW, epicId);
+        final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId);
+        final Subtask task3 = new Subtask("Name", "Description", DONE, epicId);
+        taskManager.addSubtask(task1);
+        taskManager.addSubtask(task2);
+        taskManager.addSubtask(task3);
+        task1.setStartTime(LocalDateTime.of(2022,8,5,12,0));
+        task2.setStartTime(LocalDateTime.of(2022,8,5,15,0));
+        task3.setStartTime(LocalDateTime.of(2022,8,5,18,0));
+        task1.setDuration(10);
+        task2.setDuration(10);
+        task3.setDuration(10);
+        taskManager.updateSubtask(task3); // чтобы рассчитался статус и время у эпика
+
+        assertEquals(3, epic.getSubtaskIds().size(), "Размер списка не равен");
+
+        taskManager.removeSubtasks();
+        assertEquals(0, epic.getSubtaskIds().size(), "Задачи не удалены");
+        assertEquals(NEW, epic.getStatus(), "Неверный статус эпика");
     }
 
     @Test
     void removeEpics() {
+        Epic epic1 = new Epic("Name", "Description");
+        int epicId1 = taskManager.addEpic(epic1);
+        final Subtask task1 = new Subtask("Name", "Description", NEW, epicId1);
+        final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
+        final Subtask task3 = new Subtask("Name", "Description", DONE, epicId1);
+        taskManager.addSubtask(task1);
+        taskManager.addSubtask(task2);
+        taskManager.addSubtask(task3);
+
+        assertEquals(1, taskManager.getEpics().size(), "Размер списка не равен");
+        assertEquals(3, taskManager.getSubtasks().size(), "Размер списка не равен");
+
+        taskManager.removeEpics();
+
+        assertEquals(0, taskManager.getEpics().size(), "Задачи не удалены");
+        assertEquals(0, taskManager.getSubtasks().size(), "Задачи не удалены");
     }
 
     @Test
     void getTaskById() {
+        final Task task = new Task("Name", "Description", NEW);
+        final int id = taskManager.addTask(task);
+
+        Task savedTask = taskManager.getTaskById(id + 100);
+        assertNull(savedTask, "Задача получена");
+
+        savedTask = taskManager.getTaskById(id);
+        assertNotNull(savedTask, "Задача не получена");
+        assertEquals(task, savedTask, "Задачи не совпадают.");
     }
 
     @Test
     void getSubtaskById() {
+        final Epic epic = new Epic("Name", "Description");
+        taskManager.addEpic(epic);
+        Subtask subtask = new Subtask("Name", "Description", NEW, epic.getId());
+        int id = taskManager.addSubtask(subtask);
+
+        Subtask savedSubtask = taskManager.getSubtaskById(id + 100);
+        assertNull(savedSubtask, "Задача найдена.");
+
+        savedSubtask = taskManager.getSubtaskById(id);
+        assertNotNull(savedSubtask, "Задача не найдена.");
+        assertEquals(subtask, savedSubtask, "Задачи не совпадают.");
     }
 
     @Test
     void getEpicById() {
+        Epic epic = new Epic("Name", "Description");
+        int id = taskManager.addEpic(epic);
+
+        Epic savedEpic = taskManager.getEpicById(id + 100);
+        assertNull(savedEpic, "Задача найдена.");
+
+        savedEpic = taskManager.getEpicById(id);
+        assertNotNull(savedEpic, "Задача не найдена.");
+        assertEquals(epic, savedEpic, "Задачи не совпадают.");
     }
 
     @Test
