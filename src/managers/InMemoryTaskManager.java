@@ -96,13 +96,14 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        getTaskValidators().forEach(validator -> {
+        for (Validator validator : getTaskValidators()) {
             try {
                 validator.validate(task);
             } catch (ValidateException e) {
                 System.out.println(e.getMessage() + " Задача Task НЕ обновлена");
+                return;
             }
-        });
+        }
 
         Task originTask = tasks.get(id);
         if (originTask != null) {
@@ -129,13 +130,14 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        getTaskValidators().forEach(validator -> {
+        for (Validator validator : getTaskValidators()) {
             try {
                 validator.validate(subtask);
             } catch (ValidateException e) {
                 System.out.println(e.getMessage() + " Задача Subtask НЕ обновлена");
+                return;
             }
-        });
+        }
 
         Subtask originSubtask = subtasks.get(id);
         if (originSubtask != null) {
@@ -163,13 +165,14 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        getTaskValidators().forEach(validator -> {
+        for (Validator validator : getTaskValidators()) {
             try {
                 validator.validate(epic);
             } catch (ValidateException e) {
                 System.out.println(e.getMessage() + " Задача Epic НЕ обновлена");
+                return;
             }
-        });
+        }
 
         Epic originEpic = epics.get(id);
         if (originEpic != null) {
@@ -363,32 +366,25 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         Epic epic = epics.get(epicId);
-        boolean isAtLeastOneStart = false;
-        boolean isAtLeastOneEnd = false;
-        for (Integer id : epic.getSubtaskIds()) {
+        epic.setStartTime(null);
+        epic.setEndTime(null);
+        epic.setDuration(0);
+        for (int id : epic.getSubtaskIds()) {
             if (!subtasks.containsKey(id) || subtasks.get(id) == null) {
                 continue;
             }
             Subtask subtask = subtasks.get(id);
             epic.setDuration(epic.getDuration() + subtask.getDuration()); // суммируем длительность
             if (subtask.getStartTime() != null) {
-                isAtLeastOneStart = true;
                 if (epic.getStartTime() == null || epic.getStartTime().isAfter(subtask.getStartTime())) {
                     epic.setStartTime(subtask.getStartTime());
                 }
             }
             if (subtask.getEndTime() != null) {
-                isAtLeastOneEnd = true;
                 if (epic.getEndTime() == null || epic.getEndTime().isBefore(subtask.getEndTime())) {
                     epic.setEndTime(subtask.getEndTime());
                 }
             }
-        }
-        if (!isAtLeastOneStart) {
-            epic.setStartTime(null); // Если вдруг был рассинхрон (в эпике указано, но ни в одной подзадаче не указано)
-        }
-        if (!isAtLeastOneEnd) {
-            epic.setEndTime(null);
         }
     }
 

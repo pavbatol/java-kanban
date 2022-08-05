@@ -21,6 +21,7 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
 
     @Test
     void addTask() {
+        super.addTask();
     }
 
     @Test

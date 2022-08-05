@@ -14,8 +14,11 @@ public class DurationTimeValidator implements Validator {
             return;
         }
         if (task.getDuration() <= 0) {
-            throw new ValidateDurationTimeException("!!! " + getClass().getSimpleName() +
-                    ": duration должен быть больше 0.");
+            throw new ValidateDurationTimeException(
+                    "!!! "
+                    + getClass().getSimpleName()
+                    + ": "
+                    + "duration должен быть больше 0.");
         }
     }
 }
