@@ -11,21 +11,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tasks.TaskStatus.*;
-import static tasks.TaskStatus.NEW;
 import static tasks.TaskType.SUBTASK;
 import static tasks.TaskType.TASK;
 import static util.Functions.getAnyTypeTaskById;
 
-abstract class TaskManagerTest<T extends TaskManager> {
-    T taskManager;
+class Old_InMemoryTaskManagerTest {
 
-    protected abstract T getTaskManager();
+    TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() {
-        taskManager = getTaskManager();
+        taskManager = new InMemoryTaskManager();
     }
 
     @Test
@@ -121,7 +118,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(newTask, updatedTask, "Задачи не совпадают."); // тест на update ссылки у задач разные
         // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getTaskManager(), TASK);
+        testTimesForUpdateTaskAndSubtaskType(new InMemoryTaskManager(), TASK);
     }
 
     @Test
@@ -158,7 +155,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         // Статус эпика
         testEpicStatusForSubtaskUpdate();
         // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getTaskManager(), SUBTASK);
+        testTimesForUpdateTaskAndSubtaskType(new InMemoryTaskManager(), SUBTASK);
     }
 
     @Test
@@ -489,13 +486,18 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(2, taskManager.getHistory().size(), "Неверный размер списка");
 
-        assertTrue(taskManager.getHistory().contains(task));
-        assertTrue(taskManager.getHistory().contains(subtask));
-        assertFalse(taskManager.getHistory().contains(epic));
+       assertTrue(taskManager.getHistory().contains(task));
+       assertTrue(taskManager.getHistory().contains(subtask));
+       assertFalse(taskManager.getHistory().contains(epic));
+    }
+
+    @Test
+    void testToString() {
+        assertTrue(taskManager.toString().length() > 0);
     }
 
     private void testEpicStatusForSubtaskAdd() {
-        taskManager = getTaskManager();
+        taskManager = new InMemoryTaskManager();
         Epic epic = new Epic("Name", "Description");
         int epicId = taskManager.addEpic(epic);
 
@@ -533,7 +535,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         int epicId;
         Subtask newSubtask;
         Epic epic;
-        taskManager = getTaskManager();
+        taskManager = new InMemoryTaskManager();
         epic = new Epic("Name", "Description");
         epicId = taskManager.addEpic(epic);
         Subtask subtask1 = new Subtask("Name1", "Description1", NEW, epicId);
@@ -571,7 +573,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
     }
 
-    private  int addAnyTypeTask (T tm, Task task) {
+    private <T extends Task> int addAnyTypeTask (TaskManager tm, T task) {
         switch (task.getType()) {
             case TASK: return tm.addTask(task);
             case SUBTASK: return tm.addSubtask((Subtask) task);
@@ -581,7 +583,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
-    private void updateAnyTypeTask(T tm, Task task) {
+    private <T extends Task> void updateAnyTypeTask(TaskManager tm, T task) {
         switch (task.getType()) {
             case TASK: tm.updateTask(task);
                 break;
@@ -594,7 +596,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
-    private  void removeByIdAnyTypeTask(T tm, int taskId) {
+    private  void removeByIdAnyTypeTask(TaskManager tm, int taskId) {
         Task task = getAnyTypeTaskById(taskId, tm);
         if (task == null) {
             throw new NullPointerException("Не удалось получить задачу по id");
@@ -611,7 +613,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
-    private void testTimesForUpdateTaskAndSubtaskType(T tm, TaskType type) {
+    private void testTimesForUpdateTaskAndSubtaskType(TaskManager tm, TaskType type) {
         Epic epic = new Epic("Name", "Description");
         Task task1;
         Task task2;
