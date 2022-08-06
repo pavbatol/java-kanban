@@ -2,7 +2,6 @@ package managers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
@@ -199,9 +198,9 @@ class InMemoryTaskManagerTest {
         final Task task1 = new Task("Name", "Description", NEW);
         final Task task2 = new Task("Name", "Description", NEW);
         final Task task3 = new Task("Name", "Description", NEW);
-        final int id1 = taskManager.addTask(task1);
+        taskManager.addTask(task1);
         final int id2 = taskManager.addTask(task2);
-        final int id3 = taskManager.addTask(task3);
+        taskManager.addTask(task3);
 
         taskManager.removeTaskById(id2 + 100); // неверный id
         assertEquals(3, taskManager.getTasks().size(), "Размер списка изменился");
@@ -270,7 +269,7 @@ class InMemoryTaskManagerTest {
         Epic epic1 = new Epic("Name", "Description");
         Epic epic2 = new Epic("Name", "Description");
         int epicId1 = taskManager.addEpic(epic1);
-        int epicId2 = taskManager.addEpic(epic2);
+        taskManager.addEpic(epic2);
         final Subtask task1 = new Subtask("Name", "Description", NEW, epicId1);
         final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
         final Subtask task3 = new Subtask("Name", "Description", DONE, epicId1);
@@ -457,10 +456,10 @@ class InMemoryTaskManagerTest {
 
         final Subtask task1 = new Subtask("Name", "Description", NEW, epicId1);
         final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
-        final int id1 = taskManager.addSubtask(task1);
-        final int id2 = taskManager.addSubtask(task2);
+        taskManager.addSubtask(task1);
+        taskManager.addSubtask(task2);
         final Subtask task3 = new Subtask("Name", "Description", IN_PROGRESS, epicId2);
-        final int id3 = taskManager.addSubtask(task3);
+        taskManager.addSubtask(task3);
 
         assertNotNull(taskManager.getSubtasksByEpicId(epicId1), "Список не получен");
         assertNotNull(taskManager.getSubtasksByEpicId(epicId2), "Список не получен");
@@ -490,6 +489,11 @@ class InMemoryTaskManagerTest {
        assertTrue(taskManager.getHistory().contains(task));
        assertTrue(taskManager.getHistory().contains(subtask));
        assertFalse(taskManager.getHistory().contains(epic));
+    }
+
+    @Test
+    void testToString() {
+        assertTrue(taskManager.toString().length() > 0);
     }
 
     private void testEpicStatusForSubtaskAdd() {
@@ -569,28 +573,6 @@ class InMemoryTaskManagerTest {
         assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
     }
 
-    private <T extends Task>  Executable generateExecutable(TaskManager tm, T task) {
-        switch (task.getType()) {
-            case TASK: return () -> tm.updateTask(task);
-            case SUBTASK: return () -> tm.updateSubtask((Subtask) task);
-            case EPIC: return () -> tm.updateEpic((Epic) task);
-            default: //return null;
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-
-        //        ValidateException ex = assertThrows(
-//                ValidateCrossingTimeException.class,
-//                generateExecutable(newTask)
-//        );
-//        Assertions.assertEquals("!!! Недопустимо пересечение по времени.", ex.getMessage());
-
-//        ex = assertThrows(
-//                ValidateCrossingTimeException.class,
-//                generateExecutable(newTask)
-//        );
-//        Assertions.assertEquals("!!! duration должен быть больше 0.", ex.getMessage());
-    }
-
     private <T extends Task> int addAnyTypeTask (TaskManager tm, T task) {
         switch (task.getType()) {
             case TASK: return tm.addTask(task);
@@ -653,7 +635,7 @@ class InMemoryTaskManagerTest {
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи");
         }
-        int id1 = addAnyTypeTask(tm, task1);
+        addAnyTypeTask(tm, task1);
         int id2 = addAnyTypeTask(tm, task2);
 
         task1.setDuration(30);
