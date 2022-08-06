@@ -1,5 +1,6 @@
 package managers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
@@ -18,9 +19,14 @@ import static tasks.TaskType.TASK;
 import static util.Functions.getAnyTypeTaskById;
 
 abstract class TaskManagerTest<T extends TaskManager> {
-    T taskManager = getTaskManager();
+    T taskManager;
 
     protected abstract T getTaskManager();
+
+    @BeforeEach
+    public void beforeEach() {
+        taskManager = getTaskManager();
+    }
 
     @Test
     void addTask() {
