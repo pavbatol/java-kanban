@@ -4,7 +4,6 @@ import exceptions.ManagerSaveException;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import tasks.TaskStatus;
 import util.CSVConverter;
 
 import java.io.*;
@@ -153,7 +152,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         return taskManager;
     }
 
-    private void save() throws ManagerSaveException {
+    protected void save() throws ManagerSaveException {
         if (!Files.exists(path.getParent())) {
             try {
                 Files.createDirectories(path.getParent());
