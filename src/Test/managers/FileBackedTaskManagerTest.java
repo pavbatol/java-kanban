@@ -1,15 +1,10 @@
 package managers;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
-
-    @BeforeEach
-    void setUp() {
-    }
+class FileBackedTaskManagerTest {
 
     @Test
     void main() {
@@ -21,7 +16,6 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
 
     @Test
     void addTask() {
-        super.addTask();
     }
 
     @Test

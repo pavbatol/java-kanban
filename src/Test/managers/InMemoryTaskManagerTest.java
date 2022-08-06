@@ -9,12 +9,12 @@ import tasks.Task;
 import tasks.TaskType;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tasks.TaskStatus.*;
-import static tasks.TaskType.*;
+import static tasks.TaskType.SUBTASK;
+import static tasks.TaskType.TASK;
 import static util.Functions.getAnyTypeTaskById;
 
 class InMemoryTaskManagerTest {
@@ -398,26 +398,98 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getTasks() {
+        assertEquals(0, taskManager.getTasks().size(), "Неверный размер списка");
+
+        final Task task1 = new Task("Name", "Description", NEW);
+        final Task task2 = new Task("Name", "Description", NEW);
+        int id1 = taskManager.addTask(task1);
+        int id2 = taskManager.addTask(task2);
+
+        assertNotNull(taskManager.getTasks(), "Список не получен");
+        assertEquals(2, taskManager.getTasks().size(), "Размер списка не верный");
+        assertEquals(task1, taskManager.getTaskById(id1), "Задачи не равны");
+        assertEquals(task2, taskManager.getTaskById(id2), "Задачи не равны");
     }
 
     @Test
     void getSubtasks() {
+        assertEquals(0,taskManager.getSubtasks().size(), "Неверный размер списка");
+
+        Epic epic = new Epic("Name", "Description");
+        int epicId = taskManager.addEpic(epic);
+        final Subtask task1 = new Subtask("Name", "Description", NEW, epicId);
+        final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId);
+        int id1 = taskManager.addSubtask(task1);
+        int id2 = taskManager.addSubtask(task2);
+
+        assertNotNull(taskManager.getSubtasks(), "Список не получен");
+        assertEquals(2, taskManager.getSubtasks().size(), "Размер списка не верный");
+        assertEquals(task1, taskManager.getSubtaskById(id1), "Задачи не равны");
+        assertEquals(task2, taskManager.getSubtaskById(id2), "Задачи не равны");
     }
 
     @Test
     void getEpics() {
+        assertEquals(0,taskManager.getEpics().size(), "Неверный размер списка");
+
+        final Epic task1 = new Epic("Name", "Description");
+        final Epic task2 = new Epic("Name", "Description");
+        int id1 = taskManager.addEpic(task1);
+        int id2 = taskManager.addEpic(task2);
+
+        assertNotNull(taskManager.getEpics(), "Список не получен");
+        assertEquals(2, taskManager.getEpics().size(), "Размер списка не верный");
+        assertEquals(task1, taskManager.getEpicById(id1), "Задачи не равны");
+        assertEquals(task2, taskManager.getEpicById(id2), "Задачи не равны");
     }
 
     @Test
     void getSubtasksByEpicId() {
+        assertNull(taskManager.getSubtasksByEpicId(0), "Список получен");
+
+        Epic epic1 = new Epic("Name1", "Description1");
+        Epic epic2 = new Epic("Name2", "Description2");
+        int epicId1 = taskManager.addEpic(epic1);
+        int epicId2 = taskManager.addEpic(epic2);
+
+        assertNotNull(taskManager.getSubtasksByEpicId(epicId1), "Список не получен");
+        assertNotNull(taskManager.getSubtasksByEpicId(epicId2), "Список не получен");
+
+        final Subtask task1 = new Subtask("Name", "Description", NEW, epicId1);
+        final Subtask task2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
+        final int id1 = taskManager.addSubtask(task1);
+        final int id2 = taskManager.addSubtask(task2);
+        final Subtask task3 = new Subtask("Name", "Description", IN_PROGRESS, epicId2);
+        final int id3 = taskManager.addSubtask(task3);
+
+        assertNotNull(taskManager.getSubtasksByEpicId(epicId1), "Список не получен");
+        assertNotNull(taskManager.getSubtasksByEpicId(epicId2), "Список не получен");
+
+        assertEquals(2, taskManager.getSubtasksByEpicId(epicId1).size(), "Размер списка не верный");
+        assertEquals(1, taskManager.getSubtasksByEpicId(epicId2).size(), "Размер списка не верный");
     }
 
     @Test
     void getHistory() {
-    }
+        assertEquals(0, taskManager.getHistory().size(), "Неверный размер списка");
 
-    @Test
-    void testToString() {
+        final Task task = new Task("Name", "Description", NEW);
+        final int id1 = taskManager.addTask(task);
+        final Epic epic = new Epic("Name", "Description");
+        taskManager.addEpic(epic);
+        final Subtask subtask = new Subtask("Name", "Description", NEW, epic.getId());
+        final int id2 = taskManager.addSubtask(subtask);
+
+        assertEquals(0, taskManager.getHistory().size(), "Неверный размер списка");
+
+        taskManager.getTaskById(id1);
+        taskManager.getSubtaskById(id2);
+
+        assertEquals(2, taskManager.getHistory().size(), "Неверный размер списка");
+
+       assertTrue(taskManager.getHistory().contains(task));
+       assertTrue(taskManager.getHistory().contains(subtask));
+       assertFalse(taskManager.getHistory().contains(epic));
     }
 
     private void testEpicStatusForSubtaskAdd() {
@@ -541,7 +613,6 @@ class InMemoryTaskManagerTest {
                 throw new IllegalArgumentException("Неизвестный тип задачи");
         }
     }
-
 
     private  void removeByIdAnyTypeTask(TaskManager tm, int taskId) {
         Task task = getAnyTypeTaskById(taskId, tm);

@@ -307,7 +307,6 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
         List<Subtask> epicSubtasks = new ArrayList<>();
-        // Получаем список подзадач эпика и собираем в ArrayList для выдачи
         for (int subtaskId : epics.get(epicId).getSubtaskIds()) {
             if (!subtasks.containsKey(subtaskId)) continue;
             epicSubtasks.add(subtasks.get(subtaskId));
