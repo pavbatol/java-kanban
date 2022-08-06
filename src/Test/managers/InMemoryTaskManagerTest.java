@@ -167,9 +167,9 @@ class InMemoryTaskManagerTest {
         Subtask subtask1 = new Subtask("Name1", "Description1", NEW, epicId);
         Subtask subtask2 = new Subtask("Name2", "Description2", DONE, epicId);
         Subtask subtask3 = new Subtask("Name3", "Description3", IN_PROGRESS, epicId);
-        int id1 = taskManager.addSubtask(subtask1);
-        int id2 = taskManager.addSubtask(subtask2);
-        int id3 = taskManager.addSubtask(subtask3);
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
 
         newEpic.setId(epicId + 100); // неверный id
 
