@@ -29,36 +29,55 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Test
     void loadFromFile() {
+        //Проверка сохранения/восстановления
         final Task task1 = new Task("Name", "Description", NEW);
         final Task task2 = new Task("Name", "Description", NEW);
         final Epic epic1 = new Epic("Name", "Description");
-        final Epic epic2 = new Epic("Name", "Description");
+        final Epic epic2 = new Epic("Name", "Description"); // пустой эпик
         final int epicId1 = taskManager.addEpic(epic1);
         final int epicId2 = taskManager.addEpic(epic2);
         final Subtask subtask1 = new Subtask("Name", "Description", NEW, epicId1);
         final Subtask subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
         final Subtask subtask3 = new Subtask("Name", "Description", DONE, epicId1);
 
+        // Удалим файл если есть
         if (Files.exists(path)) {
             try {
                 Files.delete(path);
             } catch (IOException e) {
-                System.out.println("Ошибка удаления");
                 throw new RuntimeException("Ошибка удаления");
             }
         }
 
+        // Проверка на пустом файле
         FileBackedTaskManager tmSecond = FileBackedTaskManager.loadFromFile(path);
         assertEquals(0, tmSecond.getTasks().size(), "Есть задачи");
         assertEquals(0, tmSecond.getSubtasks().size(), "Есть подзадачи");
         assertEquals(0, tmSecond.getEpics().size(), "Есть эпики");
         assertEquals(0, tmSecond.getHistory().size(), "Есть история");
 
+        // Проверка с задачами, но без истории
         final int id1 = taskManager.addTask(task1);
         final int id2 = taskManager.addTask(task2);
         final int id3 = taskManager.addSubtask(subtask1);
         final int id4 = taskManager.addSubtask(subtask2);
         final int id5 = taskManager.addSubtask(subtask3);
+
+        tmSecond = FileBackedTaskManager.loadFromFile(path);
+        //System.out.println("\n-------\n1-ый менеджер:\n" + taskManager);
+        //System.out.println("\n-------\n2*ой менеджер:\n" + tmSecond);
+
+        assertArrayEquals(taskManager.getTasks().toArray(), tmSecond.getTasks().toArray(),
+                "Списки задач не равны");
+        assertArrayEquals(taskManager.getSubtasks().toArray(), tmSecond.getSubtasks().toArray(),
+                "Списки подзадач не равны");
+        assertArrayEquals(taskManager.getEpics().toArray(), tmSecond.getEpics().toArray(),
+                "Списки эпиков не равны");
+        assertArrayEquals(taskManager.getHistory().toArray(), tmSecond.getHistory().toArray(),
+                "Списки истории не равны");
+        assertEquals(0, tmSecond.getHistory().size(), "Есть история");
+
+        // Проверка с задачами и историей
         taskManager.getTaskById(id1);
         taskManager.getTaskById(id2);
         taskManager.getSubtaskById(id3);
@@ -77,12 +96,21 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
                 "Списки эпиков не равны");
         assertArrayEquals(taskManager.getHistory().toArray(), tmSecond.getHistory().toArray(),
                 "Списки истории не равны");
+        assertEquals(5, tmSecond.getHistory().size(), "Неверный размер списка истории");
     }
 
     @Test
     void save() throws ManagerSaveException {
-        final Task task1 = new Task("Name", "Description", NEW);
-        taskManager.addTask(task1); // создастся файл
+        // Проверка на пустом списке
+        ManagerSaveException ex = assertThrows(
+                ManagerSaveException.class,
+                () -> taskManager.save()
+        );
+        assertEquals("Нечего сохранять", ex.getMessage());
+
+        // Проверка на НЕ пустом списке - Эпик без подзадач и пустой историей
+        final Epic epic1 = new Epic("Name", "Description");
+        taskManager.addEpic(epic1);
 
         Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rw-rw-rw-");
         try {
@@ -95,7 +123,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertFalse(Files.isWritable(path)); // Проверим что запретили запись
 
         try {
-            ManagerSaveException ex = assertThrows(
+            ex = assertThrows(
                     ManagerSaveException.class,
                     () -> taskManager.save() // Проверка на выброс исключения
             );

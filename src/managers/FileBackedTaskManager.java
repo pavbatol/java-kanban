@@ -153,6 +153,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
     }
 
     protected void save() throws ManagerSaveException {
+        if (getTasks().isEmpty() &&  getEpics().isEmpty() && getSubtasks().isEmpty()) {
+            throw new ManagerSaveException("Нечего сохранять");
+        }
         if (!Files.exists(path.getParent())) {
             try {
                 Files.createDirectories(path.getParent());
