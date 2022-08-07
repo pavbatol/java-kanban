@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tasks.TaskStatus.*;
@@ -64,8 +66,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         taskManager.getSubtaskById(id5);
 
         tmSecond = FileBackedTaskManager.loadFromFile(path);
-        System.out.println("\n-------\n1-ый менеджер:\n" + taskManager);
-        System.out.println("\n-------\n2*ой менеджер:\n" + tmSecond);
+        //System.out.println("\n-------\n1-ый менеджер:\n" + taskManager);
+        //System.out.println("\n-------\n2*ой менеджер:\n" + tmSecond);
 
         assertArrayEquals(taskManager.getTasks().toArray(), tmSecond.getTasks().toArray(),
                 "Списки задач не равны");
@@ -75,41 +77,36 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
                 "Списки эпиков не равны");
         assertArrayEquals(taskManager.getHistory().toArray(), tmSecond.getHistory().toArray(),
                 "Списки истории не равны");
-
-
     }
 
     @Test
     void save() throws ManagerSaveException {
         final Task task1 = new Task("Name", "Description", NEW);
-        taskManager.addTask(task1);
+        taskManager.addTask(task1); // создастся файл
 
-//        Set<PosixFilePermission> ownerWritable = PosixFilePermissions.fromString("rw-w--w--");
-//        FileAttribute<?> permissions = PosixFilePermissions.asFileAttribute(ownerWritable);
-
+        Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rw-rw-rw-");
         try {
+            permissions = Files.getPosixFilePermissions(path);
             Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("r--rw-rw-"));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
 
-        System.out.println("Разрешение нп запись в файл: " + Files.isWritable(path));
+        assertFalse(Files.isWritable(path)); // Проверим что запретили запись
 
         try {
             ManagerSaveException ex = assertThrows(
                     ManagerSaveException.class,
-                    () -> taskManager.save()
+                    () -> taskManager.save() // Проверка на выброс исключения
             );
             assertEquals("Ошибка записи", ex.getMessage());
         } finally {
             try {
-                Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-r--r--"));
+                Files.setPosixFilePermissions(path, permissions); // Восстанавливаем прав
             } catch (IOException e) {
-                System.out.println("не удалось восстановить права");
+                System.out.println("Не удалось восстановить права");
             }
         }
-
-        System.out.println("Разрешение нп запись в файл: "  +Files.isWritable(path));
     }
 
     @Override
