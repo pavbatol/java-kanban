@@ -178,96 +178,156 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
     @Override
     public int addTask(Task task) {
         int id  = super.addTask(task);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
         return id;
     }
 
     @Override
     public int addSubtask(Subtask subtask) {
         int id = super.addSubtask(subtask);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
         return id;
     }
 
     @Override
     public int addEpic(Epic epic) {
         int id = super.addEpic(epic);
-        save();
-        return  id;
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
+        return id;
     }
 
     @Override
     public void updateTask(Task task) {
         super.updateTask(task);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         super.updateEpic(epic);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeTaskById(int id) {
         super.removeTaskById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeSubtaskById(int id) {
         super.removeSubtaskById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeEpicById(int id) {
         super.removeEpicById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeTasks() {
         super.removeTasks();
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeSubtasks() {
         super.removeSubtasks();
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void removeEpics() {
         super.removeEpics();
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public Task getTaskById(int id) {
         Task task = super.getTaskById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
         return task;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
         Subtask subtask = super.getSubtaskById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
         return subtask;
     }
 
     @Override
     public Epic getEpicById(int id) {
         Epic epic = super.getEpicById(id);
-        save();
+        try {
+            save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
         return epic;
     }
 
