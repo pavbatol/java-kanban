@@ -51,31 +51,56 @@ public class TimesKeeper {
                 .collect(Collectors.toMap(e -> (String)e[0], e -> Boolean.getBoolean(e[1])));
     }
 
-    public boolean occupy(LocalDateTime start, LocalDateTime end) {
+    private Duration getBetween(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            System.out.println("Получен null");
+            return null;
+        }
+        if (start.isAfter(end) || start.isEqual(end)) {
+            System.out.println("Неверное старт и завершение");
+            return null;
+        }
         if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
             System.out.println("Не совпадает шаг времени");
-            return false;
+            return null;
         }
         if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
-            System.out.println("Время за границами 1-го года");
-            return false;
+            System.out.println("Время за границами одного года");
+            return null;
         }
-
         Duration duration = Duration.between(start, end);
-        if (duration.getSeconds() % 60 != 0) {
-            System.out.println("Не совпадает шаг времени через секунды");
+        if ((duration.getSeconds() / 60) % timeStep != 0) {
+            System.out.println("Не совпадает шаг времени при переводе в минуты из секунд");
+            return null;
+        }
+        return duration;
+    }
+
+    public boolean isFree(LocalDateTime start, LocalDateTime end) {
+        Duration duration = getBetween(start, end);
+        if (duration == null) {
             return false;
         }
-
         final long count = duration.getSeconds() / 60 / timeStep;
         long filteredCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                 .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                 .filter(ldt -> times.containsKey(ldt.toString()))
                 .filter(ltd -> !times.get(ltd.toString()))
                 .count();
+        return filteredCount == count;
+    }
 
-        if (filteredCount == count) {
+
+    public boolean occupy(LocalDateTime start, int minutesDuration) {
+        LocalDateTime end = start != null ? start.plusMinutes(minutesDuration) : null;
+        return  occupy(start, end);
+    }
+
+    public boolean occupy(LocalDateTime start, LocalDateTime end) {
+        Duration duration = getBetween(start, end);
+        if (isFree(start, end) && duration != null) {
             // обозначаем занятость
+            final long count = duration.getSeconds() / 60 / timeStep;
             long setedCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                     .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                     .map(LocalDateTime::toString)
@@ -94,12 +119,12 @@ public class TimesKeeper {
 
 
 
-    protected int getTimeStep() {
-        return this.timeStep;
-    }
-
-    public Map<String, Boolean> getTimes() {
-        return this.times;
-    }
+//    protected int getTimeStep() {
+//        return this.timeStep;
+//    }
+//
+//    public Map<String, Boolean> getTimes() {
+//        return this.times;
+//    }
 }
 

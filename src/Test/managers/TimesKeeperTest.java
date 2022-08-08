@@ -73,6 +73,7 @@ class TimesKeeperTest {
         assertTrue(timesKeeper.occupy(start, end), "Время не свободно");
         assertTrue(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 2L)), "Время не свободно");
         assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 3L)), "Время свободно");
+        assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep)), "Время свободно");
 
         // Печать
         long end_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
