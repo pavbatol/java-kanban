@@ -23,7 +23,6 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Override
     protected FileBackedTaskManager getNewTaskManager() {
-        Path path = Paths.get("resourcesTest", "backTest.csv");
         return new FileBackedTaskManager(path);
     }
 
