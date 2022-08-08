@@ -76,7 +76,7 @@ public class TimesKeeper {
         return duration;
     }
 
-    public boolean isFree(LocalDateTime start, LocalDateTime end) {
+    private boolean isFree(LocalDateTime start, LocalDateTime end) {
         Duration duration = getBetween(start, end);
         if (duration == null) {
             return false;
@@ -89,7 +89,6 @@ public class TimesKeeper {
                 .count();
         return filteredCount == count;
     }
-
 
     public boolean occupy(LocalDateTime start, int minutesDuration) {
         LocalDateTime end = start != null ? start.plusMinutes(minutesDuration) : null;
@@ -112,8 +111,20 @@ public class TimesKeeper {
         return false;
     }
 
-    public void free(LocalDateTime start, LocalDateTime end) {
-
+    public boolean free(LocalDateTime start, LocalDateTime end) {
+        Duration duration = getBetween(start, end);
+        if (duration != null) {
+            // освобождаем занятость
+            final long count = duration.getSeconds() / 60 / timeStep;
+            long setedCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
+                    .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
+                    .map(LocalDateTime::toString)
+                    .filter(s -> times.containsKey(s))
+                    .peek(s -> times.put(s, false))
+                    .count();
+            return true;
+        }
+        return false;
     }
 
 
