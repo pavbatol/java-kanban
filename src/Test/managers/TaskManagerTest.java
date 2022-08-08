@@ -21,11 +21,11 @@ import static util.Functions.getAnyTypeTaskById;
 abstract class TaskManagerTest<T extends TaskManager> {
     T taskManager;
 
-    protected abstract T getTaskManager();
+    protected abstract T getNewTaskManager();
 
     @BeforeEach
     public void beforeEach() {
-        taskManager = getTaskManager();
+        taskManager = getNewTaskManager();
     }
 
     @Test
@@ -121,7 +121,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(newTask, updatedTask, "Задачи не совпадают."); // тест на update ссылки у задач разные
         // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getTaskManager(), TASK);
+        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), TASK);
     }
 
     @Test
@@ -158,7 +158,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         // Статус эпика
         testEpicStatusForSubtaskUpdate();
         // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getTaskManager(), SUBTASK);
+        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), SUBTASK);
     }
 
     @Test
@@ -495,7 +495,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     private void testEpicStatusForSubtaskAdd() {
-        taskManager = getTaskManager();
+        taskManager = getNewTaskManager();
         Epic epic = new Epic("Name", "Description");
         int epicId = taskManager.addEpic(epic);
 
@@ -533,7 +533,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         int epicId;
         Subtask newSubtask;
         Epic epic;
-        taskManager = getTaskManager();
+        taskManager = getNewTaskManager();
         epic = new Epic("Name", "Description");
         epicId = taskManager.addEpic(epic);
         Subtask subtask1 = new Subtask("Name1", "Description1", NEW, epicId);

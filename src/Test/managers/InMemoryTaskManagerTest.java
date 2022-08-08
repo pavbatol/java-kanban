@@ -15,7 +15,7 @@ import static tasks.TaskStatus.*;
 class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>{
 
     @Override
-    protected InMemoryTaskManager getTaskManager() {
+    protected InMemoryTaskManager getNewTaskManager() {
         return new InMemoryTaskManager();
     }
 
