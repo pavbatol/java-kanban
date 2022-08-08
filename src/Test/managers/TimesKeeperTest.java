@@ -69,10 +69,10 @@ class TimesKeeperTest {
         LocalDateTime end = start.plusMinutes(timesKeeper.timeStep * 2L);
 
         // Проверяем
-        assertTrue(timesKeeper.occupy(start, end), "Время не свободно");
-        assertTrue(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 2L)), "Время не свободно");
-        assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 3L)), "Время свободно");
-        assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep)), "Время свободно");
+        assertTrue(timesKeeper.occupy(start, end, true), "Время не свободно");
+        assertTrue(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 2L), true), "Время не свободно");
+        assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 3L), true), "Время свободно");
+        assertFalse(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep), true), "Время свободно");
 
         // Печать
         long count = timesKeeper.times.entrySet().stream()
@@ -104,8 +104,8 @@ class TimesKeeperTest {
         LocalDateTime end = start.plusMinutes(timesKeeper.timeStep * 2L);
 
         // Проверяем что есть занятые
-        assertTrue(timesKeeper.occupy(start, end), "Время не свободно");
-        assertTrue(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 3L)), "Время не свободно");
+        assertTrue(timesKeeper.occupy(start, end, true), "Время не свободно");
+        assertTrue(timesKeeper.occupy(end, end.plusMinutes(timesKeeper.timeStep * 3L), true), "Время не свободно");
 
         long count = timesKeeper.times.entrySet().stream()
                 .filter(Map.Entry::getValue)

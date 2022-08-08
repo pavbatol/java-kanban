@@ -48,7 +48,7 @@ public class TimesKeeper {
                         0,
                         0).plusMinutes((long) this.timeStep * (i - 1)))
                 .map(e -> new String[] {e.toString(), "false"})
-                .collect(Collectors.toMap(e -> (String)e[0], e -> Boolean.getBoolean(e[1])));
+                .collect(Collectors.toMap(e -> e[0], e -> Boolean.getBoolean(e[1])));
     }
 
     private Duration getBetween(LocalDateTime start, LocalDateTime end) {
@@ -90,23 +90,26 @@ public class TimesKeeper {
         return filteredCount == count;
     }
 
-    public boolean occupy(LocalDateTime start, int minutesDuration) {
+    public boolean occupy(LocalDateTime start, int minutesDuration, boolean checkForFree) {
         LocalDateTime end = start != null ? start.plusMinutes(minutesDuration) : null;
-        return  occupy(start, end);
+        return  occupy(start, end, checkForFree);
     }
 
-    public boolean occupy(LocalDateTime start, LocalDateTime end) {
+    public boolean occupy(LocalDateTime start, LocalDateTime end, boolean checkForFree) {
+        if (checkForFree && !isFree(start, end)) {
+            return false;
+        }
         Duration duration = getBetween(start, end);
-        if (isFree(start, end) && duration != null) {
+        if (duration != null) {
             // обозначаем занятость
             final long count = duration.getSeconds() / 60 / timeStep;
-            long setedCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
+            long setCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                     .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                     .map(LocalDateTime::toString)
                     .filter(s -> times.containsKey(s))
                     .peek(s -> times.put(s, true))
                     .count();
-            return true;
+            return setCount == count;
         }
         return false;
     }
@@ -128,14 +131,5 @@ public class TimesKeeper {
     }
 
 
-
-
-//    protected int getTimeStep() {
-//        return this.timeStep;
-//    }
-//
-//    public Map<String, Boolean> getTimes() {
-//        return this.times;
-//    }
 }
 
