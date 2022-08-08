@@ -136,7 +136,7 @@ public class TimeManager {
         times.keySet().stream()
                 .filter(times::containsKey)
                 .peek((k) -> times.put(k, false))
-                .count();
+                .count(); // TODO: 08.08.2022 Как правильно завершить?
     }
 
     public int getTimeStep() {
