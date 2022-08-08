@@ -12,6 +12,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +37,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         final Epic epic1 = new Epic("Name", "Description");
         final Epic epic2 = new Epic("Name", "Description"); // пустой эпик
         final int epicId1 = taskManager.addEpic(epic1);
-        final int epicId2 = taskManager.addEpic(epic2);
+        taskManager.addEpic(epic2);
         final Subtask subtask1 = new Subtask("Name", "Description", NEW, epicId1);
         final Subtask subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
         final Subtask subtask3 = new Subtask("Name", "Description", DONE, epicId1);
@@ -57,6 +60,16 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
         // Проверка с задачами, но без истории
         final int id1 = taskManager.addTask(task1);
+        int timeStep = taskManager.getTimesManager().getTimeStep();
+        task1.setDuration(timeStep * 5);
+        task1.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
+        taskManager.updateTask(task1);
+
         final int id2 = taskManager.addTask(task2);
         final int id3 = taskManager.addSubtask(subtask1);
         final int id4 = taskManager.addSubtask(subtask2);

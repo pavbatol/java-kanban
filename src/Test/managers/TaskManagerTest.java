@@ -7,16 +7,14 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tasks.TaskStatus.*;
-import static tasks.TaskStatus.NEW;
 import static tasks.TaskType.SUBTASK;
 import static tasks.TaskType.TASK;
-import static util.Functions.getAnyTypeTaskById;
 
 abstract class TaskManagerTest<T extends TaskManager> {
     T taskManager;
@@ -96,13 +94,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
 
         newTask.setId(id + 1);
         newTask.setName("newName");
         newTask.setDescription("newDescription");
         newTask.setStatus(IN_PROGRESS);
-        newTask.setDuration(task.getDuration() + 30);
-        newTask.setStartTime(LocalDateTime.now());
+        newTask.setDuration(timeStep * 2);
+        newTask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
 
         taskManager.updateTask(newTask);
         Task updatedTask = taskManager.getTaskById(id);
@@ -131,13 +135,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
         final int id = taskManager.addSubtask(subtask);
         Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
 
         newSubtask.setId(id + 1);
         newSubtask.setName("newName");
         newSubtask.setDescription("newDescription");
         newSubtask.setStatus(IN_PROGRESS);
-        newSubtask.setDuration(subtask.getDuration() + 10);
-        newSubtask.setStartTime(LocalDateTime.now());
+        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
 
         taskManager.updateSubtask(newSubtask);
         Subtask updatedSubtask = taskManager.getSubtaskById(id);
@@ -594,23 +604,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
-    private  void removeByIdAnyTypeTask(T tm, int taskId) {
-        Task task = getAnyTypeTaskById(taskId, tm);
-        if (task == null) {
-            throw new NullPointerException("Не удалось получить задачу по id");
-        }
-        switch (task.getType()) {
-            case TASK: tm.removeTaskById(taskId);
-                break;
-            case SUBTASK: tm.removeSubtaskById(taskId);
-                break;
-            case EPIC: tm.removeEpicById(taskId);
-                break;
-            default: //return null;
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-    }
-
     private void testTimesForUpdateTaskAndSubtaskType(T tm, TaskType type) {
         Epic epic = new Epic("Name", "Description");
         Task task1;
@@ -633,41 +626,56 @@ abstract class TaskManagerTest<T extends TaskManager> {
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи");
         }
-        addAnyTypeTask(tm, task1);
+        int id1 =addAnyTypeTask(tm, task1);
         int id2 = addAnyTypeTask(tm, task2);
 
-        task1.setDuration(30);
-        task1.setStartTime(LocalDateTime.now());
+        int timeStep = ((InMemoryTaskManager)tm).getTimesManager().getTimeStep();
+        LocalDateTime start = LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0);
 
+        // Установим время у контрольной задачи
+        newTask.setId(id1);
+        newTask.setDuration(timeStep * 2);
+        newTask.setStartTime(start);
+        updateAnyTypeTask(tm,newTask);
+
+        // Внутри контрольной
         newTask.setId(id2);
-        newTask.setDuration(10);
-        newTask.setStartTime(LocalDateTime.now());
+        newTask.setDuration(timeStep);
+        newTask.setStartTime(start);
         updateAnyTypeTask(tm,newTask);
         assertNotEquals(task2, newTask, "Задача записалась");
 
-        newTask.setDuration(25);
-        newTask.setStartTime(LocalDateTime.now().minusMinutes(20));
+        //За границами года
+        newTask.setDuration(timeStep * 3);
+        newTask.setStartTime(start.minusMinutes(timeStep));
         updateAnyTypeTask(tm,newTask);
         assertNotEquals(task2, newTask, "Задача опять записалась");
 
-        newTask.setDuration(50);
-        newTask.setStartTime(LocalDateTime.now().minusMinutes(10));
+        // Старт внутри контрольной
+        newTask.setDuration(timeStep*4);
+        newTask.setStartTime(start.plusMinutes(timeStep));
         updateAnyTypeTask(tm,newTask);
         assertNotEquals(task2, newTask, "Задача еще раз записалась");
 
-        newTask.setDuration(10);
-        newTask.setStartTime(LocalDateTime.now().minusMinutes(20));
+        // Нет пересечений с контрольной
+        newTask.setDuration(timeStep);
+        newTask.setStartTime(start.plusMinutes(timeStep * 2L));
         updateAnyTypeTask(tm,newTask);
         assertEquals(task2, newTask, "Задача не записалась");
 
         if (type == SUBTASK) { // У эпика расчетное время
-            LocalDateTime start = task1.getStartTime().isBefore(task2.getStartTime()) ? task1.getStartTime() :
+            LocalDateTime startEp = task1.getStartTime().isBefore(task2.getStartTime()) ? task1.getStartTime() :
                     task2.getStartTime();
             LocalDateTime end = task1.getEndTime().isAfter(task2.getEndTime()) ? task1.getEndTime() :
                     task2.getEndTime();
             addAnyTypeTask(tm, new Subtask("Name1", "Description1", NEW, epic.getId()));
 
-            assertEquals(start, epic.getStartTime(), "Время старта у Эпика не совпадает ");
+            assertEquals(startEp, epic.getStartTime(), "Время старта у Эпика не совпадает ");
             assertEquals(end, epic.getEndTime(), "Время окончания у Эпика не совпадает ");
             assertEquals(task1.getDuration() + task2.getDuration(), epic.getDuration(),
                     "Продолжительность у Эпика не совпадает ");

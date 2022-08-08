@@ -83,7 +83,7 @@ public final class CSVConverter {
             type = TaskType.valueOf(parts[1].trim());
             status = TaskStatus.valueOf(parts[3].trim());
             duration = Integer.parseInt(parts[5].trim());
-            startTime = !parts[6].trim().equals("null") ? LocalDateTime.parse(parts[6].trim()) : null;
+            startTime = parts[6].trim().equals("null") ? null : LocalDateTime.parse(parts[6].trim());
         } catch (IllegalArgumentException e) {
             System.out.println("Перевод строки в задачу НЕ выполнен, некорректные данные: " + value);
             return null;

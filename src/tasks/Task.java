@@ -91,7 +91,7 @@ public class Task {
                 && status == task.status
                 && type == task.type
                 && duration == task.duration
-                && startTime == task.startTime;
+                && Objects.equals(startTime,task.startTime);
     }
 
     @Override

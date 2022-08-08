@@ -2,17 +2,15 @@ package validators;
 
 import exceptions.ValidateCrossingTimeException;
 import exceptions.ValidateException;
-import managers.TimesKeeper;
+import managers.TimeManager;
 import tasks.Task;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-public class CrossingTimeValidatorForO1 implements Validator {
-    List<Task> forCheckTasks;
-
-    public CrossingTimeValidatorForO1(List<Task> forCheckTasks) {
-        this.forCheckTasks = forCheckTasks;
+public class CrossingTimeValidator implements Validator {
+    TimeManager timeManager;
+    public CrossingTimeValidator(TimeManager timeManager) {
+        this.timeManager = timeManager;
     }
 
     @Override
@@ -21,14 +19,15 @@ public class CrossingTimeValidatorForO1 implements Validator {
             throw new ValidateCrossingTimeException("!!! "+ getClass().getSimpleName() + ": Не могу проверить");
         }
 
-        if (task.getStartTime() == null || task.getEndTime() == null) {
+        if (task.getStartTime() == null && task.getEndTime() == null) {
+            return;
+        } else if (task.getStartTime() == null || task.getEndTime() == null) {
             throw new ValidateCrossingTimeException("!!! "+ getClass().getSimpleName() + ": Не могу проверить");
         }
 
         LocalDateTime taskStart = task.getStartTime();
         LocalDateTime taskEnd = task.getEndTime();
-        TimesKeeper timesKeeper = new TimesKeeper(15);
-        boolean isFree = timesKeeper.isFree(taskStart, taskEnd);
+        boolean isFree = timeManager.isFree(taskStart, taskEnd);
         if (!isFree) {
             throw new ValidateCrossingTimeException(
                     "!!! "

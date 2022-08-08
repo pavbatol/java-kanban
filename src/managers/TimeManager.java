@@ -7,11 +7,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TimesKeeper {
-    protected int timeStep; // Шаг изменения времени задачи
-    protected Map<String, Boolean> times;
+public class TimeManager {
+    protected final int timeStep; // Шаг изменения времени задачи
+    protected final Map<String, Boolean> times;
 
-    public TimesKeeper(int timeStep) {
+    public TimeManager(int timeStep) {
         this.timeStep = getCorrectTimeStep(timeStep);
         times = getNewTimes();
     }
@@ -53,24 +53,24 @@ public class TimesKeeper {
 
     private Duration getBetween(LocalDateTime start, LocalDateTime end) {
         if (start == null || end == null) {
-            System.out.println("Получен null");
+            System.out.println(getClass().getSimpleName() + ": Получен null для start или end");
             return null;
         }
         if (start.isAfter(end) || start.isEqual(end)) {
-            System.out.println("Неверное старт и завершение");
+            System.out.println(getClass().getSimpleName() + ": Неверное порядок для start и end");
             return null;
         }
         if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
-            System.out.println("Не совпадает шаг времени");
+            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени для start или end");
             return null;
         }
         if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
-            System.out.println("Время за границами одного года");
+            System.out.println(getClass().getSimpleName() + ": Время за границами одного года для start или end");
             return null;
         }
         Duration duration = Duration.between(start, end);
         if ((duration.getSeconds() / 60) % timeStep != 0) {
-            System.out.println("Не совпадает шаг времени при переводе в минуты из секунд");
+            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени при переводе в минуты из секунд");
             return null;
         }
         return duration;
@@ -106,7 +106,7 @@ public class TimesKeeper {
             long setCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                     .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                     .map(LocalDateTime::toString)
-                    .filter(s -> times.containsKey(s))
+                    .filter(times::containsKey)
                     .peek(s -> times.put(s, true))
                     .count();
             return setCount == count;
@@ -119,20 +119,26 @@ public class TimesKeeper {
         if (duration != null) {
             // освобождаем занятость
             final long count = duration.getSeconds() / 60 / timeStep;
-            long setedCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
+            long setCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                     .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                     .map(LocalDateTime::toString)
-                    .filter(s -> times.containsKey(s))
+                    .filter(times::containsKey)
                     .peek(s -> times.put(s, false))
                     .count();
-            return true;
+            return setCount == count;
         }
         return false;
     }
 
     public void reset() {
-        times = getNewTimes();
+        times.keySet().stream()
+                .filter(times::containsKey)
+                .peek((k) -> times.put(k, false))
+                .count();
     }
 
+    public int getTimeStep() {
+        return timeStep;
+    }
 }
 

@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 import static tasks.TaskStatus.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager{
-    final private Path path;
-    final private String lineSep = "\n"; // maybe System.lineSeparator()
+    private final Path path;
+    private final String lineSep = "\n"; // maybe System.lineSeparator()
     public FileBackedTaskManager(Path path) {
         super();
         this.path = path;
@@ -48,25 +48,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         subtask1.setStatus(IN_PROGRESS);
         taskManager.updateSubtask(subtask1);
         subtask2.setStatus(DONE);
-        taskManager.updateSubtask(subtask2);
 
         // время
         task1.setStartTime(LocalDateTime.now());
         task1.setDuration(20);
-        taskManager.updateTask(task1);
 
         subtask2.setStartTime(LocalDateTime.now().plusMinutes(19));
         subtask2.setDuration(20);
-        taskManager.updateSubtask(subtask2);
 
         subtask1.setStartTime(LocalDateTime.of(2023, 7, 11, 15, 0));
         subtask2.setDuration(0);
-        taskManager.updateSubtask(subtask1);
-
-//        System.out.println(task1.getEndTime());
-//        System.out.println(subtask2.getStartTime());
-//        System.out.println(subtask1.getStartTime());
-
 
         System.out.println("После создания объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));

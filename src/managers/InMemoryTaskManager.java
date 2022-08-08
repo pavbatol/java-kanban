@@ -6,8 +6,7 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 import util.Managers;
-import validators.CrossingTimeValidatorForO1;
-import validators.CrossingTimeValidatorForOn;
+import validators.CrossingTimeValidator;
 import validators.DurationTimeValidator;
 import validators.Validator;
 
@@ -21,6 +20,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager historyManager;
     private boolean neededPrioritySort;
     private final TreeSet<Task> prioritizedTasks;
+    private final TimeManager timeManager;
 
     public InMemoryTaskManager() {
         itemId = -1;
@@ -39,6 +39,7 @@ public class InMemoryTaskManager implements TaskManager {
                         : task1.getStartTime().isBefore(task2.getStartTime()) ? -1 : 0;
             }
         });
+        timeManager = new TimeManager(15);
     }
 
     @Override
@@ -114,6 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
             originTask.setDuration(task.getDuration());
             originTask.setStartTime(task.getStartTime());
             neededPrioritySort = true;
+            timeManager.occupy(originTask.getStartTime(), originTask.getEndTime(), false); // пометим время
         } else {
             System.out.println("Задача Task НЕ обновлена, по id " + id + " лежит null");
         }
@@ -149,6 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
             originSubtask.setStartTime(subtask.getStartTime());
             synchronizeEpicWithSubtasks(subtask.getEpicId()); // синхронизируем статус и время в эпике
             neededPrioritySort = true;
+            timeManager.occupy(originSubtask.getStartTime(), originSubtask.getEndTime(), false); // время
         } else {
             System.out.println("Задача Subtask НЕ обновлена, по id " + id + " лежит null");
         }
@@ -183,9 +186,13 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
             return;
         }
-        tasks.remove(id);
+        Task task =  tasks.remove(id);
         historyManager.remove(id);
         neededPrioritySort = true;
+        if (task != null) {
+            timeManager.free(task.getStartTime(), task.getEndTime()); // освободим время
+        }
+
     }
 
     @Override
@@ -195,7 +202,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         int epicId = subtasks.get(id).getEpicId();
-        subtasks.remove(id);
+        Subtask subtask = subtasks.remove(id);
         historyManager.remove(id);
         if (epics.containsKey(epicId)) {
             Epic epic = epics.get(epicId);
@@ -203,6 +210,9 @@ public class InMemoryTaskManager implements TaskManager {
             synchronizeEpicWithSubtasks(epicId); // У Эпика синхронизируем статус и время по подзадачам
         }
         neededPrioritySort = true;
+        if (subtask != null) {
+            timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+        }
     }
 
     @Override
@@ -225,6 +235,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTasks() {
         tasks.forEach((id, task) -> historyManager.remove(id)); // удаляем из истории
+        tasks.values().stream()
+                .filter(Objects::nonNull)
+                .peek(t -> timeManager.free(t.getStartTime(), t.getEndTime()))
+                .count();
         tasks.clear();
         neededPrioritySort = true;
     }
@@ -232,6 +246,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeSubtasks() {
         subtasks.forEach((id, subtask) -> historyManager.remove(id)); // удаляем из истории
+        tasks.values().stream()
+                .filter(Objects::nonNull)
+                .peek(t -> timeManager.free(t.getStartTime(), t.getEndTime()))
+                .count();
+
         subtasks.clear();
         // Необходимо поменять в эпиках статус после удаления всех подзадач и очистить список подзадач
         for (Epic epic : epics.values()) {
@@ -310,6 +329,7 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
+
 
     private void synchronizeEpicStatus(int epicId) {
         if (!epics.containsKey(epicId) || epics.get(epicId) == null) {
@@ -404,6 +424,10 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
+    protected TimeManager getTimesManager() {
+        return timeManager;
+    }
+
     public List<Task> getPrioritizedTasks() {
         if (neededPrioritySort) {
             fillPrioritizedTasks();
@@ -420,10 +444,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     private List<Validator> getTaskValidators(){
         return List.of(
-                new CrossingTimeValidatorForO1(getPrioritizedTasks()),
+                new CrossingTimeValidator(timeManager),
                 new DurationTimeValidator()
         );
     }
+
+
 
     @Override
     public String toString() {
