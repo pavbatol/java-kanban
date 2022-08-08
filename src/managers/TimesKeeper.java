@@ -130,6 +130,9 @@ public class TimesKeeper {
         return false;
     }
 
+    public void reset() {
+        times = getNewTimes();
+    }
 
 }
 
