@@ -6,7 +6,8 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 import util.Managers;
-import validators.CrossingTimeValidator;
+import validators.CrossingTimeValidatorForO1;
+import validators.CrossingTimeValidatorForOn;
 import validators.DurationTimeValidator;
 import validators.Validator;
 
@@ -163,15 +164,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epics.containsKey(id)) {
             System.out.println("Задача Epic НЕ обновлена, id не найден");
             return;
-        }
-
-        for (Validator validator : getTaskValidators()) {
-            try {
-                validator.validate(epic);
-            } catch (ValidateException e) {
-                System.out.println(e.getMessage() + " Задача Epic НЕ обновлена");
-                return;
-            }
         }
 
         Epic originEpic = epics.get(id);
@@ -428,7 +420,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private List<Validator> getTaskValidators(){
         return List.of(
-                new CrossingTimeValidator(getPrioritizedTasks()),
+                new CrossingTimeValidatorForO1(getPrioritizedTasks()),
                 new DurationTimeValidator()
         );
     }

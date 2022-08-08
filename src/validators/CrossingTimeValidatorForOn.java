@@ -7,10 +7,10 @@ import tasks.Task;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class CrossingTimeValidator implements Validator {
+public class CrossingTimeValidatorForOn implements Validator {
     List<Task> forCheckTasks;
 
-    public CrossingTimeValidator(List<Task> forCheckTasks) {
+    public CrossingTimeValidatorForOn(List<Task> forCheckTasks) {
         this.forCheckTasks = forCheckTasks;
     }
 

@@ -76,7 +76,7 @@ public class TimesKeeper {
         return duration;
     }
 
-    private boolean isFree(LocalDateTime start, LocalDateTime end) {
+    public boolean isFree(LocalDateTime start, LocalDateTime end) {
         Duration duration = getBetween(start, end);
         if (duration == null) {
             return false;
