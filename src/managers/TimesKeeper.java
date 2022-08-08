@@ -3,18 +3,17 @@ package managers;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Schedule {
+public class TimesKeeper {
     protected int timeStep; // Шаг изменения времени задачи
-    protected Map<String, Boolean> occupiedTimes;
+    protected Map<String, Boolean> times;
 
-    public Schedule(int timeStep) {
+    public TimesKeeper(int timeStep) {
         this.timeStep = getCorrectTimeStep(timeStep);
-        occupiedTimes = getNewOccupiedTimes();
+        times = getNewTimes();
     }
 
     private int getCorrectTimeStep(int timeStep) {
@@ -38,7 +37,7 @@ public class Schedule {
         return 60 / this.timeStep * 24 * 365;
     }
 
-    private Map<String, Boolean> getNewOccupiedTimes() {
+    private Map<String, Boolean> getNewTimes() {
         int capacity = getCapacity();
         return Stream.iterate(1, i -> i <= capacity, i -> i + 1)
                 //.limit(20)
@@ -52,12 +51,12 @@ public class Schedule {
                 .collect(Collectors.toMap(e -> (String)e[0], e -> Boolean.getBoolean(e[1])));
     }
 
-    protected boolean occupy(LocalDateTime start, LocalDateTime end) {
+    public boolean occupy(LocalDateTime start, LocalDateTime end) {
         if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
             System.out.println("Не совпадает шаг времени");
             return false;
         }
-        if (!occupiedTimes.containsKey(start.toString()) || !occupiedTimes.containsKey(end.toString())) {
+        if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
             System.out.println("Время за границами 1-го года");
             return false;
         }
@@ -71,8 +70,8 @@ public class Schedule {
         final long count = duration.getSeconds() / 60 / timeStep;
         long filteredCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                 .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
-                .filter(ldt -> occupiedTimes.containsKey(ldt.toString()))
-                .filter(ltd -> !occupiedTimes.get(ltd.toString()))
+                .filter(ldt -> times.containsKey(ldt.toString()))
+                .filter(ltd -> !times.get(ltd.toString()))
                 .count();
 
         if (filteredCount == count) {
@@ -80,24 +79,27 @@ public class Schedule {
             long setedCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
                     .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
                     .map(LocalDateTime::toString)
-                    .filter(s -> occupiedTimes.containsKey(s))
-                    .peek(s -> occupiedTimes.put(s, true))
+                    .filter(s -> times.containsKey(s))
+                    .peek(s -> times.put(s, true))
                     .count();
             return true;
         }
         return false;
     }
 
-    protected void free(LocalDateTime start, LocalDateTime end) {
+    public void free(LocalDateTime start, LocalDateTime end) {
 
     }
+
+
+
 
     protected int getTimeStep() {
         return this.timeStep;
     }
 
-    public Map<String, Boolean> getOccupiedTimes() {
-        return this.occupiedTimes;
+    public Map<String, Boolean> getTimes() {
+        return this.times;
     }
 }
 
