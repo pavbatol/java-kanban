@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class TimeManager {
     protected final int timeStep; // Шаг изменения времени задачи
-    protected final Map<String, Boolean> times;
+    protected final Map<String, Boolean> times; //k->Время строкой, v->Занято или нет
 
     public TimeManager(int timeStep) {
         this.timeStep = getCorrectTimeStep(timeStep);
@@ -52,20 +52,7 @@ public class TimeManager {
     }
 
     private Duration getBetween(LocalDateTime start, LocalDateTime end) {
-        if (start == null || end == null) {
-            System.out.println(getClass().getSimpleName() + ": Получен null для start или end");
-            return null;
-        }
-        if (start.isAfter(end) || start.isEqual(end)) {
-            System.out.println(getClass().getSimpleName() + ": Неверное порядок для start и end");
-            return null;
-        }
-        if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
-            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени для start или end");
-            return null;
-        }
-        if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
-            System.out.println(getClass().getSimpleName() + ": Время за границами одного года для start или end");
+        if (!isCorrectStartAndEnd(start, end)) {
             return null;
         }
         Duration duration = Duration.between(start, end);
@@ -74,6 +61,26 @@ public class TimeManager {
             return null;
         }
         return duration;
+    }
+
+    private boolean isCorrectStartAndEnd(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            System.out.println(getClass().getSimpleName() + ": Получен null для start или end");
+            return false;
+        }
+        if (start.isAfter(end) || start.isEqual(end)) {
+            System.out.println(getClass().getSimpleName() + ": Неверное порядок для start и end");
+            return false;
+        }
+        if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
+            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени для start или end");
+            return false;
+        }
+        if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
+            System.out.println(getClass().getSimpleName() + ": Время за границами одного года для start или end");
+            return false;
+        }
+        return true;
     }
 
     public boolean isFree(LocalDateTime start, LocalDateTime end) {
@@ -88,11 +95,6 @@ public class TimeManager {
                 .filter(ltd -> !times.get(ltd.toString()))
                 .count();
         return filteredCount == count;
-    }
-
-    public boolean occupy(LocalDateTime start, int minutesDuration, boolean checkForFree) {
-        LocalDateTime end = start != null ? start.plusMinutes(minutesDuration) : null;
-        return  occupy(start, end, checkForFree);
     }
 
     public boolean occupy(LocalDateTime start, LocalDateTime end, boolean checkForFree) {
