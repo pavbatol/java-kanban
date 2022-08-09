@@ -444,8 +444,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private List<Validator> getTaskValidators(){
         return List.of(
-                new CrossingTimeValidator(timeManager),
-                new DurationTimeValidator()
+                new DurationTimeValidator(),
+                new CrossingTimeValidator(timeManager)
         );
     }
 

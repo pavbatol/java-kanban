@@ -40,7 +40,6 @@ public class TimeManager {
     private Map<String, Boolean> getNewTimes() {
         int capacity = getCapacity();
         return Stream.iterate(1, i -> i <= capacity, i -> i + 1)
-                //.limit(20)
                 .map(i -> LocalDateTime.of(
                         LocalDate.now().getYear(),
                         LocalDate.now().getMonth(),
@@ -64,20 +63,21 @@ public class TimeManager {
     }
 
     private boolean isCorrectStartAndEnd(LocalDateTime start, LocalDateTime end) {
+        String message = getClass().getSimpleName() + ": ";
         if (start == null || end == null) {
-            System.out.println(getClass().getSimpleName() + ": Получен null для start или end");
+            System.out.println(message + "Получен null для start или end");
             return false;
         }
         if (start.isAfter(end) || start.isEqual(end)) {
-            System.out.println(getClass().getSimpleName() + ": Неверное порядок для start и end");
+            System.out.println(message + "Неверное порядок для start и end");
             return false;
         }
         if (start.getMinute() % timeStep != 0 || end.getMinute() % timeStep != 0) {
-            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени для start или end");
+            System.out.println(message + "Не совпадает шаг времени для start или end");
             return false;
         }
         if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
-            System.out.println(getClass().getSimpleName() + ": Время за границами одного года для start или end");
+            System.out.println(message + "Время за границами одного года для start или end");
             return false;
         }
         return true;
@@ -141,6 +141,19 @@ public class TimeManager {
 
     public int getTimeStep() {
         return timeStep;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeManager that = (TimeManager) o;
+        return timeStep == that.timeStep && times.equals(that.times);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(timeStep, times);
     }
 }
 
