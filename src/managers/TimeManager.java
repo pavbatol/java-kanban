@@ -3,8 +3,9 @@ package managers;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class TimeManager {
@@ -52,6 +53,8 @@ public class TimeManager {
             result.put(Key.toString(), false);
         }
         return result;
+
+        // TODO: 10.08.2022 Переделать логику чтоб мапа расширялась и можно чтоб сужалась
 
         // TODO: 10.08.2022 Можно ли в лямбде установить capacity?
 

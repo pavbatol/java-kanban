@@ -220,6 +220,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.removeTaskById(id2);
         assertEquals(2, taskManager.getTasks().size(), "Размер не изменился");
+
+        // TODO: 10.08.2022 Проверить освобождение меток времени
     }
 
     @Test
@@ -275,6 +277,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(NEW, epic.getStatus());
         assertNull(epic.getStartTime(), "Время start в Эпике неверно");
         assertNull(epic.getEndTime(), "Время end в Эпике неверно");
+
+        // TODO: 10.08.2022 Проверить метки времени
     }
 
     @Test
@@ -304,6 +308,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertNull(taskManager.getSubtaskById(id1));
         assertNull(taskManager.getSubtaskById(id2));
         assertNull(taskManager.getSubtaskById(id2));
+
+        // TODO: 10.08.2022 Проверить метки времени
     }
 
     @Test
@@ -320,6 +326,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.removeTasks();
 
         assertEquals(0, taskManager.getTasks().size(), "Задачи не удалены");
+
+        // TODO: 10.08.2022 Проверить метки времени
     }
 
     @Test
@@ -345,6 +353,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.removeSubtasks();
         assertEquals(0, epic.getSubtaskIds().size(), "Задачи не удалены");
         assertEquals(NEW, epic.getStatus(), "Неверный статус эпика");
+
+        // TODO: 10.08.2022 Проверить метки времени
     }
 
     @Test
@@ -365,6 +375,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(0, taskManager.getEpics().size(), "Задачи не удалены");
         assertEquals(0, taskManager.getSubtasks().size(), "Задачи не удалены");
+
+        // TODO: 10.08.2022 Проверить метки времени
     }
 
     @Test
