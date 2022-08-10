@@ -133,10 +133,7 @@ public class TimeManager {
     }
 
     public void reset() {
-        times.keySet().stream()
-                .filter(times::containsKey)
-                .peek((k) -> times.put(k, false))
-                .count(); // TODO: 08.08.2022 Как правильно завершить?
+        times.forEach((k, v) -> times.put(k, false));
     }
 
     public int getTimeStep() {
