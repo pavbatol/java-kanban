@@ -221,10 +221,13 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Удаление не выполнено, такого id = " + id + " нет");
             return;
         }
-        // вместе с эпиком удаляем все его подзадачи, и эти подзадачи из истории
+        // вместе с эпиком удаляем все его подзадачи, и эти подзадачи из истории и освободим время
         epics.get(id).getSubtaskIds().forEach(subtaskId -> {
-            subtasks.remove(subtaskId);
+            Subtask subtask = subtasks.remove(subtaskId);
             historyManager.remove(subtaskId);
+            if (subtask != null) {
+                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+            }
         });
         // удаляем сам эпик и его из истории
         epics.remove(id);
@@ -234,23 +237,24 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTasks() {
-        tasks.forEach((id, task) -> historyManager.remove(id)); // удаляем из истории
-        tasks.values().stream()
-                .filter(Objects::nonNull)
-                .peek(t -> timeManager.free(t.getStartTime(), t.getEndTime()))
-                .count();
+        tasks.forEach((id, task) -> {
+            historyManager.remove(id); // удаляем из истории
+            if (task != null) {
+                timeManager.free(task.getStartTime(), task.getEndTime()); // освободим время
+            }
+        });
         tasks.clear();
         neededPrioritySort = true;
     }
 
     @Override
     public void removeSubtasks() {
-        subtasks.forEach((id, subtask) -> historyManager.remove(id)); // удаляем из истории
-        tasks.values().stream()
-                .filter(Objects::nonNull)
-                .peek(t -> timeManager.free(t.getStartTime(), t.getEndTime()))
-                .count();
-
+        subtasks.forEach((id, subtask) -> {
+            historyManager.remove(id);  // удаляем из истории
+            if (subtask != null) {
+                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+            }
+        });
         subtasks.clear();
         // Необходимо поменять в эпиках статус после удаления всех подзадач и очистить список подзадач
         for (Epic epic : epics.values()) {
@@ -266,8 +270,13 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpics() {
         epics.forEach((id, epic) -> historyManager.remove(id));
         epics.clear();
-        // Необходимо удалить все подзадачи, и их же из истории т.к. эпиков больше нет
-        subtasks.forEach((id, subtask) -> historyManager.remove(id));
+        // Необходимо удалить все подзадачи, и их же из истории т.к. эпиков больше нет, и освободим время
+        subtasks.forEach((id, subtask) -> {
+            historyManager.remove(id); //из истории удалим
+            if (subtask != null) {
+                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+            }
+        });
         subtasks.clear();
         neededPrioritySort = true;
     }
