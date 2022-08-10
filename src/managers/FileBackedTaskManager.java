@@ -121,13 +121,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                             switch (task.getType()) {
                                 case TASK:
                                     taskManager.getTasksKeeper().put(task.getId(), task);
-                                    taskManager.getTimesManager()
-                                            .occupy(task.getStartTime(), task.getEndTime(), false);
+                                    // TODO: 10.08.2022 Может не сработать
+                                    //  если задача старая и начало за пределами года назад
+                                    taskManager.getTimesManager().occupyFor(task, false);
                                     break;
                                 case SUBTASK:
                                     taskManager.getSubtasksKeeper().put(task.getId(), (Subtask) task);
-                                    taskManager.getTimesManager()
-                                            .occupy(task.getStartTime(), task.getEndTime(), false);
+                                    taskManager.getTimesManager().occupyFor(task, false);
                                     break;
                                 case EPIC:
                                     taskManager.getEpicsKeeper().put(task.getId(), (Epic) task);

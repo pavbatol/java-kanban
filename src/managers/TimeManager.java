@@ -1,20 +1,20 @@
 package managers;
 
+import tasks.Task;
+
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class TimeManager {
     protected final int timeStep; // Шаг изменения времени задачи
-    protected final Map<String, Boolean> times; //k->Время строкой, v->Занято или нет
+    protected final Map<String, Task> timeMarks; //k->Время строкой, v->Занято или нет
 
     public TimeManager(int timeStep) {
         this.timeStep = getCorrectTimeStep(timeStep);
-        times = getNewTimes();
+        timeMarks = new HashMap<>();
     }
 
     private int getCorrectTimeStep(int timeStep) {
@@ -30,58 +30,7 @@ public class TimeManager {
         return timeStep;
     }
 
-    private int getCapacity() {
-        if (this.timeStep < 0) {
-            System.out.println("Неверный timeStep: " + timeStep);
-            return 0;
-        }
-        return 60 / this.timeStep * 24 * 365;
-    }
-
-    private Map<String, Boolean> getNewTimes() {
-        int capacity = getCapacity();
-        LocalDateTime firstKey = LocalDateTime.of(
-                LocalDate.now().getYear(),
-                LocalDate.now().getMonth(),
-                LocalDate.now().getDayOfMonth(),
-                0,
-                0);
-        // Наполним HashMap. Лямбду не используем, чтоб установить capacity
-        Map<String, Boolean> result = new HashMap<>(capacity);
-        for (int i = 0; i < capacity; i++) {
-            LocalDateTime Key = firstKey.plusMinutes((long) this.timeStep * i);
-            result.put(Key.toString(), false);
-        }
-        return result;
-
-        // TODO: 10.08.2022 Переделать логику чтоб мапа расширялась и можно чтоб сужалась
-
-        // TODO: 10.08.2022 Можно ли в лямбде установить capacity?
-
-//        return Stream.iterate(1, i -> i <= capacity, i -> i + 1)
-//                .map(i -> LocalDateTime.of(
-//                        LocalDate.now().getYear(),
-//                        LocalDate.now().getMonth(),
-//                        LocalDate.now().getDayOfMonth(),
-//                        0,
-//                        0).plusMinutes((long) this.timeStep * (i - 1)))
-//                .map(e -> new String[] {e.toString(), "false"})
-//                .collect(Collectors.toMap(e -> e[0], e -> Boolean.getBoolean(e[1])));
-    }
-
-    private Duration getBetween(LocalDateTime start, LocalDateTime end) {
-        if (!isCorrectStartAndEnd(start, end)) {
-            return null;
-        }
-        Duration duration = Duration.between(start, end);
-        if ((duration.getSeconds() / 60) % timeStep != 0) {
-            System.out.println(getClass().getSimpleName() + ": Не совпадает шаг времени при переводе в минуты из секунд");
-            return null;
-        }
-        return duration;
-    }
-
-    private boolean isCorrectStartAndEnd(LocalDateTime start, LocalDateTime end) {
+    private boolean isCorrectDates(LocalDateTime start, LocalDateTime end) {
         String message = getClass().getSimpleName() + ": ";
         if (start == null || end == null) {
             System.out.println(message + "Получен null для start или end");
@@ -95,64 +44,64 @@ public class TimeManager {
             System.out.println(message + "Не совпадает шаг времени для start или end");
             return false;
         }
-        if (!times.containsKey(start.toString()) || !times.containsKey(end.toString())) {
-            System.out.println(message + "Время за границами одного года для start или end");
+        return true;
+    }
+
+    public boolean isFreeFor(Task task) {
+        LocalDateTime start = task.getStartTime();
+        LocalDateTime end = task.getEndTime();
+        if (!isCorrectDates(start, end)) {
             return false;
+        }
+        Duration duration = Duration.between(start, end);
+        final long count = duration.getSeconds() / 60 / timeStep;
+        for (int i = 0; i < count; i++) {
+            String key = start.plusMinutes((long) timeStep * i ).toString();
+            Task otherTask = timeMarks.getOrDefault(key, null);
+            if (otherTask != null && !otherTask.equals(task)) {
+                return false;
+            }
         }
         return true;
     }
 
-    public boolean isFree(LocalDateTime start, LocalDateTime end) {
-        Duration duration = getBetween(start, end);
-        if (duration == null) {
+    public boolean occupyFor(Task task , boolean checkForFree) {
+        LocalDateTime start = task.getStartTime();
+        LocalDateTime end = task.getEndTime();
+        if (!isCorrectDates(start, end)) {
             return false;
         }
+        if (checkForFree && !isFreeFor(task)) {
+            return false;
+        }
+        // обозначаем занятость
+        Duration duration = Duration.between(start, end);
         final long count = duration.getSeconds() / 60 / timeStep;
-        long filteredCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
-                .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
-                .filter(ldt -> times.containsKey(ldt.toString()))
-                .filter(ltd -> !times.get(ltd.toString()))
-                .count();
-        return filteredCount == count;
+        for (int i = 0; i < count; i++) {
+            String key = start.plusMinutes((long) timeStep * i).toString();
+            timeMarks.put(key, task);
+        }
+        return true;
     }
 
-    public boolean occupy(LocalDateTime start, LocalDateTime end, boolean checkForFree) {
-        if (checkForFree && !isFree(start, end)) {
+    public boolean freeFor(Task task) {
+        LocalDateTime start = task.getStartTime();
+        LocalDateTime end = task.getEndTime();
+        if (!isCorrectDates(start, end)) {
             return false;
         }
-        Duration duration = getBetween(start, end);
-        if (duration != null) {
-            // обозначаем занятость
-            final long count = duration.getSeconds() / 60 / timeStep;
-            long setCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
-                    .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
-                    .map(LocalDateTime::toString)
-                    .filter(times::containsKey)
-                    .peek(s -> times.put(s, true))
-                    .count();
-            return setCount == count;
+        // освобождаем занятость
+        Duration duration = Duration.between(start, end);
+        final long count = duration.getSeconds() / 60 / timeStep;
+        for (int i = 0; i < count; i++) {
+            String key = start.plusMinutes((long) timeStep * i).toString();
+            timeMarks.remove(key);
         }
-        return false;
+        return true;
     }
 
-    public boolean free(LocalDateTime start, LocalDateTime end) {
-        Duration duration = getBetween(start, end);
-        if (duration != null) {
-            // освобождаем занятость
-            final long count = duration.getSeconds() / 60 / timeStep;
-            long setCount = Stream.iterate(1, i -> i <= count, i -> i + 1)
-                    .map(i -> start.plusMinutes((long) this.timeStep * (i - 1)))
-                    .map(LocalDateTime::toString)
-                    .filter(times::containsKey)
-                    .peek(s -> times.put(s, false))
-                    .count();
-            return setCount == count;
-        }
-        return false;
-    }
-
-    public void reset() {
-        times.forEach((k, v) -> times.put(k, false));
+    public void resetMarks() {
+        timeMarks.forEach((k, v) -> timeMarks.put(k, null));
     }
 
     public int getTimeStep() {
@@ -164,12 +113,12 @@ public class TimeManager {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TimeManager that = (TimeManager) o;
-        return timeStep == that.timeStep && times.equals(that.times);
+        return timeStep == that.timeStep && timeMarks.equals(that.timeMarks);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timeStep, times);
+        return Objects.hash(timeStep, timeMarks);
     }
 }
 

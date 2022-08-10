@@ -115,7 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
             originTask.setDuration(task.getDuration());
             originTask.setStartTime(task.getStartTime());
             neededPrioritySort = true;
-            timeManager.occupy(originTask.getStartTime(), originTask.getEndTime(), false); // пометим время
+            timeManager.occupyFor(originTask, false); // пометим время
         } else {
             System.out.println("Задача Task НЕ обновлена, по id " + id + " лежит null");
         }
@@ -151,7 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
             originSubtask.setStartTime(subtask.getStartTime());
             synchronizeEpicWithSubtasks(subtask.getEpicId()); // синхронизируем статус и время в эпике
             neededPrioritySort = true;
-            timeManager.occupy(originSubtask.getStartTime(), originSubtask.getEndTime(), false); // время
+            timeManager.occupyFor(originSubtask, false); // время
         } else {
             System.out.println("Задача Subtask НЕ обновлена, по id " + id + " лежит null");
         }
@@ -190,7 +190,7 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
         neededPrioritySort = true;
         if (task != null) {
-            timeManager.free(task.getStartTime(), task.getEndTime()); // освободим время
+            timeManager.freeFor(task); // освободим время
         }
 
     }
@@ -211,7 +211,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         neededPrioritySort = true;
         if (subtask != null) {
-            timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+            timeManager.freeFor(subtask); // освободим время
         }
     }
 
@@ -226,7 +226,7 @@ public class InMemoryTaskManager implements TaskManager {
             Subtask subtask = subtasks.remove(subtaskId);
             historyManager.remove(subtaskId);
             if (subtask != null) {
-                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+                timeManager.freeFor(subtask); // освободим время
             }
         });
         // удаляем сам эпик и его из истории
@@ -240,7 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
         tasks.forEach((id, task) -> {
             historyManager.remove(id); // удаляем из истории
             if (task != null) {
-                timeManager.free(task.getStartTime(), task.getEndTime()); // освободим время
+                timeManager.freeFor(task); // освободим время
             }
         });
         tasks.clear();
@@ -252,7 +252,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.forEach((id, subtask) -> {
             historyManager.remove(id);  // удаляем из истории
             if (subtask != null) {
-                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+                timeManager.freeFor(subtask); // освободим время
             }
         });
         subtasks.clear();
@@ -274,7 +274,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.forEach((id, subtask) -> {
             historyManager.remove(id); //из истории удалим
             if (subtask != null) {
-                timeManager.free(subtask.getStartTime(), subtask.getEndTime()); // освободим время
+                timeManager.freeFor(subtask); // освободим время
             }
         });
         subtasks.clear();

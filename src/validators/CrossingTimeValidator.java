@@ -5,8 +5,6 @@ import exceptions.ValidateException;
 import managers.TimeManager;
 import tasks.Task;
 
-import java.time.LocalDateTime;
-
 public class CrossingTimeValidator implements Validator {
     TimeManager timeManager;
     public CrossingTimeValidator(TimeManager timeManager) {
@@ -25,9 +23,7 @@ public class CrossingTimeValidator implements Validator {
             throw new ValidateCrossingTimeException("!!! "+ getClass().getSimpleName() + ": Не могу проверить");
         }
 
-        LocalDateTime taskStart = task.getStartTime();
-        LocalDateTime taskEnd = task.getEndTime();
-        boolean isFree = timeManager.isFree(taskStart, taskEnd);
+        boolean isFree = timeManager.isFreeFor(task);
         if (!isFree) {
             throw new ValidateCrossingTimeException(
                     "!!! "

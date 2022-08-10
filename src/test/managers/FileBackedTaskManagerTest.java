@@ -1,9 +1,6 @@
 package managers;
 
 import exceptions.ManagerSaveException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
@@ -17,7 +14,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -146,20 +142,30 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         subtask2.setStartTime(subtask1.getEndTime());
         subtask3.setStartTime(subtask2.getEndTime());
 
-        final int id2 = taskManager.addTask(task2);
-        final int id3 = taskManager.addSubtask(subtask1);
-        final int id4 = taskManager.addSubtask(subtask2);
-        final int id5 = taskManager.addSubtask(subtask3);
+        taskManager.addTask(task2);
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
 
         FileBackedTaskManager tmSecond = FileBackedTaskManager.loadFromFile(path); // загружаемся из файла
 
-        assertFalse(tmSecond.getTimesManager().isFree(task1.getStartTime(), task1.getEndTime()));
-        assertFalse(tmSecond.getTimesManager().isFree(task2.getStartTime(), task2.getEndTime()));
-        assertFalse(tmSecond.getTimesManager().isFree(subtask1.getStartTime(), subtask1.getEndTime()));
-        assertFalse(tmSecond.getTimesManager().isFree(subtask2.getStartTime(), subtask2.getEndTime()));
-        assertFalse(tmSecond.getTimesManager().isFree(subtask3.getStartTime(), subtask3.getEndTime()));
-        assertTrue(tmSecond.getTimesManager().
-                isFree(subtask3.getEndTime(), subtask3.getEndTime().plusMinutes(timeStep * 10L)));
+        // Время занято, но для самой-себя свободно (для update)
+        assertTrue(tmSecond.getTimesManager().isFreeFor(task1));
+        assertTrue(tmSecond.getTimesManager().isFreeFor(task2));
+        assertTrue(tmSecond.getTimesManager().isFreeFor(subtask1));
+        assertTrue(tmSecond.getTimesManager().isFreeFor(subtask2));
+        assertTrue(tmSecond.getTimesManager().isFreeFor(subtask3));
+
+        // Никем не занятое время
+        subtask3.setDuration((int) (timeStep * 10L));
+        subtask3.setStartTime(subtask3.getEndTime());
+        assertTrue(tmSecond.getTimesManager().isFreeFor(subtask3));
+
+        // Время занято другой задачей
+        subtask3.setDuration((int) (timeStep * 10L));
+        subtask3.setStartTime(task2.getEndTime());
+        assertFalse(tmSecond.getTimesManager().isFreeFor(subtask3));
+
     }
 
     @Test
