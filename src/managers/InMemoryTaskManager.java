@@ -28,6 +28,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap<>();
         epics = new HashMap<>();
         historyManager = Managers.getDefaultHistory();
+        timeManager = new TimeManager(15);
         neededPrioritySort = true;  // Flag for sorting tasks, /true for first, for the cause of after loadFromFile()/
         prioritizedTasks = new TreeSet<>((task1, task2) -> {
             if (task1.getStartTime() == null) {
@@ -39,7 +40,6 @@ public class InMemoryTaskManager implements TaskManager {
                         : task1.getStartTime().isBefore(task2.getStartTime()) ? -1 : 0;
             }
         });
-        timeManager = new TimeManager(15);
     }
 
     @Override

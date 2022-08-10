@@ -39,15 +39,31 @@ public class TimeManager {
 
     private Map<String, Boolean> getNewTimes() {
         int capacity = getCapacity();
-        return Stream.iterate(1, i -> i <= capacity, i -> i + 1)
-                .map(i -> LocalDateTime.of(
-                        LocalDate.now().getYear(),
-                        LocalDate.now().getMonth(),
-                        LocalDate.now().getDayOfMonth(),
-                        0,
-                        0).plusMinutes((long) this.timeStep * (i - 1)))
-                .map(e -> new String[] {e.toString(), "false"})
-                .collect(Collectors.toMap(e -> e[0], e -> Boolean.getBoolean(e[1])));
+        LocalDateTime firstKey = LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0);
+        // Наполним HashMap. Лямбду не используем, чтоб установить capacity
+        Map<String, Boolean> result = new HashMap<>(capacity);
+        for (int i = 0; i < capacity; i++) {
+            LocalDateTime Key = firstKey.plusMinutes((long) this.timeStep * i);
+            result.put(Key.toString(), false);
+        }
+        return result;
+
+        // TODO: 10.08.2022 Можно ли в лямбде установить capacity?
+
+//        return Stream.iterate(1, i -> i <= capacity, i -> i + 1)
+//                .map(i -> LocalDateTime.of(
+//                        LocalDate.now().getYear(),
+//                        LocalDate.now().getMonth(),
+//                        LocalDate.now().getDayOfMonth(),
+//                        0,
+//                        0).plusMinutes((long) this.timeStep * (i - 1)))
+//                .map(e -> new String[] {e.toString(), "false"})
+//                .collect(Collectors.toMap(e -> e[0], e -> Boolean.getBoolean(e[1])));
     }
 
     private Duration getBetween(LocalDateTime start, LocalDateTime end) {

@@ -50,7 +50,7 @@ class TimeManagerTest {
         long end_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
         System.out.printf(startStr);
         System.out.printf("end: %15d, %s\n" , end_0, LocalDateTime.now());
-        System.out.println("Заняло: " + ((end_0 - start_0) / 1000.) + " sec");
+        System.out.println("Заняло: " + ((end_0 - start_0) / 1000.) + " sec\n");
     }
 
     @Test
@@ -110,11 +110,14 @@ class TimeManagerTest {
         long end_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
         System.out.printf(startStr);
         System.out.printf("end: %15d, %s\n" , end_0, LocalDateTime.now());
-        System.out.println("Заняло: " + ((end_0 - start_0) / 1000.) + " sec");
+        System.out.println("Заняло: " + ((end_0 - start_0) / 1000.) + " sec\n");
     }
 
     @Test
     void reset() {
+        long start_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+        String startStr = String.format("start: %7d, %s\n" , start_0, LocalDateTime.now());
+
         LocalDateTime start = LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -134,5 +137,10 @@ class TimeManagerTest {
                 .count();
         assertEquals(0, count, "Количество элементов не равно");
 
+        // Печать
+        long end_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+        System.out.printf(startStr);
+        System.out.printf("end: %15d, %s\n" , end_0, LocalDateTime.now());
+        System.out.println("Заняло: " + ((end_0 - start_0) / 1000.) + " sec\n");
     }
 }
