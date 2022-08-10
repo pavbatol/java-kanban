@@ -150,14 +150,19 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
                 0));
         taskManager.updateTask(task1);
 
+        task2.setDuration(timeStep * 2);
+        subtask1.setDuration(timeStep * 2);
+        subtask2.setDuration(timeStep * 2);
+        subtask3.setDuration(timeStep * 2);
+        task2.setStartTime(task1.getEndTime());
+        subtask1.setStartTime(task2.getEndTime());
+        subtask2.setStartTime(subtask1.getEndTime());
+        subtask3.setStartTime(subtask2.getEndTime());
+
         final int id2 = taskManager.addTask(task2);
         final int id3 = taskManager.addSubtask(subtask1);
         final int id4 = taskManager.addSubtask(subtask2);
         final int id5 = taskManager.addSubtask(subtask3);
-        task2.setStartTime(task1.getStartTime().plusMinutes(task1.getDuration()));
-        subtask1.setStartTime(task2.getStartTime().plusMinutes(task2.getDuration()));
-        subtask2.setStartTime(subtask1.getStartTime().plusMinutes(subtask1.getDuration()));
-        subtask3.setStartTime(subtask2.getStartTime().plusMinutes(subtask2.getDuration()));
 
         FileBackedTaskManager tmSecond = FileBackedTaskManager.loadFromFile(path); // загружаемся из файла
 
@@ -166,6 +171,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertFalse(tmSecond.getTimesManager().isFree(subtask1.getStartTime(), subtask1.getEndTime()));
         assertFalse(tmSecond.getTimesManager().isFree(subtask2.getStartTime(), subtask2.getEndTime()));
         assertFalse(tmSecond.getTimesManager().isFree(subtask3.getStartTime(), subtask3.getEndTime()));
+        assertTrue(tmSecond.getTimesManager().
+                isFree(subtask3.getEndTime(), subtask3.getEndTime().plusMinutes(timeStep * 10L)));
     }
 
     @Test
