@@ -47,6 +47,7 @@ public class TimeManager {
         return true;
     }
 
+    // TODO: 10.08.2022 Проверить во всех методах вхождения Task на null
     public boolean isFreeFor(Task task) {
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
