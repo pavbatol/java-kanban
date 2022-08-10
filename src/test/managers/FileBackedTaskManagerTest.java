@@ -58,16 +58,6 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Test
     void loadFromFile() {
         //Проверка сохранения/восстановления
-//        final Task task1 = new Task("Name", "Description", NEW);
-//        final Task task2 = new Task("Name", "Description", NEW);
-//        final Epic epic1 = new Epic("Name", "Description");
-//        final Epic epic2 = new Epic("Name", "Description"); // пустой эпик
-//        final int epicId1 = taskManager.addEpic(epic1);
-//        taskManager.addEpic(epic2);
-//        final Subtask subtask1 = new Subtask("Name", "Description", NEW, epicId1);
-//        final Subtask subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
-//        final Subtask subtask3 = new Subtask("Name", "Description", DONE, epicId1);
-
         // Удалим файл если есть
         if (Files.exists(path)) {
             try {
@@ -139,7 +129,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Test
     void loadFromFile_shouldBeLoadedTimesInTimeManager() {
-        final int id1 = taskManager.addTask(task1);
+        taskManager.addTask(task1);
         final int timeStep = taskManager.getTimesManager().getTimeStep();
         task1.setDuration(timeStep * 2);
         task1.setStartTime(LocalDateTime.of(
