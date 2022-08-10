@@ -1,6 +1,7 @@
 package managers;
 
 import exceptions.ManagerSaveException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,38 +27,24 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     Path path = Paths.get("resourcesTest", "backTest.csv");
 
-    Task task1;
-    Task task2;
-    Epic epic1;
-    Epic epic2;
-    Subtask subtask1;
-    Subtask subtask2;
-    Subtask subtask3;
-
     @Override
     protected FileBackedTaskManager getNewTaskManager() {
         return new FileBackedTaskManager(path);
     }
 
-    @Override
-    @BeforeEach
-    public void beforeEach() {
-        super.beforeEach();
-
-        task1 = new Task("Name", "Description", NEW);
-        task2 = new Task("Name", "Description", NEW);
-        epic1 = new Epic("Name", "Description");
-        epic2 = new Epic("Name", "Description"); // пустой эпик
-        int epicId1 = taskManager.addEpic(epic1);
-        taskManager.addEpic(epic2);
-        subtask1 = new Subtask("Name", "Description", NEW, epicId1);
-        subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
-        subtask3 = new Subtask("Name", "Description", DONE, epicId1);
-    }
-
     @Test
     void loadFromFile() {
         //Проверка сохранения/восстановления
+        Task task1 = new Task("Name", "Description", NEW);
+        Task task2 = new Task("Name", "Description", NEW);
+        Epic epic1 = new Epic("Name", "Description");
+        Epic epic2 = new Epic("Name", "Description"); // пустой эпик
+        int epicId1 = taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+        Subtask subtask1 = new Subtask("Name", "Description", NEW, epicId1);
+        Subtask subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
+        Subtask subtask3 = new Subtask("Name", "Description", DONE, epicId1);
+
         // Удалим файл если есть
         if (Files.exists(path)) {
             try {
@@ -129,6 +116,16 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Test
     void loadFromFile_shouldBeLoadedTimesInTimeManager() {
+        Task task1 = new Task("Name", "Description", NEW);
+        Task task2 = new Task("Name", "Description", NEW);
+        Epic epic1 = new Epic("Name", "Description");
+        Epic epic2 = new Epic("Name", "Description"); // пустой эпик
+        int epicId1 = taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+        Subtask subtask1 = new Subtask("Name", "Description", NEW, epicId1);
+        Subtask subtask2 = new Subtask("Name", "Description", IN_PROGRESS, epicId1);
+        Subtask subtask3 = new Subtask("Name", "Description", DONE, epicId1);
+
         taskManager.addTask(task1);
         final int timeStep = taskManager.getTimesManager().getTimeStep();
         task1.setDuration(timeStep * 2);
