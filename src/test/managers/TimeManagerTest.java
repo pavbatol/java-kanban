@@ -142,7 +142,7 @@ class TimeManagerTest {
 
 
     @Test
-    void reset() {
+    void clearMarks() {
         long start_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
         String startStr = String.format("start: %7d, %s\n" , start_0, LocalDateTime.now());
 
@@ -176,7 +176,7 @@ class TimeManagerTest {
 
         assertEquals(5, count); // 5 Занятых ячеек времени (2+3)
 
-        timeManager.resetMarks();
+        timeManager.clearMarks();
         count = timeManager.timeMarks.values().stream()
                 .filter(Objects::nonNull)
                 .count();
@@ -189,7 +189,7 @@ class TimeManagerTest {
                 .count();
         System.out.println("count для значений Objects::isNull = " +count + "\n");
 
-        assertEquals(5, count, "Количество элементов для значений Objects::isNull не равно");
+        assertEquals(0, count, "Количество элементов для значений Objects::isNull не равно");
 
         // Печать
         long end_0 = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();

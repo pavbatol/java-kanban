@@ -109,8 +109,9 @@ public class TimeManager {
         return true;
     }
 
-    public void resetMarks() {
-        timeMarks.forEach((k, v) -> timeMarks.put(k, null));
+    public void clearMarks() {
+        //timeMarks.forEach((k, v) -> timeMarks.put(k, null));
+        timeMarks.clear();
     }
 
     public int getTimeStep() {
