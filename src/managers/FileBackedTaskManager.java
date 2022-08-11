@@ -121,8 +121,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                             switch (task.getType()) {
                                 case TASK:
                                     taskManager.getTasksKeeper().put(task.getId(), task);
-                                    // TODO: 10.08.2022 Может не сработать
-                                    //  если задача старая и начало за пределами года назад
                                     taskManager.getTimesManager().occupyFor(task, false);
                                     break;
                                 case SUBTASK:
