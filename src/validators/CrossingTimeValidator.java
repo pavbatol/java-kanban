@@ -23,6 +23,10 @@ public class CrossingTimeValidator implements Validator {
             throw new ValidateCrossingTimeException("!!! "+ getClass().getSimpleName() + ": Не могу проверить");
         }
 
+        if (timeManager == null) {
+            throw new ValidateCrossingTimeException("!!! "+ getClass().getSimpleName() + ": Не могу проверить");
+        }
+
         boolean isFree = timeManager.isFreeFor(task);
         if (!isFree) {
             throw new ValidateCrossingTimeException(

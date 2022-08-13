@@ -433,7 +433,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    protected TimeManager getTimesManager() {
+    public TimeManager getTimesManager() {
         return timeManager;
     }
 
@@ -457,7 +457,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private List<Validator> getTaskValidators(){
         return List.of(
-                new DurationTimeValidator(),
+                new DurationTimeValidator(timeManager),
                 new CrossingTimeValidator(timeManager)
         );
     }
