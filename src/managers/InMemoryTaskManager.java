@@ -437,6 +437,10 @@ public class InMemoryTaskManager implements TaskManager {
         return timeManager;
     }
 
+    protected boolean isNeededPrioritySort() {
+        return neededPrioritySort;
+    }
+
     public List<Task> getPrioritizedTasks() {
         if (neededPrioritySort) {
             fillPrioritizedTasks();

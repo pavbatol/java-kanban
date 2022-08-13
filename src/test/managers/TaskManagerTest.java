@@ -145,13 +145,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void addSubtask_should_correct_epic_status_when_subtask_added() {
-        // Статус эпика
         testEpicStatusForSubtaskAdd();
     }
 
-
     @Test
-    void addEpic() {
+    void addEpic_should_epic_added() {
         final Epic epic = new Epic("Name", "Description");
         final int id = taskManager.addEpic(epic);
 
@@ -168,7 +166,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateTask() {
+    void updateTask_general_cases() {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
@@ -205,6 +203,64 @@ abstract class TaskManagerTest<T extends TaskManager> {
         // Валидность полей времени
         testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), TASK);
     }
+
+    @Test
+    void updateTask_should_task_updated_when_id_is_bad() {
+        final Task task = new Task("Name", "Description", NEW);
+        final int id = taskManager.addTask(task);
+        final Task newTask = new Task("Name", "Description", NEW);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+
+        newTask.setId(id + 1);
+        newTask.setName("newName");
+        newTask.setDescription("newDescription");
+        newTask.setStatus(IN_PROGRESS);
+        newTask.setDuration(timeStep * 2);
+        newTask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
+
+        taskManager.updateTask(newTask);
+        Task updatedTask = taskManager.getTaskById(id);
+
+        assertNotEquals(newTask, updatedTask); // тест на неверный id/пустой список
+    }
+
+    @Test
+    void updateTask_should_task_updated_when_ig_is_right() {
+        final Task task = new Task("Name", "Description", NEW);
+        final int id = taskManager.addTask(task);
+        final Task newTask = new Task("Name", "Description", NEW);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+
+        newTask.setId(id + 1);
+        newTask.setName("newName");
+        newTask.setDescription("newDescription");
+        newTask.setStatus(IN_PROGRESS);
+        newTask.setDuration(timeStep * 2);
+        newTask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
+        newTask.setId(id);
+
+        taskManager.updateTask(newTask);
+        Task updatedTask = taskManager.getTaskById(id);
+
+        assertNotNull(updatedTask, "Задача не найдена.");
+
+        final List<Task> tasks = taskManager.getTasks();
+
+        assertNotNull(tasks, "Задачи на возвращаются.");
+        assertEquals(1, tasks.size(), "Неверное количество задач.");
+        assertEquals(newTask, updatedTask, "Задачи не совпадают."); // тест на update ссылки у задач разные
+    }
+
 
     @Test
     void updateSubtask() {
@@ -671,6 +727,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
     }
 
+    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
     private  int addAnyTypeTask (T tm, Task task) {
         switch (task.getType()) {
             case TASK: return tm.addTask(task);
@@ -681,6 +738,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
+    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
     private void updateAnyTypeTask(T tm, Task task) {
         switch (task.getType()) {
             case TASK: tm.updateTask(task);
@@ -694,7 +752,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         }
     }
 
-    private void testTimesForUpdateTaskAndSubtaskType(T tm, TaskType type) {
+    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
+    private void testTimesForUpdateTaskAndSubtaskType(T tm, TaskType type) throws IllegalArgumentException {
         Epic epic = new Epic("Name", "Description");
         Task task1;
         Task task2;
@@ -712,7 +771,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 newTask = new Subtask("newTaskName", "newTaskDescription", NEW, epic.getId());
                 break;
             case EPIC:
-                throw new RuntimeException("Для типа " + type + " проверка не реализована");
+                throw new IllegalArgumentException("Для типа " + type + " проверка не реализована");
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи");
         }
