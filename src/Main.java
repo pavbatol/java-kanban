@@ -31,7 +31,7 @@ public class Main {
         fbtm.addSubtask(subtask1);
         fbtm.addSubtask(subtask2);
 
-        System.out.println(fbtm);
+        //System.out.println(fbtm);
 
         final int timeStep = fbtm.getTimeStepByTimesManager();
         LocalDateTime start = LocalDateTime.of(
@@ -50,7 +50,21 @@ public class Main {
         subtask2.setStartTime(task2.getEndTime());
         subtask1.setStartTime(subtask2.getEndTime());
 
-        System.out.println(fbtm);
+        //System.out.println(fbtm);
+
+//        List<Task> allTasks = fbtm.getTasks();
+//        allTasks.addAll(fbtm.getEpics());
+//        allTasks.addAll(fbtm.getSubtasks());
+
+        //allTasks.forEach(System.out::println);
+
+//        List<Task> newList = Stream.concat(fbtm.getTasks().stream(), fbtm.getEpics().stream())
+//                .collect(Collectors.toList());
+//        newList = Stream.concat(newList.stream(), fbtm.getSubtasks().stream())
+//                .collect(Collectors.toList());
+//        System.out.println("\n");
+//        newList.forEach(System.out::println);
+//        System.out.println("\n");
 
         HttpTaskServer httpTaskServer;
         try {
