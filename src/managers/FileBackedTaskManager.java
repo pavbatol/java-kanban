@@ -121,11 +121,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                             switch (task.getType()) {
                                 case TASK:
                                     taskManager.getTasksKeeper().put(task.getId(), task);
-                                    taskManager.getTimesManager().occupyFor(task, false);
+                                    taskManager.getTimeManager().occupyFor(task, false);
                                     break;
                                 case SUBTASK:
                                     taskManager.getSubtasksKeeper().put(task.getId(), (Subtask) task);
-                                    taskManager.getTimesManager().occupyFor(task, false);
+                                    taskManager.getTimeManager().occupyFor(task, false);
                                     break;
                                 case EPIC:
                                     taskManager.getEpicsKeeper().put(task.getId(), (Epic) task);

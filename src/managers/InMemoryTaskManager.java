@@ -1,16 +1,15 @@
 package managers;
 
 import exceptions.ValidateException;
-import tasks.Epic;
-import tasks.Subtask;
-import tasks.Task;
-import tasks.TaskStatus;
+import tasks.*;
 import util.Managers;
 import validators.CrossingTimeValidator;
 import validators.DurationTimeValidator;
 import validators.Validator;
 
 import java.util.*;
+
+import static tasks.TaskType.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected int itemId;
@@ -453,11 +452,11 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    protected TimeManager getTimesManager() {
+    protected TimeManager getTimeManager() {
         return timeManager;
     }
 
-    public int getTimeStepByTimesManager() {
+    public int getTimeStepByTimeManager() {
         return timeManager.getTimeStep();
     }
 
@@ -486,7 +485,17 @@ public class InMemoryTaskManager implements TaskManager {
         );
     }
 
-
+    public TaskType getTypeByTaskId(int taskId) {
+        if (tasks.containsKey(taskId)) {
+            return TASK;
+        } else if (subtasks.containsKey(taskId)) {
+            return SUBTASK;
+        } else if (epics.containsKey(taskId)) {
+            return SUBTASK;
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public String toString() {

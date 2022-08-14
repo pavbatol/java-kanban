@@ -167,7 +167,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newTask.setId(id + 1);
         newTask.setName("newName");
@@ -204,7 +204,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newTask.setId(id + 1);
         newTask.setName("newName");
@@ -229,7 +229,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newTask.setId(id + 1);
         newTask.setName("newName");
@@ -263,7 +263,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
         final int id = taskManager.addSubtask(subtask);
         Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newSubtask.setId(id + 1);
         newSubtask.setName("newName");
@@ -304,7 +304,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
         final int id = taskManager.addSubtask(subtask);
         Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newSubtask.setId(id + 1);
         newSubtask.setName("newName");
@@ -331,7 +331,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
         final int id = taskManager.addSubtask(subtask);
         Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
-        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimeManager().getTimeStep();
 
         newSubtask.setName("newName");
         newSubtask.setDescription("newDescription");

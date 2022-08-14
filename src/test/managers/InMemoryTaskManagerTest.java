@@ -112,7 +112,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         //taskManager.getPrioritizedTasks().forEach(t -> System.out.println(t + "\n"));
     }
 
-    private  int addAnyTypeTask (InMemoryTaskManager tm, Task task) {
+    private  int addAnyTypeTask (InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
         switch (task.getType()) {
             case TASK: return tm.addTask(task);
             case SUBTASK: return tm.addSubtask((Subtask) task);
@@ -122,7 +122,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         }
     }
 
-    private void updateAnyTypeTask(InMemoryTaskManager tm, Task task) {
+    private void updateAnyTypeTask(InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
         switch (task.getType()) {
             case TASK: tm.updateTask(task);
                 break;
@@ -161,7 +161,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         int id1 = addAnyTypeTask(tm, task1);
         int id2 = addAnyTypeTask(tm, task2);
 
-        int timeStep = tm.getTimesManager().getTimeStep();
+        int timeStep = tm.getTimeManager().getTimeStep();
         LocalDateTime start = LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
