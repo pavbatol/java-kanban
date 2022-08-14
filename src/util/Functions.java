@@ -1,5 +1,6 @@
 package util;
 
+import managers.InMemoryTaskManager;
 import managers.TaskManager;
 import tasks.Epic;
 import tasks.Subtask;
@@ -80,6 +81,65 @@ public final class Functions {
             task = tm.getEpicById(taskId);
         }
         return task;
+    }
+
+    /**
+     * Добавить задачу любого типа
+     * @param tm менеджер InMemoryTaskManager
+     * @param task Задача любого типа: Task, SubTask, Epic
+     * @return Вернет установленный id для задачи. Если не добавил, то вернет -1
+     * @throws IllegalArgumentException
+     */
+    public static int addAnyTypeTask (InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
+        switch (task.getType()) {
+            case TASK: return tm.addTask(task);
+            case SUBTASK: return tm.addSubtask((Subtask) task);
+            case EPIC: return tm.addEpic((Epic) task);
+            default:
+                throw new IllegalArgumentException("Неизвестный тип задачи");
+        }
+    }
+
+    /**
+     * Обновитьзадачу любого типа
+     * @param tm менеджер InMemoryTaskManager
+     * @param task Задача любого типа: Task, SubTask, Epic
+     * @throws IllegalArgumentException
+     */
+    public static void updateAnyTypeTask(InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
+        switch (task.getType()) {
+            case TASK: tm.updateTask(task);
+                break;
+            case SUBTASK: tm.updateSubtask((Subtask) task);
+                break;
+            case EPIC: tm.updateEpic((Epic) task);
+                break;
+            default:
+                throw new IllegalArgumentException("Неизвестный тип задачи");
+        }
+    }
+
+    /**
+     * Удалить люобой тип задачи по id
+     * @param tm менеджер InMemoryTaskManager
+     * @param taskId id задачи любого типа: Task, SubTask, Epic
+     * @throws IllegalArgumentException
+     */
+    public static void removedAnyTypeTaskByI(InMemoryTaskManager tm, int taskId) throws IllegalArgumentException {
+        TaskType taskType = tm.getTypeByTaskId(taskId);
+        if (taskType == null) {
+            return;
+        }
+        switch (taskType) {
+            case TASK: tm.removeTaskById(taskId);
+                break;
+            case SUBTASK: tm.removeSubtaskById(taskId);
+                break;
+            case EPIC: tm.removeEpicById(taskId);
+                break;
+            default:
+                throw new IllegalArgumentException("Неизвестный тип задачи");
+        }
     }
 
 }
