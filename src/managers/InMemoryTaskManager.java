@@ -433,8 +433,12 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    public TimeManager getTimesManager() {
+    protected TimeManager getTimesManager() {
         return timeManager;
+    }
+
+    public int getTimeStepByTimesManager() {
+        return timeManager.getTimeStep();
     }
 
     protected boolean isNeededPrioritySort() {
