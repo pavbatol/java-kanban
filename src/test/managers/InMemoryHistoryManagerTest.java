@@ -16,7 +16,7 @@ class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void setUp() {
-        historyManager = new InMemoryHistoryManager();
+        historyManager = new InMemoryHistoryManager(10, false);
     }
 
     @Test

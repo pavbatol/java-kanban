@@ -8,7 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final CustomLinkedList<Task> lastViewedTasks = new CustomLinkedList<>(10, false);
+    private final int sizeMax;
+    private final boolean isNormalOrder;
+    private final CustomLinkedList<Task> lastViewedTasks;
+
+    public InMemoryHistoryManager(int sizeMax, boolean isNormalOrder) {
+        this.sizeMax = sizeMax;
+        this.isNormalOrder = isNormalOrder;
+        this.lastViewedTasks = new CustomLinkedList<>(this.sizeMax, this.isNormalOrder);
+    }
 
     @Override
     public void add(Task task) {
@@ -18,6 +26,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         lastViewedTasks.removeTaskById(id);
+    }
+
+    public boolean isNormalOrder() {
+        return isNormalOrder;
     }
 
     @Override
@@ -125,10 +137,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             // Добавим элемент и запишем узел в HashMap
             if (isNormalOrder) {
                 linkLast(task);
+                nodes.put(task.getId(), tail);
             } else {
                 linkFirst(task);
+                nodes.put(task.getId(), head);
             }
-            nodes.put(task.getId(), tail);
         }
 
         public E removeTaskById(int taskId) {

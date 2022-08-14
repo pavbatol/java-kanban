@@ -27,6 +27,6 @@ public final class Managers {
 
 
     public static HistoryManager getDefaultHistory() {
-        return new InMemoryHistoryManager();
+        return new InMemoryHistoryManager(10, false);
     }
 }

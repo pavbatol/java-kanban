@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import static tasks.TaskStatus.*;
 
@@ -103,7 +105,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                 if (i == 0) continue;
                 if (!str.isEmpty()) {
                     if (nextHasHistory) {
-                        CSVConverter.fromStringOfHistory(str).forEach(id -> {
+                        List<Integer> ids = CSVConverter.fromStringOfHistory(str);
+                        if (!taskManager.getHistoryManager().isNormalOrder()) {
+                            Collections.reverse(ids);
+                        }
+                        ids.forEach(id -> {
                             if (taskManager.getTasksKeeper().containsKey(id)) {
                                 taskManager.getHistoryManager().add(taskManager.getTasksKeeper().get(id));
                             } else if (taskManager.getSubtasksKeeper().containsKey(id)) {
