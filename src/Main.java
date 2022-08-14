@@ -14,8 +14,8 @@ import static tasks.TaskStatus.NEW;
 public class Main {
     public static void main(String[] args) {
         //Запуск FileBackedTaskManager
-        //String[] pathElements= new String[]{"resources", "back.csv"};
-        //FileBackedTaskManager.main(pathElements);
+//        String[] pathElements= new String[]{"resources", "back.csv"};
+//        FileBackedTaskManager.main(pathElements);
 
         FileBackedTaskManager fbtm = Managers.getNewFileBackedTaskManager();
 
@@ -33,7 +33,7 @@ public class Main {
 
         //System.out.println(fbtm);
 
-        final int timeStep = fbtm.getTimeStepByTimesManager();
+        final int timeStep = fbtm.getTimeStepByTimeManager();
         LocalDateTime start = LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -50,7 +50,12 @@ public class Main {
         subtask2.setStartTime(task2.getEndTime());
         subtask1.setStartTime(subtask2.getEndTime());
 
-        //System.out.println(fbtm);
+        fbtm.getTaskById(task1.getId());
+        //fbtm.getTaskById(task2.getId());
+        fbtm.getSubtaskById(subtask1.getId());
+        //fbtm.getSubtaskById(subtask2.getId());
+
+//        System.out.println(fbtm);
 
 //        List<Task> allTasks = fbtm.getTasks();
 //        allTasks.addAll(fbtm.getEpics());
@@ -58,13 +63,7 @@ public class Main {
 
         //allTasks.forEach(System.out::println);
 
-//        List<Task> newList = Stream.concat(fbtm.getTasks().stream(), fbtm.getEpics().stream())
-//                .collect(Collectors.toList());
-//        newList = Stream.concat(newList.stream(), fbtm.getSubtasks().stream())
-//                .collect(Collectors.toList());
-//        System.out.println("\n");
-//        newList.forEach(System.out::println);
-//        System.out.println("\n");
+
 
         HttpTaskServer httpTaskServer;
         try {

@@ -31,11 +31,11 @@ public class HttpTaskServer {
 
     public void start() {
         // TODO: 14.08.2022 Make all with try/catch
+        server.createContext("/tasks/history", new AllTasksHandler());
         server.createContext("/tasks", new AllTasksHandler());
         server.createContext("/tasks/task", new TaskHandler());
         server.createContext("/tasks/subtask", new TaskHandler());
         server.createContext("/tasks/epic", new TaskHandler());
-        server.createContext("/tasks/history", new TaskHandler());
         server.start();
         System.out.println("Сервер " + getClass().getSimpleName() + " запущен на " + PORT + " порту.");
     }
@@ -43,7 +43,6 @@ public class HttpTaskServer {
     public void stop() {
         server.stop(1);
         System.out.println("Сервер " + getClass().getSimpleName() + " остановлен.");
-
     }
 
     private int parsFindingStrToIntFromQuery(String finding, String query, int defaultReturn) {
@@ -68,10 +67,10 @@ public class HttpTaskServer {
     }
 
     private class AllTasksHandler implements HttpHandler {
-        // Будем возвращать в ответе все задачи, подзадачии эпики
+        // Будем возвращать в ответе все задач-подзадачи-эпики или историю просмотра
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            System.out.println("Началась обработка /tasks запроса от клиента.");
+            System.out.println("Началась обработка. Строка запроса: " + httpExchange.getRequestURI());
 
             String response;
             Headers headers = httpExchange.getResponseHeaders();
@@ -90,12 +89,15 @@ public class HttpTaskServer {
                     allTasks.addAll(fbtm.getSubtasks());
                     response = gson.toJson(allTasks);
                     httpExchange.sendResponseHeaders(200, 0);
+                } else if ((path.endsWith("/tasks/history") || path.endsWith("/tasks/history/")) && query == null) {
+                    response = gson.toJson(fbtm.getHistory());
+                    httpExchange.sendResponseHeaders(200, 0);
                 } else {
-                    response = gson.toJson("В запросе содержится ошибка. Проверьте и отправьте снова.");
+                    response = gson.toJson("В запросе содержится ошибка. Проверьте и отправьте запрос снова.");
                     httpExchange.sendResponseHeaders(400, 0);
                 }
             } else {
-                response = "В запросе содержится ошибка. Поддерживается только метод GET.";
+                response = "Поддерживается только метод GET.";
                 response = gson.toJson(response);
                 httpExchange.sendResponseHeaders(405, 0);
             }
@@ -107,7 +109,8 @@ public class HttpTaskServer {
     }
 
     private class TaskHandler implements HttpHandler {
-        // Возвращаем в ответе только Tasks если GET и не указан id, или работаем с конкретной задачей по Методу запроса
+        // Возвращаем в ответе только Tasks если GET и не указан id,
+        // или работаем с конкретной задачей по Методу запроса
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             System.out.println("Началась обработка. Строка запроса: " + httpExchange.getRequestURI());
