@@ -48,6 +48,16 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача НЕ создана, объект не инициализирован");
             return -1;
         }
+
+        for (Validator validator : getTaskValidators()) {
+            try {
+                validator.validate(task);
+            } catch (ValidateException e) {
+                System.out.println(e.getMessage() + " Задача Task НЕ создана");
+                return -1;
+            }
+        }
+
         task.setId(getNewId());
         tasks.put(task.getId(), task);
         neededPrioritySort = true;
@@ -65,6 +75,16 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Подзадача НЕ создана, эпик с id = " + epicId + "  не найден");
             return -1;
         }
+
+        for (Validator validator : getTaskValidators()) {
+            try {
+                validator.validate(subtask);
+            } catch (ValidateException e) {
+                System.out.println(e.getMessage() + " Задача Subtask НЕ создана");
+                return -1;
+            }
+        }
+
         subtask.setId(getNewId());
         subtasks.put(subtask.getId(), subtask);
         Epic epic = epics.get(epicId);

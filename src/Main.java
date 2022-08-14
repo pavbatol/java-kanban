@@ -13,6 +13,7 @@ import static tasks.TaskStatus.NEW;
 
 public class Main {
     public static void main(String[] args) {
+        //Запуск FileBackedTaskManager
         //String[] pathElements= new String[]{"resources", "back.csv"};
         //FileBackedTaskManager.main(pathElements);
 
@@ -48,11 +49,6 @@ public class Main {
         task2.setStartTime(task1.getEndTime());
         subtask2.setStartTime(task2.getEndTime());
         subtask1.setStartTime(subtask2.getEndTime());
-
-//        fbtm.updateTask(task1);
-//        fbtm.updateTask(task2);
-//        fbtm.updateSubtask(subtask1);
-//        fbtm.updateSubtask(subtask2);
 
         System.out.println(fbtm);
 
