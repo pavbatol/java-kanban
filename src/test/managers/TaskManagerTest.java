@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import tasks.TaskType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,8 +12,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tasks.TaskStatus.*;
-import static tasks.TaskType.SUBTASK;
-import static tasks.TaskType.TASK;
 
 abstract class TaskManagerTest<T extends TaskManager> {
     T taskManager;
@@ -200,8 +197,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertNotNull(tasks, "Задачи на возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(newTask, updatedTask, "Задачи не совпадают."); // тест на update ссылки у задач разные
-        // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), TASK);
     }
 
     @Test
@@ -230,7 +225,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateTask_should_task_updated_when_ig_is_right() {
+    void updateTask_should_task_updated_when_id_is_right() {
         final Task task = new Task("Name", "Description", NEW);
         final int id = taskManager.addTask(task);
         final Task newTask = new Task("Name", "Description", NEW);
@@ -261,9 +256,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(newTask, updatedTask, "Задачи не совпадают."); // тест на update ссылки у задач разные
     }
 
-
     @Test
-    void updateSubtask() {
+    void updateSubtask_general_cases() {
         Epic epic = new Epic("Name", "Description");
         int epicId = taskManager.addEpic(epic);
         final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
@@ -301,8 +295,75 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(newSubtask, updatedSubtask, "Задачи не совпадают.");//тест на update ссылки у задач разные
         // Статус эпика
         testEpicStatusForSubtaskUpdate();
-        // Валидность полей времени
-        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), SUBTASK);
+    }
+
+    @Test
+    void updateSubtask_should_subtask_updated_when_id_is_bad() {
+        Epic epic = new Epic("Name", "Description");
+        int epicId = taskManager.addEpic(epic);
+        final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
+        final int id = taskManager.addSubtask(subtask);
+        Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+
+        newSubtask.setId(id + 1);
+        newSubtask.setName("newName");
+        newSubtask.setDescription("newDescription");
+        newSubtask.setStatus(IN_PROGRESS);
+        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
+
+        taskManager.updateSubtask(newSubtask);
+        Subtask updatedSubtask = taskManager.getSubtaskById(id);
+
+        assertNotEquals(newSubtask, updatedSubtask); // тест на неверный id/пустой список
+    }
+
+    @Test
+    void updateSubtask_should_subtask_updated_when_id_is_right() {
+        Epic epic = new Epic("Name", "Description");
+        int epicId = taskManager.addEpic(epic);
+        final Subtask subtask = new Subtask("Name", "Description", NEW, epicId);
+        final int id = taskManager.addSubtask(subtask);
+        Subtask newSubtask = new Subtask("Name", "Description", NEW, epicId);
+        int timeStep = ((InMemoryTaskManager)taskManager).getTimesManager().getTimeStep();
+
+        newSubtask.setName("newName");
+        newSubtask.setDescription("newDescription");
+        newSubtask.setStatus(IN_PROGRESS);
+        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setStartTime(LocalDateTime.of(
+                LocalDate.now().getYear(),
+                LocalDate.now().getMonth(),
+                LocalDate.now().getDayOfMonth(),
+                0,
+                0));
+
+        newSubtask.setId(id);
+        taskManager.updateSubtask(newSubtask);
+        Subtask updatedSubtask = taskManager.getSubtaskById(id);
+
+        assertNotNull(updatedSubtask, "Задача не найдена.");
+
+        final List<Subtask> subtasks = taskManager.getSubtasks();
+
+        assertNotNull(subtask, "Задачи на возвращаются.");
+        assertEquals(1, subtasks.size(), "Неверное количество задач.");
+        assertEquals(newSubtask, updatedSubtask, "Задачи не совпадают.");//тест на update ссылки у задач разные
+
+    }
+
+    @Test
+    void updateSubtask_should_epic_status_updated_after_subtask_updated() {
+        // Корректное обновление подзадачи
+        updateSubtask_should_subtask_updated_when_id_is_right();
+        // Статус эпика
+        testEpicStatusForSubtaskUpdate();
     }
 
     @Test
@@ -725,110 +786,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newSubtask.setStatus(DONE);
         taskManager.updateSubtask(newSubtask);
         assertEquals(IN_PROGRESS, epic.getStatus(), "Неверный статус эпика");
-    }
-
-    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
-    private  int addAnyTypeTask (T tm, Task task) {
-        switch (task.getType()) {
-            case TASK: return tm.addTask(task);
-            case SUBTASK: return tm.addSubtask((Subtask) task);
-            case EPIC: return tm.addEpic((Epic) task);
-            default:
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-    }
-
-    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
-    private void updateAnyTypeTask(T tm, Task task) {
-        switch (task.getType()) {
-            case TASK: tm.updateTask(task);
-                break;
-            case SUBTASK: tm.updateSubtask((Subtask) task);
-                break;
-            case EPIC: tm.updateEpic((Epic) task);
-                break;
-            default:
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-    }
-
-    // TODO: 13.08.2022 Удалить методы ниже и поместить их в в InMemoryTaskManagerTest
-    private void testTimesForUpdateTaskAndSubtaskType(T tm, TaskType type) throws IllegalArgumentException {
-        Epic epic = new Epic("Name", "Description");
-        Task task1;
-        Task task2;
-        Task newTask;
-        switch (type) {
-            case TASK:
-                task1 = new Task("Name1", "Description1", NEW);
-                task2 = new Task("Name2", "Description2", NEW);
-                newTask = new Task("newTaskName", "newTaskDescription", NEW);
-                break;
-            case SUBTASK:
-                addAnyTypeTask(tm, epic);
-                task1 = new Subtask("Name1", "Description1", NEW, epic.getId());
-                task2 = new Subtask("Name2", "Description2", NEW, epic.getId());
-                newTask = new Subtask("newTaskName", "newTaskDescription", NEW, epic.getId());
-                break;
-            case EPIC:
-                throw new IllegalArgumentException("Для типа " + type + " проверка не реализована");
-            default:
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-        int id1 =addAnyTypeTask(tm, task1);
-        int id2 = addAnyTypeTask(tm, task2);
-
-        int timeStep = ((InMemoryTaskManager)tm).getTimesManager().getTimeStep();
-        LocalDateTime start = LocalDateTime.of(
-                LocalDate.now().getYear(),
-                LocalDate.now().getMonth(),
-                LocalDate.now().getDayOfMonth(),
-                0,
-                0);
-
-        // Установим время у контрольной задачи
-        newTask.setId(id1);
-        newTask.setDuration(timeStep * 2);
-        newTask.setStartTime(start);
-        updateAnyTypeTask(tm,newTask);
-
-        // Внутри контрольной
-        newTask.setId(id2);
-        newTask.setDuration(timeStep);
-        newTask.setStartTime(start);
-        updateAnyTypeTask(tm,newTask);
-        assertNotEquals(task2, newTask, "Задача записалась");
-
-        //За границами года
-        newTask.setDuration(timeStep * 3);
-        newTask.setStartTime(start.minusMinutes(timeStep));
-        updateAnyTypeTask(tm,newTask);
-        assertNotEquals(task2, newTask, "Задача опять записалась");
-
-        // Старт внутри контрольной
-        newTask.setDuration(timeStep*4);
-        newTask.setStartTime(start.plusMinutes(timeStep));
-        updateAnyTypeTask(tm,newTask);
-        assertNotEquals(task2, newTask, "Задача еще раз записалась");
-
-        // Нет пересечений с контрольной
-        newTask.setDuration(timeStep);
-        newTask.setStartTime(start.plusMinutes(timeStep * 2L));
-        updateAnyTypeTask(tm,newTask);
-        assertEquals(task2, newTask, "Задача не записалась");
-
-        if (type == SUBTASK) { // У эпика расчетное время
-            LocalDateTime startEp = task1.getStartTime().isBefore(task2.getStartTime()) ? task1.getStartTime() :
-                    task2.getStartTime();
-            LocalDateTime end = task1.getEndTime().isAfter(task2.getEndTime()) ? task1.getEndTime() :
-                    task2.getEndTime();
-            addAnyTypeTask(tm, new Subtask("Name1", "Description1", NEW, epic.getId()));
-
-            assertEquals(startEp, epic.getStartTime(), "Время старта у Эпика не совпадает ");
-            assertEquals(end, epic.getEndTime(), "Время окончания у Эпика не совпадает ");
-            assertEquals(task1.getDuration() + task2.getDuration(), epic.getDuration(),
-                    "Продолжительность у Эпика не совпадает ");
-        }
     }
 
 }

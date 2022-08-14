@@ -22,6 +22,14 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         return new InMemoryTaskManager();
     }
 
+    @Override
+    @Test
+    void updateTask_general_cases() {
+        super.updateTask_general_cases();
+        // Валидность полей времени
+        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), TASK);
+    }
+
     @Test
     void updateTask_should_be_correct_validating_for_time() {
         // Валидность полей времени
@@ -30,7 +38,30 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @Test
     void updateTask_should_neededPrioritySort_is_true_after_task_updated() {
-        updateTask_should_task_updated_when_ig_is_right();
+        // Корректное обновление задачи
+        updateTask_should_task_updated_when_id_is_right();
+        // Проверяем флаг для необходимости сортировки
+        assertTrue(taskManager.isNeededPrioritySort());
+    }
+
+    @Override
+    void updateSubtask_general_cases() {
+        super.updateSubtask_general_cases();
+        // Валидность полей времени
+        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), SUBTASK);
+    }
+
+    @Test
+    void updateSubtask_should_be_correct_validating_for_time() {
+        // Валидность полей времени
+        testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), SUBTASK);
+    }
+
+    @Test
+    void updateSubtask_should_neededPrioritySort_is_true_after_subtask_updated() {
+        // Корректное обновление задачи
+        updateSubtask_should_subtask_updated_when_id_is_right();
+        // Проверяем флаг для необходимости сортировки
         assertTrue(taskManager.isNeededPrioritySort());
     }
 
