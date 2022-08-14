@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final CustomLinkedList<Task> lastViewedTasks = new CustomLinkedList<>(10);
+    private final CustomLinkedList<Task> lastViewedTasks = new CustomLinkedList<>(10, false);
 
     @Override
     public void add(Task task) {
@@ -39,14 +39,28 @@ public class InMemoryHistoryManager implements HistoryManager {
         private Node<E> tail;
         private int size;
         private final int sizeMax; // ограничение на максимальное кол-во элементов
+        private final boolean isNormalOrder;
         private final Map<Integer, Node<E>> nodes; // key = taskId, value = Node of CustomLinkedList
 
-        public CustomLinkedList(int sizeMax) {
+        public CustomLinkedList(int sizeMax, boolean isNormalOrder) {
             this.head = null;
             this.tail = null;
             this.size = 0;
             this.sizeMax = sizeMax <= 0 ? 10 : sizeMax; // Если пришло некорректное число - установим 10
+            this.isNormalOrder = isNormalOrder;
             nodes = new HashMap<>(this.sizeMax);
+        }
+
+        private void linkFirst(E e) {
+            final Node<E> oldHead = head; // запомним хвост
+            final Node<E> newNode = new Node<>(null, e, oldHead);
+            head = newNode;
+            if (oldHead == null) { // значит список был пуст и это будет единственный узел в списке
+                tail = newNode;
+            } else {
+                oldHead.prev = newNode;
+            }
+            size++;
         }
 
         private void linkLast(E e) {
@@ -104,13 +118,17 @@ public class InMemoryHistoryManager implements HistoryManager {
 
             // Проверка на максимальный размер
             if (size >= sizeMax) {
-                removeTaskById(head.data.getId()); //  && head != null -> unlinkFirst(head);
+                int id = isNormalOrder ? head.data.getId() : tail.data.getId();
+                removeTaskById(id);
             }
 
             // Добавим элемент и запишем узел в HashMap
-            linkLast(task);
+            if (isNormalOrder) {
+                linkLast(task);
+            } else {
+                linkFirst(task);
+            }
             nodes.put(task.getId(), tail);
-
         }
 
         public E removeTaskById(int taskId) {
