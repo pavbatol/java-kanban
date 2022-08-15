@@ -48,6 +48,7 @@ public class InMemoryTaskManager implements TaskManager {
             return -1;
         }
 
+        task.setId(getNewId());
         for (Validator validator : getTaskValidators()) {
             try {
                 validator.validate(task);
@@ -57,9 +58,10 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
 
-        task.setId(getNewId());
+        // TODO: 15.08.2022 Проверять на все поля как при update
         tasks.put(task.getId(), task);
         neededPrioritySort = true;
+        timeManager.occupyFor(task, false); // пометим время
         return task.getId();
     }
 
@@ -75,6 +77,7 @@ public class InMemoryTaskManager implements TaskManager {
             return -1;
         }
 
+        subtask.setId(getNewId());
         for (Validator validator : getTaskValidators()) {
             try {
                 validator.validate(subtask);
@@ -84,12 +87,13 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
 
-        subtask.setId(getNewId());
+        // TODO: 15.08.2022 Проверять на все поля как при update
         subtasks.put(subtask.getId(), subtask);
         Epic epic = epics.get(epicId);
         epic.addSubtaskById(subtask.getId()); // Записываем в список эпика id подзадачи
         synchronizeEpicWithSubtasks(epicId); // Синхронизируем статус и врем в эпике
         neededPrioritySort = true;
+        timeManager.occupyFor(subtask, false); // пометим время
         return subtask.getId();
     }
 
@@ -99,6 +103,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпик НЕ создан, объект не инициализирован");
             return -1;
         }
+        // TODO: 15.08.2022 Проверять на все поля как при update
         epic.setId(getNewId());
         epics.put(epic.getId(), epic);
         neededPrioritySort = true;
