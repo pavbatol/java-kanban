@@ -1,4 +1,5 @@
 import api.HttpTaskServer;
+import api.KVServer;
 import managers.FileBackedTaskManager;
 import tasks.Epic;
 import tasks.Subtask;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 import static tasks.TaskStatus.NEW;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //Запуск FileBackedTaskManager
 //        String[] pathElements= new String[]{"resources", "back.csv"};
 //        FileBackedTaskManager.main(pathElements);
@@ -27,13 +28,6 @@ public class Main {
         Task task2 = new Task("name2", "description2", NEW);
         Subtask subtask1 = new Subtask("name4", "description4", NEW, epic1.getId());
         Subtask subtask2 = new Subtask("name5", "description5", NEW, epic1.getId());
-
-        fbtm.addTask(task1);
-        fbtm.addTask(task2);
-        fbtm.addSubtask(subtask1);
-        fbtm.addSubtask(subtask2);
-
-        //System.out.println(fbtm);
 
         final int timeStep = fbtm.getTimeStepByTimeManager();
         LocalDateTime start = LocalDateTime.of(
@@ -52,20 +46,17 @@ public class Main {
         subtask2.setStartTime(task2.getEndTime());
         subtask1.setStartTime(subtask2.getEndTime());
 
+        fbtm.addTask(task1);
+        fbtm.addTask(task2);
+        fbtm.addSubtask(subtask1);
+        fbtm.addSubtask(subtask2);
+
+        //System.out.println(fbtm);
+
         fbtm.getTaskById(task1.getId());
         //fbtm.getTaskById(task2.getId());
         fbtm.getSubtaskById(subtask1.getId());
         //fbtm.getSubtaskById(subtask2.getId());
-
-//        System.out.println(fbtm);
-
-//        List<Task> allTasks = fbtm.getTasks();
-//        allTasks.addAll(fbtm.getEpics());
-//        allTasks.addAll(fbtm.getSubtasks());
-
-        //allTasks.forEach(System.out::println);
-
-
 
         HttpTaskServer httpTaskServer;
         try {
@@ -74,11 +65,16 @@ public class Main {
             System.out.println("Не удалось создать сервер");
             return;
         }
-        httpTaskServer.start();
-
-
-
-
+        //httpTaskServer.start();
         //httpTaskServer.stop();
+
+        //*******************************************************
+        //*******************************************************
+        //*******************************************************
+
+        new KVServer().start();
+
+
+
     }
 }
