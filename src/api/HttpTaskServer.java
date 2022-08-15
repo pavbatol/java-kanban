@@ -22,25 +22,27 @@ import static tasks.TaskType.*;
 import static util.Functions.*;
 
 public class HttpTaskServer {
+    private static final String NAME = "localhost";
     private static final int PORT = 8080;
     FileBackedTaskManager fbtm;
     HttpServer server;
 
     public HttpTaskServer(FileBackedTaskManager fbtm) throws IOException {
-        this.server = HttpServer.create();
-        this.server.bind(new InetSocketAddress(PORT), 0);
         this.fbtm = fbtm;
-    }
-
-    public void start() {
-        // TODO: 14.08.2022 Make all with try/catch
+        this.server = HttpServer.create();
+        this.server.bind(new InetSocketAddress(NAME, PORT), 0);
         server.createContext("/tasks/history", new AllTasksHandler());
         server.createContext("/tasks", new AllTasksHandler());
         server.createContext("/tasks/task", new TaskHandler());
         server.createContext("/tasks/subtask", new TaskHandler());
         server.createContext("/tasks/epic", new TaskHandler());
+    }
+
+    public void start() {
+        System.out.println("Запускаем сервер на порту " + PORT);
         server.start();
-        System.out.println("Сервер " + getClass().getSimpleName() + " запущен на " + PORT + " порту.");
+        System.out.println("Сервер " + getClass().getSimpleName() + " запущен на " + PORT + " порту");
+        System.out.println("Открой в браузере http://" + NAME + ":" + PORT + "/");
     }
 
     public void stop() {
