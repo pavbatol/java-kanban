@@ -485,7 +485,7 @@ public class InMemoryTaskManager implements TaskManager {
         );
     }
 
-    public TaskType getTypeByTaskId(int taskId) {
+    public TaskType getTaskTypeByTaskId(int taskId) {
         if (tasks.containsKey(taskId)) {
             return TASK;
         } else if (subtasks.containsKey(taskId)) {

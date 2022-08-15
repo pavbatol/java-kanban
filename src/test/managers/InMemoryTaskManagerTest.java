@@ -112,6 +112,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         //taskManager.getPrioritizedTasks().forEach(t -> System.out.println(t + "\n"));
     }
 
+    // TODO: 14.08.2022 Эти метод есть в Functions
     private  int addAnyTypeTask (InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
         switch (task.getType()) {
             case TASK: return tm.addTask(task);
@@ -122,6 +123,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         }
     }
 
+    // TODO: 14.08.2022 Эти метод есть в Functions
     private void updateAnyTypeTask(InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
         switch (task.getType()) {
             case TASK: tm.updateTask(task);
