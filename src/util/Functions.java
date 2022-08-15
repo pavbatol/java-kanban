@@ -227,6 +227,11 @@ public final class Functions {
         }
     }
 
+    /**
+     * Удаляет все задачи типа taskType
+     * @param tm TaskManager
+     * @param taskType Тип задачч, которые хотим удалить
+     */
     public static void removedAnyTypeTasksForType(TaskManager tm, TaskType taskType) {
         if (tm == null || taskType == null) {
             return;
