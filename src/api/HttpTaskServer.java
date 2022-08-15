@@ -8,8 +8,8 @@ import com.sun.net.httpserver.HttpServer;
 import managers.FileBackedTaskManager;
 import tasks.Task;
 import tasks.TaskType;
+import util.Functions;
 
-import javax.swing.text.Element;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -45,26 +45,6 @@ public class HttpTaskServer {
         System.out.println("Сервер " + getClass().getSimpleName() + " остановлен.");
     }
 
-    private int parsFindingStrToIntFromQuery(String finding, String query, int defaultReturn) {
-        int id = defaultReturn;
-        if (finding == null || query == null) {
-            return id;
-        }
-        String[] parts = query.split("&");
-        for (String part : parts) {
-            if (part.contains(finding) && finding.length() < part.length()) {
-                String targetStr = part.substring(finding.length());
-                try {
-                    id = Integer.parseInt(targetStr);
-                } catch (NumberFormatException e) {
-                    System.out.println("Некорректное значение для " + finding);
-                    break;
-                }
-                break;
-            }
-        }
-        return id;
-    }
 
     private class AllTasksHandler implements HttpHandler {
         // Будем возвращать в ответе все задач-подзадачи-эпики или историю просмотра
@@ -109,21 +89,14 @@ public class HttpTaskServer {
     }
 
     private class TaskHandler implements HttpHandler {
-        // Возвращаем в ответе только Tasks если GET и не указан id,
+        // Возвращаем в ответе только Tasks/Subtasks/Epics если GET и не указан id,
         // или работаем с конкретной задачей по Методу запроса
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             System.out.println("Началась обработка. Строка запроса: " + httpExchange.getRequestURI());
 
-            String path = httpExchange.getRequestURI().getPath();
-            TaskType pathType;
-            if (path.contains("/tasks/task")) {
-                pathType = TASK;
-            } else if (path.contains("/tasks/subtask")) {
-                pathType = SUBTASK;
-            } else if (path.contains("/tasks/epic")) {
-                pathType = EPIC;
-            } else {
+            TaskType pathType = getPathType(httpExchange.getRequestURI().getPath());
+            if (pathType == null) {
                 httpExchange.sendResponseHeaders(400, 0);
                 return;
             }
@@ -142,17 +115,20 @@ public class HttpTaskServer {
 
             switch (httpExchange.getRequestMethod()) {
                 case "GET":
-                    if (query != null) {
-                        if (id < 0) {
-                            httpExchange.sendResponseHeaders(400, 0);
-                        } else {
-                            response = gson.toJson(fbtm.getTaskById(id));
-                            httpExchange.sendResponseHeaders(200, 0);
-                        }
-                    } else {
-                        response = gson.toJson(fbtm.getTasks());
-                        httpExchange.sendResponseHeaders(200, 0);
-                    }
+//                    if (query != null) {
+//                        if (id < 0) {
+//                            httpExchange.sendResponseHeaders(400, 0); // нет id
+//                        } else {
+//                            response = gson.toJson(Functions.getAnyTypeTaskByIdForType(id, fbtm, pathType));
+//                            httpExchange.sendResponseHeaders(200, 0);
+//                        }
+//                    } else {
+//                        response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
+//                        httpExchange.sendResponseHeaders(200, 0);
+//                    }
+
+                    response = responsForGet(query, pathType, id, httpExchange, gson);
+
                     break;
                 case "POST":
                     if (id < 0) {
@@ -168,12 +144,17 @@ public class HttpTaskServer {
                     }
                     break;
                 case "DELETE":
-                    if (id < 0) {
-                        httpExchange.sendResponseHeaders(400, 0);
+                    if (query != null) {
+                        if (id < 0) {
+//                            httpExchange.sendResponseHeaders(400, 0); // нет id
+                        } else {
+//                            response = gson.toJson(Functions.getAnyTypeTaskByIdForType(id, fbtm, pathType));
+//                            httpExchange.sendResponseHeaders(200, 0);
+                        }
                     } else {
-
+//                        response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
+//                        httpExchange.sendResponseHeaders(200, 0);
                     }
-
                     break;
                 default:
                     httpExchange.sendResponseHeaders(405, 0);
@@ -183,6 +164,79 @@ public class HttpTaskServer {
                 os.write(response.getBytes());
             }
         }
+
+//        public Task getAnyTypeTaskByIdForType(int taskId, TaskManager tm, TaskType taskType) {
+//            if (tm == null || taskType == null) {
+//                return null;
+//            }
+//            Task task = null;
+//            switch (taskType) {
+//                case TASK: task = tm.getTaskById(taskId);
+//                    break;
+//                case SUBTASK: task = tm.getSubtaskById(taskId);
+//                    break;
+//                case EPIC: task = tm.getEpicById(taskId);
+//                    break;
+//            }
+//            return task;
+//        }
+
+        private TaskType getPathType(String path) {
+            TaskType pathType;
+            if (path.contains("/tasks/task")) {
+                pathType = TASK;
+            } else if (path.contains("/tasks/subtask")) {
+                pathType = SUBTASK;
+            } else if (path.contains("/tasks/epic")) {
+                pathType = EPIC;
+            } else {
+                return null;
+            }
+            return pathType;
+        }
+
+        private int parsFindingStrToIntFromQuery(String finding, String query, int defaultReturn) {
+            int id = defaultReturn;
+            if (finding == null || query == null) {
+                return id;
+            }
+            String[] parts = query.split("&");
+            for (String part : parts) {
+                if (part.contains(finding) && finding.length() < part.length()) {
+                    String targetStr = part.substring(finding.length());
+                    try {
+                        id = Integer.parseInt(targetStr);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Некорректное значение для " + finding);
+                        break;
+                    }
+                    break;
+                }
+            }
+            return id;
+        }
+
+
+        private String responsForGet(String query,
+                                     TaskType pathType,
+                                     int requestId,
+                                     HttpExchange httpExchange,
+                                     Gson gson) throws IOException {
+            String response = "";
+            if (query != null) {
+                if (requestId < 0) {
+                    httpExchange.sendResponseHeaders(400, 0); // нет id
+                } else {
+                    response = gson.toJson(Functions.getAnyTypeTaskByIdForType(requestId, fbtm, pathType));
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
+            } else {
+                response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
+                httpExchange.sendResponseHeaders(200, 0);
+            }
+            return response;
+        }
+
     }
 
 

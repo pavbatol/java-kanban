@@ -19,12 +19,14 @@ public class Main {
 
         FileBackedTaskManager fbtm = Managers.getNewFileBackedTaskManager();
 
-        Epic epic = new Epic("name0", "description0");
-        fbtm.addEpic(epic);
+        Epic epic1 = new Epic("name0", "description0");
+        Epic epic2 = new Epic("name0", "description0");
+        fbtm.addEpic(epic1);
+        fbtm.addEpic(epic2);
         Task task1 = new Task("name1", "description1", NEW);
         Task task2 = new Task("name2", "description2", NEW);
-        Subtask subtask1 = new Subtask("name4", "description4", NEW, epic.getId());
-        Subtask subtask2 = new Subtask("name5", "description5", NEW, epic.getId());
+        Subtask subtask1 = new Subtask("name4", "description4", NEW, epic1.getId());
+        Subtask subtask2 = new Subtask("name5", "description5", NEW, epic1.getId());
 
         fbtm.addTask(task1);
         fbtm.addTask(task2);
