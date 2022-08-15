@@ -6,12 +6,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import managers.FileBackedTaskManager;
-import managers.TaskManager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskType;
-import util.Functions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +20,6 @@ import java.util.List;
 
 import static tasks.TaskType.*;
 import static util.Functions.*;
-
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
@@ -51,7 +48,6 @@ public class HttpTaskServer {
         System.out.println("Сервер " + getClass().getSimpleName() + " остановлен.");
     }
 
-
     private class AllTasksHandler implements HttpHandler {
         // Будем возвращать в ответе все задач-подзадачи-эпики или историю просмотра
         @Override
@@ -65,9 +61,6 @@ public class HttpTaskServer {
             if (httpExchange.getRequestMethod().equals("GET")) {
                 String path = httpExchange.getRequestURI().getPath();
                 String query = httpExchange.getRequestURI().getQuery();
-
-//                System.out.println(path);
-//                System.out.println(query==null);
 
                 if ((path.endsWith("/tasks") || path.endsWith("/tasks/"))  && query == null) {
                     List<Task> allTasks = fbtm.getTasks();
@@ -111,9 +104,6 @@ public class HttpTaskServer {
             String query = httpExchange.getRequestURI().getQuery();
             int id = parsFindingStrToIntFromQuery(finding, query, -1); // после знака "?"
 
-//            System.out.println(httpExchange.getRequestURI().getQuery());
-//            System.out.println(id);
-
             Headers headers = httpExchange.getResponseHeaders();
             headers.set("Content-Type", "text/JSON");
             Gson gson = new Gson();
@@ -124,48 +114,10 @@ public class HttpTaskServer {
                     response = buildResponseForGet(query, pathType, id, httpExchange, gson);
                     break;
                 case "POST":
-//                    Task task;
-//                    InputStream inputStream = httpExchange.getRequestBody();
-//                    String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-//
-//                    Class<? extends Task> classOfT;
-//                    if (pathType == TASK) {
-//                        classOfT = Task.class;
-//                    } else if (pathType == SUBTASK) {
-//                        classOfT = Subtask.class;
-//                    } else if (pathType == EPIC) {
-//                        classOfT = Epic.class;
-//                    } else {
-//                        httpExchange.sendResponseHeaders(400, 0);
-//                        break;
-//                    }
-//
-//                    task = gson.fromJson(body, classOfT);
-//
-//                    if (query != null) {
-//                        if (id < 0) {
-//                            httpExchange.sendResponseHeaders(400, 0); // нет id, но query есть
-//                        } else {
-//                            // Обновляем
-//                            updateAnyTypeTaskForType(task, fbtm, pathType);
-//                            httpExchange.sendResponseHeaders(200, 0);
-//                        }
-//                    } else {
-//                        //Добавляем
-//                        int addedTaskId = addAnyTypeTaskForType(task, fbtm, pathType);
-//                        if (addedTaskId < 0) {
-//                            response = gson.toJson("Задача не добавлена");
-//                            httpExchange.sendResponseHeaders(202, 0);
-//                        } else {
-//                            response = gson.toJson("Задача добавлена");
-//                            httpExchange.sendResponseHeaders(201, 0);
-//                        }
-//                    }
-
-                    response =buildResponseForPOST(query, pathType, id, httpExchange, gson);
+                    response = buildResponseForPOST(query, pathType, id, httpExchange, gson);
                     break;
                 case "DELETE":
-                    response = buildResponseForDELETE(query, pathType, id, httpExchange, gson);
+                    response = buildResponseForDELETE(query, pathType, id, httpExchange);
                     break;
                 default:
                     httpExchange.sendResponseHeaders(405, 0);
@@ -225,18 +177,16 @@ public class HttpTaskServer {
                     httpExchange.sendResponseHeaders(200, 0);
                 }
             } else {
-                response = gson.toJson(getAnyTypeTasksForType(fbtm, pathType) );
+                response = gson.toJson(getAnyTypeTasksForType(fbtm, pathType));
                 httpExchange.sendResponseHeaders(200, 0);
             }
             return response;
         }
 
-
         private String buildResponseForDELETE(String query,
                                               TaskType pathType,
                                               int requestId,
-                                              HttpExchange httpExchange,
-                                              Gson gson) throws IOException {
+                                              HttpExchange httpExchange) throws IOException {
             String response = "";
             if (query != null) {
                 if (requestId < 0) {
@@ -252,54 +202,53 @@ public class HttpTaskServer {
             return response;
         }
 
-    }
+        private String buildResponseForPOST(String query,
+                                            TaskType pathType,
+                                            int requestId,
+                                            HttpExchange httpExchange,
+                                            Gson gson) throws IOException {
+            String response = "";
+            Task task;
+            InputStream inputStream = httpExchange.getRequestBody();
+            String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
-    private String buildResponseForPOST(String query,
-                                          TaskType pathType,
-                                          int requestId,
-                                          HttpExchange httpExchange,
-                                          Gson gson) throws IOException {
-        String response = "";
-        Task task;
-        InputStream inputStream = httpExchange.getRequestBody();
-        String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-        Class<? extends Task> classOfT;
-        if (pathType == TASK) {
-            classOfT = Task.class;
-        } else if (pathType == SUBTASK) {
-            classOfT = Subtask.class;
-        } else if (pathType == EPIC) {
-            classOfT = Epic.class;
-        } else {
-            httpExchange.sendResponseHeaders(400, 0);
-            return "Не определен тип по пути запроса";
-        }
-        task = gson.fromJson(body, classOfT);
-
-        if (query != null) {
-            if (requestId < 0) {
-                httpExchange.sendResponseHeaders(400, 0); // нет id, но query есть
-            } else if (requestId != task.getId()) {
-                response = gson.toJson("Не совпадают id в запросе и в задаче из тела запроса");
-                httpExchange.sendResponseHeaders(203, 0); // не совпадают id
+            Class<? extends Task> classOfT;
+            if (pathType == TASK) {
+                classOfT = Task.class;
+            } else if (pathType == SUBTASK) {
+                classOfT = Subtask.class;
+            } else if (pathType == EPIC) {
+                classOfT = Epic.class;
             } else {
-                // Обновляем
-                updateAnyTypeTaskForType(task, fbtm, pathType);
-                httpExchange.sendResponseHeaders(200, 0);
+                httpExchange.sendResponseHeaders(400, 0);
+                return "Не определен тип по пути запроса";
             }
-        } else {
-            //Добавляем
-            int addedTaskId = addAnyTypeTaskForType(task, fbtm, pathType);
-            if (addedTaskId < 0) {
-                response = gson.toJson("Задача не добавлена");
-                httpExchange.sendResponseHeaders(202, 0);
-            } else {
-                response = gson.toJson("Задача добавлена");
-                httpExchange.sendResponseHeaders(201, 0);
-            }
-        }
-        return response;
-    }
+            task = gson.fromJson(body, classOfT);
 
+            if (query != null) {
+                if (requestId < 0) {
+                    httpExchange.sendResponseHeaders(400, 0); // нет id, но query есть
+                } else if (requestId != task.getId()) {
+                    response = gson.toJson("Не совпадают id в запросе и в задаче из тела запроса");
+                    httpExchange.sendResponseHeaders(203, 0); // не совпадают id
+                } else {
+                    // Обновляем
+                    updateAnyTypeTaskForType(task, fbtm, pathType);
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
+            } else {
+                //Добавляем
+                int addedTaskId = addAnyTypeTaskForType(task, fbtm, pathType);
+                if (addedTaskId < 0) {
+                    response = gson.toJson("Задача не добавлена");
+                    httpExchange.sendResponseHeaders(202, 0);
+                } else {
+                    response = gson.toJson("Задача добавлена");
+                    httpExchange.sendResponseHeaders(201, 0);
+                }
+            }
+            return response;
+        }
+
+    }
 }
