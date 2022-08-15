@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import static tasks.TaskType.*;
+import static util.Functions.*;
 
 
 public class HttpTaskServer {
@@ -115,20 +116,7 @@ public class HttpTaskServer {
 
             switch (httpExchange.getRequestMethod()) {
                 case "GET":
-//                    if (query != null) {
-//                        if (id < 0) {
-//                            httpExchange.sendResponseHeaders(400, 0); // нет id
-//                        } else {
-//                            response = gson.toJson(Functions.getAnyTypeTaskByIdForType(id, fbtm, pathType));
-//                            httpExchange.sendResponseHeaders(200, 0);
-//                        }
-//                    } else {
-//                        response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
-//                        httpExchange.sendResponseHeaders(200, 0);
-//                    }
-
-                    response = responsForGet(query, pathType, id, httpExchange, gson);
-
+                    response = buildResponseForGet(query, pathType, id, httpExchange, gson);
                     break;
                 case "POST":
                     if (id < 0) {
@@ -144,17 +132,19 @@ public class HttpTaskServer {
                     }
                     break;
                 case "DELETE":
-                    if (query != null) {
-                        if (id < 0) {
+//                    if (query != null) {
+//                        if (id < 0) {
 //                            httpExchange.sendResponseHeaders(400, 0); // нет id
-                        } else {
-//                            response = gson.toJson(Functions.getAnyTypeTaskByIdForType(id, fbtm, pathType));
+//                        } else {
+//                            removedAnyTypeTaskByIdForType(id, fbtm, pathType);
 //                            httpExchange.sendResponseHeaders(200, 0);
-                        }
-                    } else {
-//                        response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
+//                        }
+//                    } else {
+//                        removedAnyTypeTasksForType(fbtm, pathType);
 //                        httpExchange.sendResponseHeaders(200, 0);
-                    }
+//                    }
+
+                    response = buildResponseForDELETE(query, pathType, id, httpExchange, gson);
                     break;
                 default:
                     httpExchange.sendResponseHeaders(405, 0);
@@ -164,22 +154,6 @@ public class HttpTaskServer {
                 os.write(response.getBytes());
             }
         }
-
-//        public Task getAnyTypeTaskByIdForType(int taskId, TaskManager tm, TaskType taskType) {
-//            if (tm == null || taskType == null) {
-//                return null;
-//            }
-//            Task task = null;
-//            switch (taskType) {
-//                case TASK: task = tm.getTaskById(taskId);
-//                    break;
-//                case SUBTASK: task = tm.getSubtaskById(taskId);
-//                    break;
-//                case EPIC: task = tm.getEpicById(taskId);
-//                    break;
-//            }
-//            return task;
-//        }
 
         private TaskType getPathType(String path) {
             TaskType pathType;
@@ -216,22 +190,42 @@ public class HttpTaskServer {
             return id;
         }
 
-
-        private String responsForGet(String query,
-                                     TaskType pathType,
-                                     int requestId,
-                                     HttpExchange httpExchange,
-                                     Gson gson) throws IOException {
+        private String buildResponseForGet(String query,
+                                           TaskType pathType,
+                                           int requestId,
+                                           HttpExchange httpExchange,
+                                           Gson gson) throws IOException {
             String response = "";
             if (query != null) {
                 if (requestId < 0) {
                     httpExchange.sendResponseHeaders(400, 0); // нет id
                 } else {
-                    response = gson.toJson(Functions.getAnyTypeTaskByIdForType(requestId, fbtm, pathType));
+                    response = gson.toJson(getAnyTypeTaskByIdForType(requestId, fbtm, pathType));
                     httpExchange.sendResponseHeaders(200, 0);
                 }
             } else {
-                response = gson.toJson(Functions.getAnyTypeTasksForType(fbtm, pathType) );
+                response = gson.toJson(getAnyTypeTasksForType(fbtm, pathType) );
+                httpExchange.sendResponseHeaders(200, 0);
+            }
+            return response;
+        }
+
+
+        private String buildResponseForDELETE(String query,
+                                              TaskType pathType,
+                                              int requestId,
+                                              HttpExchange httpExchange,
+                                              Gson gson) throws IOException {
+            String response = "";
+            if (query != null) {
+                if (requestId < 0) {
+                    httpExchange.sendResponseHeaders(400, 0); // нет id
+                } else {
+                    removedAnyTypeTaskByIdForType(requestId, fbtm, pathType);
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
+            } else {
+                removedAnyTypeTasksForType(fbtm, pathType);
                 httpExchange.sendResponseHeaders(200, 0);
             }
             return response;

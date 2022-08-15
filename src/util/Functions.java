@@ -171,7 +171,7 @@ public final class Functions {
      * @param taskId id задачи любого типа: Task, SubTask, Epic
      * @throws IllegalArgumentException
      */
-    public static void removedAnyTypeTaskByI(InMemoryTaskManager tm, int taskId) throws IllegalArgumentException {
+    public static void removedAnyTypeTaskById(InMemoryTaskManager tm, int taskId) throws IllegalArgumentException {
         TaskType taskType = tm.getTypeByTaskId(taskId);
         if (taskType == null) {
             return;
@@ -185,6 +185,40 @@ public final class Functions {
                 break;
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи");
+        }
+    }
+
+    /**
+     * Удалить задачу по id в зАвисимости от ее типа
+     * @param taskId id задачи
+     * @param tm Task-менеджер типа интерфейса TaskManager
+     * @param taskType Какого типа удаляем задачу
+     */
+    public static void removedAnyTypeTaskByIdForType(int taskId, TaskManager tm, TaskType taskType) {
+        if (tm == null || taskType == null) {
+            return;
+        }
+        switch (taskType) {
+            case TASK: tm.removeTaskById(taskId);
+                break;
+            case SUBTASK: tm.removeSubtaskById(taskId);
+                break;
+            case EPIC: tm.removeEpicById(taskId);
+                break;
+        }
+    }
+
+    public static void removedAnyTypeTasksForType(TaskManager tm, TaskType taskType) {
+        if (tm == null || taskType == null) {
+            return;
+        }
+        switch (taskType) {
+            case TASK: tm.removeTasks();
+                break;
+            case SUBTASK: tm.removeSubtasks();
+                break;
+            case EPIC: tm.removeEpics();
+                break;
         }
     }
 
