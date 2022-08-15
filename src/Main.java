@@ -1,5 +1,6 @@
 import api.HttpTaskServer;
 import api.KVServer;
+import api.KVTaskClient;
 import managers.FileBackedTaskManager;
 import tasks.Epic;
 import tasks.Subtask;
@@ -73,8 +74,7 @@ public class Main {
         //*******************************************************
 
         new KVServer().start();
-
-
+        KVTaskClient client = new KVTaskClient("http://localhost:8078");
 
     }
 }

@@ -43,7 +43,7 @@ public class KVServer {
                     return;
                 }
                 if (!data.containsKey(key)) {
-                    System.out.println("Ключа " + key + " не найден");
+                    System.out.println("Ключ " + key + " не найден");
                     h.sendResponseHeaders(404, 0);
                     return;
                 }
