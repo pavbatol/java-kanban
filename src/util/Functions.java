@@ -7,6 +7,8 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskType;
 
+import java.util.List;
+
 import static tasks.TaskType.*;
 
 public final class Functions {
@@ -65,11 +67,32 @@ public final class Functions {
 //    }
 
     /**
-     * Получить задачу по id в независимости от ее типа
+     * Получить список задач типа "taskType"
+     * @param tm Task-менеджер типа интерфейса TaskManager
+     * @param taskType Тип ожидаемых задач
+     * @return Вернет Список задач типа "taskType" или null
+     */
+    public static List<? extends Task> getAnyTypeTasksForType(TaskManager tm, TaskType taskType) {
+        if (tm == null || taskType == null) {
+            return null;
+        }
+        List<? extends Task> result = null;
+        switch (taskType) {
+            case TASK: result = tm.getTasks();
+                break;
+            case SUBTASK: result = tm.getSubtasks();
+                break;
+            case EPIC: result = tm.getEpics();
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * Получить задачу по id в нЕзависимости от ее типа
      * @param taskId id задачи
-     * @param tm Task-менеджер типа интерфейса TaskManager (Если передан FileBackedTasksManager,
-     *           то будет срабатывать авто-сохранение в файл)
-     * @return Task или null
+     * @param tm Task-менеджер типа интерфейса TaskManager
+     * @return Вернет Task или null
      */
     public static Task getAnyTypeTaskById(int taskId, TaskManager tm) {
         if (tm == null) return null;
@@ -79,6 +102,29 @@ public final class Functions {
         }
         if (task == null) {
             task = tm.getEpicById(taskId);
+        }
+        return task;
+    }
+
+    /**
+     * Получить задачу по id в зАвисимости от ее типа
+     * @param taskId id задачи
+     * @param tm Task-менеджер типа интерфейса TaskManager
+     * @param taskType Какого типа ищем задачу
+     * @return Вернет задачу типа "taskType" или null
+     */
+    public static Task getAnyTypeTaskByIdForType(int taskId, TaskManager tm, TaskType taskType) {
+        if (tm == null || taskType == null) {
+            return null;
+        }
+        Task task = null;
+        switch (taskType) {
+            case TASK: task = tm.getTaskById(taskId);
+                break;
+            case SUBTASK: task = tm.getSubtaskById(taskId);
+                break;
+            case EPIC: task = tm.getEpicById(taskId);
+                break;
         }
         return task;
     }
