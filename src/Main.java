@@ -1,13 +1,9 @@
-import api.GsonAdapters.CustomLinkedListAdapter;
 import api.GsonAdapters.InMemoryHistoryManagerAdapter;
 import api.GsonAdapters.LocalDateTimeAdapter;
 import api.GsonAdapters.PathAdapter;
 import api.HttpTaskServer;
-import api.KVServer;
-import api.KVTaskClient;
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import managers.FileBackedTaskManager;
 import managers.InMemoryHistoryManager;
 import tasks.Epic;
@@ -16,11 +12,9 @@ import tasks.Task;
 import util.Managers;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static tasks.TaskStatus.NEW;
 
@@ -79,6 +73,8 @@ public class Main {
         //httpTaskServer.stop();
 
         //----------------
+/*
+
         KVServer server = null;
         KVTaskClient client = null;
         try {
@@ -93,20 +89,19 @@ public class Main {
             System.out.println("Не удалось запустить HTTP-Client\n" + e.getMessage());
         }
 
+*/
 //        System.out.println("Менеджер-оригинал");
 //        System.out.println(fbtm1);
 
         // TODO: 16.08.2022 Нужен адаптер для GSON на:
         //  CustomLinkedList,
-        //  Path
 //        Gson gson = new Gson();
 
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeHierarchyAdapter(Path.class, new PathAdapter())
-                .registerTypeAdapter(InMemoryHistoryManager.CustomLinkedList.class, new CustomLinkedListAdapter())
-//                .registerTypeAdapter(InMemoryHistoryManager.class, new InMemoryHistoryManagerAdapter())
+                .registerTypeAdapter(InMemoryHistoryManager.class, new InMemoryHistoryManagerAdapter())
                 .create();
 
         String json;
@@ -117,9 +112,7 @@ public class Main {
         System.out.println(json);
 
 
-        TypeAdapter<InMemoryHistoryManager> typeAdapter = gson.getAdapter(InMemoryHistoryManager.class);
-        String s = typeAdapter.toJson(new InMemoryHistoryManager(10, false));
-        System.out.println(s);
+
 
 
 //        if (client != null) {
@@ -132,6 +125,12 @@ public class Main {
 //            System.out.println(fbtm2);
 //        }
 
+
+//        Gson gsonObject = new GsonBuilder()
+//                .setExclusionStrategies(new ExclusionStrategy() {
+//                    /** boolean method shouldSkipClass(Class<?> clz) */
+//                    /** boolean method shouldSkipField(FieldAttributes field) */
+//                });
 
 
     }

@@ -36,10 +36,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         return sizeMax;
     }
 
-    public CustomLinkedList<Task> getLastViewedTasks() {
-        return lastViewedTasks;
-    }
-
     @Override
     public List<Task> getHistory() {
         return lastViewedTasks.getTasks();
@@ -172,27 +168,6 @@ public class InMemoryHistoryManager implements HistoryManager {
                 x = x.next;
             }
             return result;
-        }
-
-
-        public Node<E> getHead() {
-            return head;
-        }
-
-        public Node<E> getTail() {
-            return tail;
-        }
-
-        public int getSizeMax() {
-            return sizeMax;
-        }
-
-        public boolean isNormalOrder() {
-            return isNormalOrder;
-        }
-
-        public Map<Integer, Node<E>> getNodes() {
-            return nodes;
         }
 
         private class Node<T> {
