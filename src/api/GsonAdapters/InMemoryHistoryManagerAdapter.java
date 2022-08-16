@@ -7,32 +7,27 @@ import managers.InMemoryHistoryManager;
 import tasks.Task;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.lang.String.join;
 
 
 public class InMemoryHistoryManagerAdapter extends TypeAdapter<InMemoryHistoryManager> {
     @Override
     public void write(JsonWriter jsonWriter, InMemoryHistoryManager mn) throws IOException {
-        /*jsonWriter.value(mn.lastViewedTasksToJson());*/
+
         jsonWriter.beginObject();
-        jsonWriter.name("sizeMax").value(mn.getSizeMax());
-        jsonWriter.name("isNormalOrder").value(mn.isNormalOrder());
-
-        List<String> ids = mn.getHistory().stream()
-                        .map(Task::getId)
-                        .map(i -> Integer.toString(i))
-                                .collect(Collectors.toList());
-
-        jsonWriter.name("lastViewedTasks").beginArray().value( join(",", ids)  ).endArray();
-
+        jsonWriter.name("history");
+        jsonWriter.beginArray();
+        for (Task task : mn.getHistory()) {
+            jsonWriter.value(task.getId());
+        }
+        jsonWriter.endArray();
         jsonWriter.endObject();
+
     }
 
     @Override
     public InMemoryHistoryManager read(JsonReader jsonReader) throws IOException {
+
+
         return null;
     }
 }

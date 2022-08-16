@@ -1,11 +1,15 @@
 import api.GsonAdapters.InMemoryHistoryManagerAdapter;
 import api.GsonAdapters.LocalDateTimeAdapter;
 import api.GsonAdapters.PathAdapter;
+import api.GsonAdapters.TimeManagerAdapter;
 import api.HttpTaskServer;
+import api.KVServer;
+import api.KVTaskClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import managers.FileBackedTaskManager;
 import managers.InMemoryHistoryManager;
+import managers.TimeManager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
@@ -73,6 +77,7 @@ public class Main {
         //httpTaskServer.stop();
 
         //----------------
+
 /*
 
         KVServer server = null;
@@ -90,40 +95,41 @@ public class Main {
         }
 
 */
-//        System.out.println("Менеджер-оригинал");
-//        System.out.println(fbtm1);
 
-        // TODO: 16.08.2022 Нужен адаптер для GSON на:
-        //  CustomLinkedList,
-//        Gson gson = new Gson();
+        System.out.println("Менеджер-оригинал");
+        System.out.println(fbtm1);
 
-        Gson gson = new GsonBuilder()
+        Gson gsonForSave = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeHierarchyAdapter(Path.class, new PathAdapter())
                 .registerTypeAdapter(InMemoryHistoryManager.class, new InMemoryHistoryManagerAdapter())
+                .registerTypeAdapter(TimeManager.class, new TimeManagerAdapter())
                 .create();
 
         String json;
-        json = gson.toJson(fbtm1);
-//        json = gson.toJson(task1);
-//        json = gson.toJson(LocalDateTime.now());
-//        json = gson.toJson(new Task("aaa", "bbb", NEW));
+        json = gsonForSave.toJson(fbtm1);
+//        json = gsonForSave.toJson(task1);
+//        json = gsonForSave.toJson(LocalDateTime.now());
+//        json = gsonForSave.toJson(new Task("aaa", "bbb", NEW));
         System.out.println(json);
 
 
+/*
 
+        if (client != null) {
+            FileBackedTaskManager fbtm2 = null;
+            String key1 = "put1";
+            client.put(key1, json); // Отправляем на сохранение
+            String response = client.load(key1); // Запрашиваем для восстановления
 
-
-//        if (client != null) {
-//            FileBackedTaskManager fbtm2 = null;
-//            String key1 = "put1";
-//            client.put(key1, json);
-//            String response = client.load(key1);
-//            fbtm2 = gson.fromJson(response, FileBackedTaskManager.class);
+//            fbtm2 = gsonForSave.fromJson(response, FileBackedTaskManager.class);
 //            System.out.println("Менеджер из восстановления");
 //            System.out.println(fbtm2);
-//        }
+        }
+
+*/
+
 
 
 //        Gson gsonObject = new GsonBuilder()

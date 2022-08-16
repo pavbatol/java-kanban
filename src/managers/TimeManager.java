@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TimeManager {
     protected final int timeStep; // Шаг изменения времени задачи
@@ -116,6 +117,18 @@ public class TimeManager {
 
     public int getTimeStep() {
         return timeStep;
+    }
+
+    public Map<String, Integer> getTimeMarksInt() {
+        return timeMarks.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        (entry) -> entry.getValue().getId()));
+    }
+
+    public Map<String, String> getTimeMarksStr() {
+        return timeMarks.entrySet().stream()
+                .collect(Collectors.toMap((entry) -> entry.getKey(),
+                        (entry) -> entry.getValue().getId() + "" ));
     }
 
     @Override
