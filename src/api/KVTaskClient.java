@@ -22,7 +22,7 @@ public class KVTaskClient {
         System.out.println("Ваш API_TOKEN: " + apiToken);
     }
 
-    void put(String key, String json) {
+    public void put(String key, String json) {
         // POST /save/<ключ>?API_TOKEN=
         URI uri = URI.create(host + "/save/" + key + "?API_TOKEN=" + apiToken);
         final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
@@ -43,7 +43,7 @@ public class KVTaskClient {
         }
     }
 
-    String load(String key) {
+    public String load(String key) {
         //GET /load/<ключ>?API_TOKEN=
         String result = "";
         URI uri = URI.create(host + "/load/" + key + "?API_TOKEN=" + apiToken);
