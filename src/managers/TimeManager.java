@@ -127,7 +127,7 @@ public class TimeManager {
 
     public Map<String, String> getTimeMarksStr() {
         return timeMarks.entrySet().stream()
-                .collect(Collectors.toMap((entry) -> entry.getKey(),
+                .collect(Collectors.toMap(Map.Entry::getKey,
                         (entry) -> entry.getValue().getId() + "" ));
     }
 
