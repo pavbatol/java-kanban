@@ -38,6 +38,9 @@ public class TimeManagerAdapter extends TypeAdapter<TimeManager> {
 
     @Override
     public TimeManager read(JsonReader jsonReader) throws IOException {
+//        int timeStep = 15;
+//        TimeManager manager = new TimeManager(timeStep);
+//        return manager;
         return null;
     }
 }
