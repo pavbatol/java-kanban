@@ -10,7 +10,7 @@ import java.util.Map;
 public class InMemoryHistoryManager implements HistoryManager {
     private final int sizeMax;
     private final boolean isNormalOrder;
-    private final CustomLinkedList<Task> lastViewedTasks;
+    private final transient CustomLinkedList<Task> lastViewedTasks;
 
     public InMemoryHistoryManager(int sizeMax, boolean isNormalOrder) {
         this.sizeMax = sizeMax;
