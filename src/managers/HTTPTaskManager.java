@@ -16,7 +16,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static java.lang.System.exit;
 import static tasks.TaskStatus.NEW;
 
 public class HTTPTaskManager extends FileBackedTaskManager{
@@ -37,9 +43,9 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .create();
         try {
             this.client = new KVTaskClient(this.url);
-            //System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.host);
+            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.url);
         } catch (RuntimeException e) {
-            System.out.println("Не удалось запустить HTTP-Client\n" + e.getMessage());
+            System.out.println("!Не удалось запустить HTTP-Client\n" + e.getMessage());
         }
     }
 
@@ -104,20 +110,23 @@ public class HTTPTaskManager extends FileBackedTaskManager{
 
     }
 
+    // Return may be null
     public static HTTPTaskManager loadFromServer(KVTaskClient client, String key) {
         HTTPTaskManager hm = Managers.getNewHTTPTaskManager();
+        if (client == null) {
+            System.out.println("Клиент не запущен (null), загрузка отменена");
+            return null;
+        }
         String json = client.load(key);
-
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
-
         JsonElement jsonElement = JsonParser.parseString(json);
         if(!jsonElement.isJsonObject()) {
             System.out.println("Ответ от сервера не соответствует ожидаемому.");
             return null;
         }
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
 
         JsonObject root = jsonElement.getAsJsonObject();
         hm.itemId = root.get("itemId").getAsInt();
@@ -147,8 +156,14 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         //История
         JsonObject johistoryManager = root.get("historyManager").getAsJsonObject();
         JsonArray johistory = johistoryManager.get("history").getAsJsonArray();
-        for (JsonElement el : johistory) {
-            int id = el.getAsInt();
+
+        boolean isRev = false; // нормальный или обратный порядок
+        int size = johistory.size();
+        if (!((InMemoryHistoryManager) hm.getHistoryManager()).isNormalOrder()) {
+            isRev = true;
+        }
+        for (int i = isRev ? size - 1 : 0; isRev ? i >=0 : i < size ; i += isRev ? -1 : 1) {
+            int id =  johistory.get(i).getAsInt();
             if (hm.getTasksKeeper().containsKey(id)) {
                 hm.getHistoryManager().add(hm.getTasksKeeper().get(id));
             } else if (hm.getSubtasksKeeper().containsKey(id)) {
