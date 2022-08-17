@@ -31,7 +31,7 @@ public class Main {
             return;
         }
 
-        InMemoryTaskManager tm = (HTTPTaskManager)Managers.getDefault();
+        HTTPTaskManager tm = (HTTPTaskManager)Managers.getDefault();
 
         Epic epic1 = new Epic("name0", "description0");
         Epic epic2 = new Epic("name0", "description0");
