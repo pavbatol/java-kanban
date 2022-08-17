@@ -11,6 +11,4 @@ public interface HistoryManager {
 
     List<Task> getHistory();
 
-    boolean isNormalOrder();
-
 }

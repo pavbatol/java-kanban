@@ -18,8 +18,8 @@ import java.util.List;
 import static tasks.TaskStatus.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager{
-    private final Path path;
-    private final String lineSep = "\n"; // maybe System.lineSeparator()
+    private final transient Path path;
+    private final transient String lineSep = "\n"; // maybe System.lineSeparator()
     public FileBackedTaskManager(Path path) {
         super();
         this.path = path;
@@ -106,7 +106,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
                 if (!str.isEmpty()) {
                     if (nextHasHistory) {
                         List<Integer> ids = CSVConverter.fromStringOfHistory(str);
-                        if (!taskManager.getHistoryManager().isNormalOrder()) {
+                        if (!((InMemoryHistoryManager)taskManager.getHistoryManager()).isNormalOrder()) {
                             Collections.reverse(ids);
                         }
                         ids.forEach(id -> {
