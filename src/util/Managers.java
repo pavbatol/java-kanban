@@ -26,10 +26,8 @@ public final class Managers {
     }
 
     public static TaskManager getDefault() {
-        return getNewInMemoryTaskManager();
+        return getNewHTTPTaskManager();
     }
-
-
 
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager(10, false);
