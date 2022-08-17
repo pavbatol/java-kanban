@@ -15,6 +15,6 @@ public class PathAdapter extends TypeAdapter<Path> {
 
     @Override
     public Path read(JsonReader jsonReader) throws IOException {
-        return  jsonReader == null ? null : Path.of(jsonReader.getPath());
+        return null;
     }
 }
