@@ -16,13 +16,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static tasks.TaskStatus.NEW;
 
 public class HTTPTaskManager extends FileBackedTaskManager{
     private final transient String key;
-    private final String host;
+    private final transient String host;
     private final transient Gson gson;
     private transient KVTaskClient client;
 
@@ -37,8 +36,8 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .registerTypeAdapter(TimeManager.class, new TimeManagerAdapter())
                 .create();
         try {
-            this.client = new KVTaskClient("http://localhost:8078");
-            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.host);
+            this.client = new KVTaskClient(this.host);
+            //System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.host);
         } catch (RuntimeException e) {
             System.out.println("Не удалось запустить HTTP-Client\n" + e.getMessage());
         }
@@ -176,11 +175,22 @@ public class HTTPTaskManager extends FileBackedTaskManager{
     }
 
     private String generateKey() {
-        //return "" + System.currentTimeMillis();
         return "taskManager";
     }
 
-    protected String getKey() {
+    public String getKey() {
         return key;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public Gson getGson() {
+        return gson;
+    }
+
+    public KVTaskClient getClient() {
+        return client;
     }
 }
