@@ -520,6 +520,7 @@ public class InMemoryTaskManager implements TaskManager {
                 "\tepics=\n" + strs.get("epics") +
                 "\tsubtasks=\n" + strs.get("subtasks") +
                 "\thistoryManager=" + historyManager.toString().replace("\n", "\n\t") + "\n" +
+                "\ttimeManager=" + timeManager.toString().replace("\n", "\n\t") + "\n" +
                 '}';
     }
 }

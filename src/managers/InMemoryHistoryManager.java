@@ -46,6 +46,8 @@ public class InMemoryHistoryManager implements HistoryManager {
         final String[] str = {""};
         lastViewedTasks.getTasks().forEach(task -> str[0] += "\n\t\t" + task);
         return "InMemoryHistoryManager{" +
+                "\n\tsizeMax=" + sizeMax +
+                "\n\tisNormalOrder=" + isNormalOrder +
                 "\n\tlastViewedTasks=" + str[0] + "\n" +
                 '}';
     }

@@ -4,9 +4,7 @@ import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TimeManager {
@@ -142,6 +140,21 @@ public class TimeManager {
     @Override
     public int hashCode() {
         return Objects.hash(timeStep, timeMarks);
+    }
+
+    @Override
+    public String toString() {
+        List<String> timeMarksStrs = getTimeMarksInt().entrySet().stream()
+                .sorted((o1, o2) -> LocalDateTime.parse(o1.getKey()).isAfter(LocalDateTime.parse(o2.getKey())) ? 1
+                        : LocalDateTime.parse(o1.getKey()).isBefore(LocalDateTime.parse(o2.getKey())) ? -1 : 0)
+                .map(e -> "\n\t\t" + e.getKey() + " = " +  e.getValue())
+                .collect(Collectors.toList());
+
+        return "TimeManager{" +
+                "\n\ttimeStep=" + timeStep +
+                "\n\ttimeMarks=" + timeMarksStrs + "\n" +
+                '}';
+
     }
 }
 
