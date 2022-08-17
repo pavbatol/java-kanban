@@ -21,14 +21,14 @@ import static tasks.TaskStatus.NEW;
 
 public class HTTPTaskManager extends FileBackedTaskManager{
     private final transient String key;
-    private final transient String host;
+    private final transient String url;
     private final transient Gson gson;
     private transient KVTaskClient client;
 
-    public HTTPTaskManager(String host) {
+    public HTTPTaskManager(String url) {
         super(Path.of(""));
         this.key =  generateKey();
-        this.host = host;
+        this.url = url;
         this.gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -36,7 +36,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .registerTypeAdapter(TimeManager.class, new TimeManagerAdapter())
                 .create();
         try {
-            this.client = new KVTaskClient(this.host);
+            this.client = new KVTaskClient(this.url);
             //System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.host);
         } catch (RuntimeException e) {
             System.out.println("Не удалось запустить HTTP-Client\n" + e.getMessage());
@@ -182,8 +182,8 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         return key;
     }
 
-    public String getHost() {
-        return host;
+    public String getUrl() {
+        return url;
     }
 
     public Gson getGson() {

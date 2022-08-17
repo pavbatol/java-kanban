@@ -7,14 +7,14 @@ import java.nio.file.Paths;
 
 public final class Managers {
     public static final Path path = Paths.get("resources", "back.csv");
-    public static final String host = "http://localhost:8078";
+    public static final String url = "http://localhost:8078";
     public static final TaskManager currentTaskManager = getDefault(); // Можно использовать как единый менеджер
 
     private Managers() {
     }
 
     public static HTTPTaskManager getNewHTTPTaskManager() {
-        return new HTTPTaskManager(host);
+        return new HTTPTaskManager(url);
     }
 
     public static FileBackedTaskManager getNewFileBackedTaskManager() {
