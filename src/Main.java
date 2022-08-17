@@ -8,6 +8,7 @@ import api.KVTaskClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import managers.FileBackedTaskManager;
+import managers.HTTPTaskManager;
 import managers.InMemoryHistoryManager;
 import managers.TimeManager;
 import tasks.Epic;
@@ -28,6 +29,11 @@ public class Main {
 //        String[] pathElements= new String[]{"resources", "back.csv"};
 //        FileBackedTaskManager.main(pathElements);
 
+        //Запуск HTTPTaskManager
+        HTTPTaskManager.main(new String[] {"http://localhost:8078"});
+
+
+/*
         FileBackedTaskManager fbtm1 = Managers.getNewFileBackedTaskManager();
 
         Epic epic1 = new Epic("name0", "description0");
@@ -78,8 +84,6 @@ public class Main {
 
         //----------------
 
-/*
-
         KVServer server = null;
         KVTaskClient client = null;
         try {
@@ -94,7 +98,7 @@ public class Main {
             System.out.println("Не удалось запустить HTTP-Client\n" + e.getMessage());
         }
 
-*/
+
 
         System.out.println("Менеджер-оригинал");
         System.out.println(fbtm1);
@@ -115,7 +119,7 @@ public class Main {
         System.out.println(json);
 
 
-/*
+
 
         if (client != null) {
             FileBackedTaskManager fbtm2 = null;
@@ -128,15 +132,16 @@ public class Main {
 //            System.out.println(fbtm2);
         }
 
-*/
+
 
 
 
 //        Gson gsonObject = new GsonBuilder()
 //                .setExclusionStrategies(new ExclusionStrategy() {
-//                    /** boolean method shouldSkipClass(Class<?> clz) */
-//                    /** boolean method shouldSkipField(FieldAttributes field) */
+//                    boolean method shouldSkipClass(Class<?> clz)
+//                    boolean method shouldSkipField(FieldAttributes field)
 //                });
+*/
 
 
     }
