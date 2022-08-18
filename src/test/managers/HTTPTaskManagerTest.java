@@ -5,7 +5,6 @@ import org.junit.jupiter.api.*;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import util.Managers;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -27,35 +26,36 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
         return new HTTPTaskManager(url);
     }
 
-    @Override
-    @BeforeEach
-    public void beforeEach() {
+    private void serverStart() {
         try {
             server = new KVServer();
             server.start();
         } catch (IOException e) {
             System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
         }
-        taskManager = getNewTaskManager();
     }
 
-    @AfterEach
-    void tearDown() {
+    private void serverStop() {
         server.stop();
     }
 
     @Test
     void loadFromServer_should_be_not_equal_if_no_file_on_server() {
         // Проверка если на сервере нет еще ключа по сохраненному файлу
+        serverStart();
         HTTPTaskManager tm2 = new HTTPTaskManager(url);
         tm2 = HTTPTaskManager.loadFromServer(tm2.getClient(), key);
 
         assertNull(tm2);
+
+        serverStop();
     }
 
     @Test
     void loadFromServer_should_be_not_equal_if_file_on_server() {
+        serverStart();
+        taskManager = getNewTaskManager();
+
         Task task1 = new Task("Name", "Description", NEW);
         Task task2 = new Task("Name", "Description", NEW);
         Epic epic1 = new Epic("Name", "Description");
@@ -108,8 +108,8 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
 
         tm2 = new HTTPTaskManager(url);
         tm2 = HTTPTaskManager.loadFromServer(tm2.getClient(), key);
-        System.out.println("\n-------\n1-ый менеджер:\n" + taskManager);
-        System.out.println("\n-------\n2*ой менеджер:\n" + tm2);
+        //System.out.println("\n-------\n1-ый менеджер:\n" + taskManager);
+        //System.out.println("\n-------\n2*ой менеджер:\n" + tm2);
 
         assertNotNull(tm2);
         assertArrayEquals(taskManager.getTasks().toArray(), tm2.getTasks().toArray(),
@@ -121,10 +121,24 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
         assertArrayEquals(taskManager.getHistory().toArray(), tm2.getHistory().toArray(),
                 "Списки истории не равны");
         assertEquals(5, tm2.getHistory().size(), "Неверный размер списка истории");
+
+        serverStop();
     }
 
     @Test
-    void save() {
+    void save_should_be_saved() {
+        serverStart();
+        taskManager = getNewTaskManager();
+
+        taskManager.save();
+
+        HTTPTaskManager tm2 = new HTTPTaskManager(url);
+        tm2 = HTTPTaskManager.loadFromServer(tm2.getClient(), key);
+
+        assertNotNull(tm2);
+        assertEquals(taskManager, tm2, "Менеджеры не равны");
+
+        serverStop();
     }
 
 }
