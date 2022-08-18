@@ -145,11 +145,11 @@ public class HttpTaskServer {
 
         private TaskType getPathType(String path) {
             TaskType pathType;
-            if (path.endsWith("/tasks/task")) {
+            if (path.endsWith("/tasks/task") || path.endsWith("/tasks/task/")) {
                 pathType = TASK;
-            } else if (path.endsWith("/tasks/subtask")) {
+            } else if (path.endsWith("/tasks/subtask") || path.endsWith("/tasks/subtask/")) {
                 pathType = SUBTASK;
-            } else if (path.endsWith("/tasks/epic")) {
+            } else if (path.endsWith("/tasks/epic") || path.endsWith("/tasks/epic/")) {
                 pathType = EPIC;
             } else {
                 return null;
