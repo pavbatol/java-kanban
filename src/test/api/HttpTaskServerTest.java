@@ -201,7 +201,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_epic_GET_should_response_body_received() throws IOException, InterruptedException {
-        //Получить Epic
+        //Получить задачи Epic
         fillManager();
         URI uri = URI.create(url + "/tasks/epic");
         HttpRequest request = HttpRequest.newBuilder()
@@ -249,6 +249,64 @@ class HttpTaskServerTest {
         assertEquals(task1, receivedTask, "Задачи не равны");
 
     }
+
+    @Test
+    void tasks_subtask_id_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить задачу Subtask по id
+        removeAllTasksFromManager();
+        Epic epic1 = addEpicToManager();
+        Subtask subtask1 =  addSubtaskToManager(epic1);
+        Subtask receivedTask;
+
+        URI uri = URI.create(url + "/tasks/subtask?id=" + subtask1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        System.out.println(jsonElement);
+
+        JsonObject joTask = jsonElement.getAsJsonObject();
+        receivedTask = gson.fromJson(joTask, Subtask.class);
+
+        assertEquals(subtask1, receivedTask, "Задачи не равны");
+
+    }
+
+    @Test
+    void tasks_epic_id_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить задачу Epic по id
+        removeAllTasksFromManager();
+        Epic epic1 = addEpicToManager();
+        Epic receivedTask;
+
+        URI uri = URI.create(url + "/tasks/epic?id=" + epic1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        System.out.println(jsonElement);
+
+        JsonObject joTask = jsonElement.getAsJsonObject();
+        receivedTask = gson.fromJson(joTask, Epic.class);
+
+        assertEquals(epic1, receivedTask, "Задачи не равны");
+
+    }
+
+
+
 
 
 
