@@ -1,6 +1,8 @@
 package api;
 
+import api.GsonAdapters.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -16,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static tasks.TaskType.*;
@@ -59,7 +62,10 @@ public class HttpTaskServer {
             String response;
             Headers headers = h.getResponseHeaders();
             headers.set("Content-Type", "text/JSON");
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .create();
 
             if ("GET".equals(h.getRequestMethod())) {
                 String path = h.getRequestURI().getPath();
@@ -109,7 +115,10 @@ public class HttpTaskServer {
 
             Headers headers = h.getResponseHeaders();
             headers.set("Content-Type", "text/JSON");
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .create();
             String response = "";
 
             switch (h.getRequestMethod()) {
