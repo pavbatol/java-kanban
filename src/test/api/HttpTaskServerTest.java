@@ -1,15 +1,12 @@
 package api;
 
-import api.GsonAdapters.HistoryManagerAdapter;
 import api.GsonAdapters.LocalDateTimeAdapter;
-import api.GsonAdapters.TimeManagerAdapter;
 import com.google.gson.*;
-import managers.*;
+import managers.FileBackedTaskManager;
 import org.junit.jupiter.api.*;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import util.Managers;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,7 +48,6 @@ class HttpTaskServerTest {
             server.start();
         } catch (IOException e) {
             System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
         }
     }
 
@@ -320,7 +316,7 @@ class HttpTaskServerTest {
 
         //Добавить новую задачу Task
         removeAllTasksFromManager();
-        Task task1 =  new Task("name_Task", "description_Task", NEW);;
+        Task task1 =  new Task("name_Task", "description_Task", NEW);
         Task receivedTask;
 
         String json = gson.toJson(task1);
@@ -427,7 +423,7 @@ class HttpTaskServerTest {
 
         //Обновить задачу Task по id
         removeAllTasksFromManager();
-        Task task1 =  addTaskToManager();;
+        Task task1 =  addTaskToManager();
         Task newTask =  new Task("name_Task_2", "description_Task_2", DONE);
         newTask.setId(task1.getId());
 
@@ -496,7 +492,7 @@ class HttpTaskServerTest {
 
         //Обновить задачу Epic по id
         removeAllTasksFromManager();
-        Epic epic1 =  addEpicToManager();;
+        Epic epic1 =  addEpicToManager();
         Epic newTask =  new Epic("name_Epic_2", "description_Epic_2");
         newTask.setId(epic1.getId());
 
@@ -711,9 +707,6 @@ class HttpTaskServerTest {
         assertTrue(epics.contains(task2));
         assertEquals(1, epics.size(), "Размер списка не соответствует");
     }
-
-
-
 
     private Task addTaskToManager() {
         Task task = new Task("name_Task", "description_Task", NEW);
