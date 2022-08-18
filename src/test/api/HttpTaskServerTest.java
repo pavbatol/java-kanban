@@ -1,14 +1,15 @@
 package api;
 
-import managers.FileBackedTaskManager;
-import managers.HTTPTaskManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import api.GsonAdapters.HistoryManagerAdapter;
+import api.GsonAdapters.LocalDateTimeAdapter;
+import api.GsonAdapters.TimeManagerAdapter;
+import com.google.gson.*;
+import managers.*;
+import org.junit.jupiter.api.*;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
+import util.Managers;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,30 +20,108 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tasks.TaskStatus.NEW;
+import static tasks.TaskType.*;
 
 class HttpTaskServerTest {
-    Path path = Paths.get("resourcesTest", "backTest.csv");
+    static Path path = Paths.get("resourcesTest", "backTest.csv");
+    public static FileBackedTaskManager tm;
     public final int port = 8080;
     public final String host = "http://localhost";
     public final String url = host +":" + port;
-    public int id = -1;
-    HttpTaskServer server;
+    static HttpTaskServer server;
     static HttpClient client;
+    Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
+
 
     @BeforeAll
     static void beforeAll() {
         client = HttpClient.newHttpClient();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
+    }
+
+    @AfterAll
+    static void afterAll() {
+        server.stop();
     }
 
     @BeforeEach
     public void beforeEach() {
-        id = -1;
-        // Наполняем менеджер
-        final FileBackedTaskManager tm = new FileBackedTaskManager(path);
 
+    }
+
+    @AfterEach
+    void tearDown() {
+        clearManager();
+    }
+
+
+
+    @Test
+    void tasks_not_GET_should_response_code_equal_405() throws IOException, InterruptedException {
+        URI uri = URI.create(url + "/tasks");
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString("{\"test\":1}"))
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(405, response.statusCode());
+
+    }
+
+    @Test
+     void tasks_GET_should_response_body_received() throws IOException, InterruptedException {
+        fillManager();
+        URI uri = URI.create(url + "/tasks");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
+        //Задачи
+        List<Task> tasks = new ArrayList<>();
+        List<Subtask> subtasks = new ArrayList<>();
+        List<Epic> epic = new ArrayList<>();
+        for (JsonElement joTask : jArray) {
+            //System.out.println( joTask.getAsJsonObject().get("type").getAsString()  );
+            if (TASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
+                tasks.add(gson.fromJson(joTask, Task.class));
+            } else if (SUBTASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
+                subtasks.add(gson.fromJson(joTask, Subtask.class));
+            } else if (EPIC.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
+                epic.add(gson.fromJson(joTask, Epic.class));
+            }
+        }
+
+        assertEquals(tm.getTasks(), tasks, "Списки задач не равны");
+        assertEquals(tm.getSubtasks(), subtasks, "Списки подзадач не равны");
+        assertEquals(tm.getEpics(), epic, "Списки эпик не равны");
+
+    }
+
+    private void fillManager() {
         Epic epic1 = new Epic("name0", "description0");
         Epic epic2 = new Epic("name0", "description0");
         tm.addEpic(epic1);
@@ -83,34 +162,9 @@ class HttpTaskServerTest {
         tm.getSubtaskById(subtask1.getId());
         tm.getSubtaskById(subtask2.getId());
         tm.getSubtaskById(subtask3.getId());
-
-        // Запускаем сервер
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
     }
 
-    @AfterEach
-    void tearDown() {
-        server.stop();
-    }
-
-    @Test
-    void tasks_not_GET_should_response_code_equal_405() throws IOException, InterruptedException {
-        URI uri = URI.create(url + "/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString("{\"test\":1}"))
-                .uri(uri)
-                .build();
-        HttpResponse<String> response;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(405, response.statusCode());
-
+    private void clearManager() {
+        tm = new FileBackedTaskManager(path);
     }
 }
