@@ -306,9 +306,6 @@ class HttpTaskServerTest {
 
     }
 
-
-
-
     @Test
     void tasks_task_POST_should_task_added_() throws IOException, InterruptedException {
         server.stop();
@@ -416,9 +413,6 @@ class HttpTaskServerTest {
 
     }
 
-
-
-
     @Test
     void tasks_task_id_POST_should_task_updated() throws IOException, InterruptedException {
         server.stop();
@@ -521,9 +515,6 @@ class HttpTaskServerTest {
         assertEquals(epic1, newTask, "Задачи не равны");
     }
 
-
-
-
     @Test
     void tasks_task_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
         server.stop();
@@ -618,21 +609,107 @@ class HttpTaskServerTest {
 
     }
 
-
-
     @Test
     void tasks_task_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Удалить Task по id
+        removeAllTasksFromManager();
+        Task task1 =  addTaskToManager();
+        Task task2 =  addTaskToManager();
+
+        URI uri = URI.create(url + "/tasks/task?id=" + task1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Task> tasks = tm.getTasks();
+
+        assertFalse(tasks.contains(task1));
+        assertTrue(tasks.contains(task2));
+        assertEquals(1, tasks.size(), "Размер списка не соответствует");
     }
 
     @Test
     void tasks_subtask_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Удалить Subtask по id
+        removeAllTasksFromManager();
+        Epic epic1 = addEpicToManager();
+        Subtask task1 =  addSubtaskToManager(epic1);
+        Subtask task2 =  addSubtaskToManager(epic1);
+
+        URI uri = URI.create(url + "/tasks/subtask?id=" + task1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Subtask> subtasks = tm.getSubtasks();
+
+        assertFalse(subtasks.contains(task1));
+        assertTrue(subtasks.contains(task2));
+        assertEquals(1, subtasks.size(), "Размер списка не соответствует");
     }
 
     @Test
     void tasks_epic_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Удалить Epic по id
+        removeAllTasksFromManager();
+        Epic task1 = addEpicToManager();
+        Epic task2 = addEpicToManager();
+
+        URI uri = URI.create(url + "/tasks/epic?id=" + task1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Epic> epics = tm.getEpics();
+
+        assertFalse(epics.contains(task1));
+        assertTrue(epics.contains(task2));
+        assertEquals(1, epics.size(), "Размер списка не соответствует");
     }
 
 
