@@ -66,10 +66,8 @@ class HttpTaskServerTest {
 
     @AfterEach
     void tearDown() {
-        clearManager();
+        removeAllTasksFromManager();
     }
-
-
 
     @Test
     void tasks_not_GET_should_response_code_equal_405() throws IOException, InterruptedException {
@@ -98,14 +96,13 @@ class HttpTaskServerTest {
 
         assertEquals(200, response.statusCode(), "Код не совпадает");
 
-        JsonElement jsonElement = JsonParser.parseString(response.body());
-        JsonArray jArray = jsonElement.getAsJsonArray();
-        //Задачи
         List<Task> tasks = new ArrayList<>();
         List<Subtask> subtasks = new ArrayList<>();
         List<Epic> epic = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
         for (JsonElement joTask : jArray) {
-            //System.out.println( joTask.getAsJsonObject().get("type").getAsString()  );
             if (TASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
                 tasks.add(gson.fromJson(joTask, Task.class));
             } else if (SUBTASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
@@ -119,6 +116,161 @@ class HttpTaskServerTest {
         assertEquals(tm.getSubtasks(), subtasks, "Списки подзадач не равны");
         assertEquals(tm.getEpics(), epic, "Списки эпик не равны");
 
+    }
+
+    @Test
+    void tasks_history_GET_should_response_body_received() throws IOException, InterruptedException {
+        fillManager();
+        URI uri = URI.create(url + "/tasks/history");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Task> history = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
+        for (JsonElement joTask : jArray) {
+            if (TASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
+                history.add(gson.fromJson(joTask, Task.class));
+            } else if (SUBTASK.name().equals(joTask.getAsJsonObject().get("type").getAsString())) {
+                history.add(gson.fromJson(joTask, Subtask.class));
+            }
+        }
+
+        assertEquals(tm.getHistory(), history, "Списки истории не равны");
+
+    }
+
+    @Test
+    void tasks_task_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить задачи Task
+        fillManager();
+        URI uri = URI.create(url + "/tasks/task");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Task> tasks = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
+        for (JsonElement joTask : jArray) {
+            tasks.add(gson.fromJson(joTask, Task.class));
+        }
+
+        assertEquals(tm.getTasks(), tasks, "Списки задач не равны");
+
+    }
+
+    @Test
+    void tasks_subtask_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить задачи Subtask
+        fillManager();
+        URI uri = URI.create(url + "/tasks/subtask");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Subtask> tasks = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
+        for (JsonElement joTask : jArray) {
+            tasks.add(gson.fromJson(joTask, Subtask.class));
+        }
+
+        assertEquals(tm.getSubtasks(), tasks, "Списки подзадач не равны");
+
+    }
+
+    @Test
+    void tasks_epic_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить Epic
+        fillManager();
+        URI uri = URI.create(url + "/tasks/epic");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Epic> tasks = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jArray = jsonElement.getAsJsonArray();
+        for (JsonElement joTask : jArray) {
+            tasks.add(gson.fromJson(joTask, Epic.class));
+        }
+
+        assertEquals(tm.getEpics(), tasks, "Списки подзадач не равны");
+
+    }
+
+    @Test
+    void tasks_task_id_GET_should_response_body_received() throws IOException, InterruptedException {
+        //Получить задачу Task по id
+        removeAllTasksFromManager();
+        Task task1 =  addTaskToManager();
+        Task receivedTask;
+
+        URI uri = URI.create(url + "/tasks/task?id=" + task1.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonObject joTask = jsonElement.getAsJsonObject();
+        receivedTask = gson.fromJson(joTask, Task.class);
+
+        assertEquals(task1, receivedTask, "Задачи не равны");
+
+    }
+
+
+
+
+
+
+    private Task addTaskToManager() {
+        Task task = new Task("name_Task", "description_Task", NEW);
+        tm.addTask(task);
+        return task;
+    }
+
+    private Subtask addSubtaskToManager(Epic epic) {
+        Subtask subtask = new Subtask("name_Subtask", "description_Subtask", NEW, epic.getId());
+        tm.addSubtask(subtask);
+        return subtask;
+    }
+
+    private Epic addEpicToManager() {
+        Epic epic = new Epic("name_Epic", "description_Epic");
+        tm.addEpic(epic);
+        return epic;
     }
 
     private void fillManager() {
@@ -164,7 +316,9 @@ class HttpTaskServerTest {
         tm.getSubtaskById(subtask3.getId());
     }
 
-    private void clearManager() {
-        tm = new FileBackedTaskManager(path);
+    private void removeAllTasksFromManager() {
+        tm.removeTasks();
+        tm.removeSubtasks();
+        tm.removeEpics();
     }
 }
