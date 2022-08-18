@@ -103,7 +103,7 @@ public class HttpTaskServer {
         public void handle(HttpExchange h) throws IOException {
             System.out.println("Началась обработка. Строка запроса: " + h.getRequestURI());
 
-            TaskType pathType = getPathType(h.getRequestURI().getPath());
+            TaskType pathType = getPathType(h.getRequestURI().getPath()); //Для каких задач запрос
             if (pathType == null) {
                 h.sendResponseHeaders(400, 0);
                 return;
@@ -122,13 +122,13 @@ public class HttpTaskServer {
             String response = "";
 
             switch (h.getRequestMethod()) {
-                case "GET":
+                case "GET": //Получить задачи-задачу по типу
                     response = buildResponseForGet(rawQuery, pathType, id, h, gson);
                     break;
-                case "POST":
+                case "POST": //Добавить-обновить по типу задачу, в зависимости есть ли id в запросе
                     response = buildResponseForPOST(rawQuery, pathType, id, h, gson);
                     break;
-                case "DELETE":
+                case "DELETE"://Удалить по типу задачи-задачу , в зависимости есть ли id в запросе
                     response = buildResponseForDELETE(rawQuery, pathType, id, h);
                     break;
                 default:
