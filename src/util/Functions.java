@@ -146,7 +146,6 @@ public final class Functions {
      * Обновитьзадачу любого типа
      * @param tm менеджер типа TaskManager
      * @param task Задача любого типа: Task, SubTask, Epic
-     * @throws IllegalArgumentException
      */
     public static void updateAnyTypeTask(TaskManager tm, Task task) throws IllegalArgumentException {
         switch (task.getType()) {
@@ -188,7 +187,6 @@ public final class Functions {
      * Удалить люобой тип задачи по id
      * @param tm менеджер InMemoryTaskManager
      * @param taskId id задачи любого типа: Task, SubTask, Epic
-     * @throws IllegalArgumentException
      */
     public static void removedAnyTypeTaskById(InMemoryTaskManager tm, int taskId) throws IllegalArgumentException {
         TaskType taskType = tm.getTaskTypeByTaskId(taskId);

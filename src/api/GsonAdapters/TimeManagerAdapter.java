@@ -11,19 +11,6 @@ import java.util.Map;
 public class TimeManagerAdapter extends TypeAdapter<TimeManager> {
     @Override
     public void write(JsonWriter jsonWriter, TimeManager tm) throws IOException {
-        //Вложенный массив в корень
-//        jsonWriter.beginObject();
-//        jsonWriter.name("timeMarks");
-//        jsonWriter.beginArray();
-//        for (Map.Entry<String, Integer> entry : tm.getTimeMarksInt().entrySet()) {
-//            jsonWriter.beginObject();
-//            jsonWriter.name(entry.getKey());
-//            jsonWriter.value(entry.getValue());
-//            jsonWriter.endObject();
-//        }
-//        jsonWriter.endArray();
-//        jsonWriter.endObject();
-
 
         jsonWriter.beginObject();
         jsonWriter.name("timeMarks");
@@ -37,10 +24,7 @@ public class TimeManagerAdapter extends TypeAdapter<TimeManager> {
     }
 
     @Override
-    public TimeManager read(JsonReader jsonReader) throws IOException {
-//        int timeStep = 15;
-//        TimeManager manager = new TimeManager(timeStep);
-//        return manager;
+    public TimeManager read(JsonReader jsonReader) {
         return null;
     }
 }

@@ -188,18 +188,6 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         return "taskManager";
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public Gson getGson() {
-        return gson;
-    }
-
     public KVTaskClient getClient() {
         return client;
     }

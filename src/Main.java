@@ -1,6 +1,5 @@
 import api.KVServer;
 import managers.HTTPTaskManager;
-import managers.InMemoryTaskManager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
@@ -81,6 +80,8 @@ public class Main {
         System.out.println(tm);
         System.out.println("\nМенеджер загруженный с сервера");
         System.out.println(tm2);
+
+        server.stop();
 
     }
 

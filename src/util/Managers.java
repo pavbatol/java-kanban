@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 public final class Managers {
     public static final Path path = Paths.get("resources", "back.csv");
     public static final String url = "http://localhost:8078";
-    public static final TaskManager currentTaskManager = getDefault(); // Можно использовать как единый менеджер
 
     private Managers() {
     }
