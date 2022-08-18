@@ -16,13 +16,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.Objects;
 
-import static java.lang.System.exit;
 import static tasks.TaskStatus.NEW;
 
 public class HTTPTaskManager extends FileBackedTaskManager{
@@ -207,5 +202,25 @@ public class HTTPTaskManager extends FileBackedTaskManager{
 
     public KVTaskClient getClient() {
         return client;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HTTPTaskManager that = (HTTPTaskManager) o;
+        return key.equals(that.key)
+                && url.equals(that.url)
+                && Objects.equals(client, that.client)
+                ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                key,
+                url,
+                client
+        );
     }
 }

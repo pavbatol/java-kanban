@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 
 public class KVTaskClient {
     private final String host;
@@ -88,4 +89,16 @@ public class KVTaskClient {
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KVTaskClient client1 = (KVTaskClient) o;
+        return host.equals(client1.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host);
+    }
 }
