@@ -308,7 +308,73 @@ class HttpTaskServerTest {
 
 
 
+    @Test
+    void tasks_task_POST_should_task_added() throws IOException, InterruptedException {
 
+    }
+
+    @Test
+    void tasks_subtask_POST_should_task_added() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_epic_POST_should_task_added() throws IOException, InterruptedException {
+
+    }
+
+
+
+
+    @Test
+    void tasks_task_id_POST_should_task_updated() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_subtask_id_POST_should_task_updated() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_epic_id_POST_should_task_updated() throws IOException, InterruptedException {
+
+    }
+
+
+
+
+    @Test
+    void tasks_task_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_subtask_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_epic_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+
+    }
+
+
+
+    @Test
+    void tasks_task_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_subtask_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+
+    }
+
+    @Test
+    void tasks_epic_id_DELETE_should_task_removed() throws IOException, InterruptedException {
+
+    }
 
 
 
