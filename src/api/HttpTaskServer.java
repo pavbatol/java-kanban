@@ -106,6 +106,9 @@ public class HttpTaskServer {
             TaskType pathType = getPathType(h.getRequestURI().getPath()); //Для каких задач запрос
             if (pathType == null) {
                 h.sendResponseHeaders(400, 0);
+                try (OutputStream os = h.getResponseBody()) {
+                    os.write("".getBytes());
+                }
                 return;
             }
 
@@ -142,11 +145,11 @@ public class HttpTaskServer {
 
         private TaskType getPathType(String path) {
             TaskType pathType;
-            if (path.contains("/tasks/task")) {
+            if (path.endsWith("/tasks/task")) {
                 pathType = TASK;
-            } else if (path.contains("/tasks/subtask")) {
+            } else if (path.endsWith("/tasks/subtask")) {
                 pathType = SUBTASK;
-            } else if (path.contains("/tasks/epic")) {
+            } else if (path.endsWith("/tasks/epic")) {
                 pathType = EPIC;
             } else {
                 return null;
@@ -233,7 +236,7 @@ public class HttpTaskServer {
                 classOfT = Epic.class;
             } else {
                 h.sendResponseHeaders(400, 0);
-                return "Не определен тип по пути запроса";
+                return "!Не определен тип по пути запроса";
             }
             task = gson.fromJson(body, classOfT);
 
@@ -241,7 +244,7 @@ public class HttpTaskServer {
                 if (requestId < 0) {
                     h.sendResponseHeaders(400, 0); // нет id, но rawQuery есть
                 } else if (requestId != task.getId()) {
-                    response = gson.toJson("Не совпадают id в запросе и в задаче из тела запроса");
+                    response = gson.toJson("!Не совпадают id в запросе и в задаче из тела запроса");
                     h.sendResponseHeaders(203, 0); // не совпадают id
                 } else {
                     // Обновляем
@@ -252,8 +255,8 @@ public class HttpTaskServer {
                 //Добавляем
                 int addedTaskId = addAnyTypeTaskForType(task, fbtm, pathType);
                 if (addedTaskId < 0) {
-                    response = gson.toJson("Задача не добавлена");
-                    h.sendResponseHeaders(202, 0);
+                    response = gson.toJson("!Задача не добавлена, id не найден для " + pathType);
+                    h.sendResponseHeaders(203, 0);
                 } else {
                     response = gson.toJson("Задача добавлена");
                     h.sendResponseHeaders(201, 0);
