@@ -526,16 +526,95 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_task_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Удалить все Task
+        removeAllTasksFromManager();
+        fillManager(); // наполняем
+
+        URI uri = URI.create(url + "/tasks/task");
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Task> tasks = tm.getTasks();
+
+        assertEquals(0, tasks.size(), "Список не пустой");
     }
 
     @Test
     void tasks_subtask_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Удалить все Subtask
+        removeAllTasksFromManager();
+        fillManager(); // наполняем
+
+        URI uri = URI.create(url + "/tasks/subtask");
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Subtask> subtasks = tm.getSubtasks();
+
+        assertEquals(0, subtasks.size(), "Список не пустой");
     }
 
     @Test
     void tasks_epic_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
+
+        //Удалить все Epic
+        removeAllTasksFromManager();
+        fillManager(); // наполняем
+
+        URI uri = URI.create(url + "/tasks/epic");
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "Код не совпадает");
+
+        List<Epic> epics = tm.getEpics();
+
+        assertEquals(0, epics.size(), "Список не пустой");
 
     }
 
