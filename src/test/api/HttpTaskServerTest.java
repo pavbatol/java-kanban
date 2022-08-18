@@ -309,17 +309,109 @@ class HttpTaskServerTest {
 
 
     @Test
-    void tasks_task_POST_should_task_added() throws IOException, InterruptedException {
+    void tasks_task_POST_should_task_added_() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Добавить новую задачу Task
+        removeAllTasksFromManager();
+        Task task1 =  new Task("name_Task", "description_Task", NEW);;
+        Task receivedTask;
+
+        String json = gson.toJson(task1);
+
+        URI uri = URI.create(url + "/tasks/task");
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(201, response.statusCode(), "Код не совпадает");
+
+        receivedTask = tm.getTaskById(0);
+        task1.setId(0); // id меняются при добавлении, сделаем одинаковыми для сравнения
+
+        assertEquals(task1, receivedTask, "Задачи не равны");
     }
 
     @Test
     void tasks_subtask_POST_should_task_added() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
 
+        //Добавить новую задачу Subtask
+        removeAllTasksFromManager();
+        Epic epic1 = addEpicToManager();
+        Subtask subtask1 = new Subtask("name_Subtask", "description_Subtask", NEW, epic1.getId());
+        Subtask receivedTask;
+
+        String json = gson.toJson(subtask1);
+
+        URI uri = URI.create(url + "/tasks/subtask");
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(201, response.statusCode(), "Код не совпадает");
+
+        receivedTask = tm.getSubtaskById(1);
+        subtask1.setId(1); // id меняются при добавлении, сделаем одинаковыми для сравнения
+
+        assertEquals(subtask1, receivedTask, "Задачи не равны");
     }
 
     @Test
     void tasks_epic_POST_should_task_added() throws IOException, InterruptedException {
+        server.stop();
+        tm = new FileBackedTaskManager(path);
+        try {
+            server = new HttpTaskServer(tm);
+            server.start();
+        } catch (IOException e) {
+            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+            return;
+        }
+
+        //Добавить новую задачу Epic
+        removeAllTasksFromManager();
+        Epic epic1 = new Epic("name_Epic", "description_Epic");
+        Epic receivedTask;
+
+        String json = gson.toJson(epic1);
+
+        URI uri = URI.create(url + "/tasks/epic");
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .uri(uri)
+                .build();
+        HttpResponse<String> response;
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(201, response.statusCode(), "Код не совпадает");
+
+        receivedTask = tm.getEpicById(0);
+        epic1.setId(0); // id меняются при добавлении, сделаем одинаковыми для сравнения
+
+        assertEquals(epic1, receivedTask, "Задачи не равны");
 
     }
 
