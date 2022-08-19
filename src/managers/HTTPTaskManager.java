@@ -38,7 +38,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .create();
         try {
             this.client = new KVTaskClient(this.url);
-            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", хост: " + this.url);
+            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", адрес: " + this.url);
         } catch (RuntimeException e) {
             System.out.println("!Не удалось запустить HTTP-Client\n" + e.getMessage());
         }

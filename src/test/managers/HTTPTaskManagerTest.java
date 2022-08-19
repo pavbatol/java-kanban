@@ -20,13 +20,14 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
     public final String host = "http://localhost";
     public final String url = host +":" + port;
     final String key = "taskManager";
-    KVServer server;
+    static KVServer server;
     @Override
     protected HTTPTaskManager getNewTaskManager() {
         return new HTTPTaskManager(url);
     }
 
-    private void serverStart() {
+    @BeforeAll
+    public static void serverStart() {
         try {
             server = new KVServer();
             server.start();
@@ -35,25 +36,21 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
         }
     }
 
-    private void serverStop() {
+    @AfterAll
+    public static void serverStop() {
         server.stop();
     }
 
     @Test
-    void loadFromServer_should_be_not_equal_if_no_file_on_server() {
-        // Проверка если на сервере нет еще ключа по сохраненному файлу
-        serverStart();
+    void loadFromServer_should_be_not_loaded_if_no_file_on_server() {
         HTTPTaskManager tm2 = new HTTPTaskManager(url);
         tm2 = HTTPTaskManager.loadFromServer(tm2.getClient(), key);
 
         assertNull(tm2);
-
-        serverStop();
     }
 
     @Test
-    void loadFromServer_should_be_not_equal_if_file_on_server() {
-        serverStart();
+    void loadFromServer_should_loaded_if_file_on_server() {
         taskManager = getNewTaskManager();
 
         Task task1 = new Task("Name", "Description", NEW);
@@ -121,8 +118,6 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
         assertArrayEquals(taskManager.getHistory().toArray(), tm2.getHistory().toArray(),
                 "Списки истории не равны");
         assertEquals(5, tm2.getHistory().size(), "Неверный размер списка истории");
-
-        serverStop();
     }
 
     @Test

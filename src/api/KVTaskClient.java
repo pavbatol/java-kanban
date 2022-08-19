@@ -8,12 +8,12 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 
 public class KVTaskClient {
-    private final String host;
+    private final String url;
     private final HttpClient client;
     private final String apiToken;
 
-    public KVTaskClient(String host) throws RuntimeException{
-        this.host = host;
+    public KVTaskClient(String url) throws RuntimeException{
+        this.url = url;
         this.client = HttpClient.newHttpClient();
         apiToken = getApiToken();
         if (apiToken.isEmpty()) {
@@ -24,8 +24,7 @@ public class KVTaskClient {
     }
 
     public void put(String key, String json) {
-        // POST /save/<ключ>?API_TOKEN=
-        URI uri = URI.create(host + "/save/" + key + "?API_TOKEN=" + apiToken);
+        URI uri = URI.create(String.format("%s/save/%s?API_TOKEN=%s", url, key, apiToken));
         final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -45,9 +44,8 @@ public class KVTaskClient {
     }
 
     public String load(String key) {
-        //GET /load/<ключ>?API_TOKEN=
         String result = "";
-        URI uri = URI.create(host + "/load/" + key + "?API_TOKEN=" + apiToken);
+        URI uri = URI.create(String.format("%s/load/%s?API_TOKEN=%s", url, key, apiToken));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -69,7 +67,7 @@ public class KVTaskClient {
 
     private String getApiToken() {
         String result = "";
-        URI uri = URI.create(host + "/register");
+        URI uri = URI.create(url + "/register");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -94,11 +92,11 @@ public class KVTaskClient {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KVTaskClient client1 = (KVTaskClient) o;
-        return host.equals(client1.host);
+        return url.equals(client1.url);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(host);
+        return Objects.hash(url);
     }
 }
