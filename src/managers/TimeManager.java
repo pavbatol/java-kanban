@@ -109,7 +109,6 @@ public class TimeManager {
     }
 
     public void clearMarks() {
-        //timeMarks.forEach((k, v) -> timeMarks.put(k, null));
         timeMarks.clear();
     }
 
