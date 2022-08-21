@@ -60,7 +60,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         // Проверка с задачами, но без истории
         final int id1 = taskManager.addTask(task1);
         int timeStep = taskManager.getTimeManager().getTimeStep();
-        task1.setDuration(timeStep * 5);
+        task1.setDuration(timeStep * 5L);
         task1.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -124,7 +124,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
         taskManager.addTask(task1);
         final int timeStep = taskManager.getTimeManager().getTimeStep();
-        task1.setDuration(timeStep * 2);
+        task1.setDuration(timeStep * 2L);
         task1.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -133,10 +133,10 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
                 0));
         taskManager.updateTask(task1);
 
-        task2.setDuration(timeStep * 2);
-        subtask1.setDuration(timeStep * 2);
-        subtask2.setDuration(timeStep * 2);
-        subtask3.setDuration(timeStep * 2);
+        task2.setDuration(timeStep * 2L);
+        subtask1.setDuration(timeStep * 2L);
+        subtask2.setDuration(timeStep * 2L);
+        subtask3.setDuration(timeStep * 2L);
         task2.setStartTime(task1.getEndTime());
         subtask1.setStartTime(task2.getEndTime());
         subtask2.setStartTime(subtask1.getEndTime());

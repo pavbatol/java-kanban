@@ -40,10 +40,10 @@ class TimeManagerTest {
         task2.setId(1);
         task3.setId(2);
         task4.setId(3);
-        task1.setDuration(timeStep * 2);
-        task2.setDuration(timeStep * 2);
-        task3.setDuration(timeStep * 2);
-        task4.setDuration(timeStep * 2);
+        task1.setDuration(timeStep * 2L);
+        task2.setDuration(timeStep * 2L);
+        task3.setDuration(timeStep * 2L);
+        task4.setDuration(timeStep * 2L);
         task1.setStartTime(start);
         task2.setStartTime(task1.getEndTime());
         task3.setStartTime(task1.getEndTime()); // будет занято время
@@ -88,8 +88,8 @@ class TimeManagerTest {
         Task task2 = new Task("Name2", "Description2", NEW);
         task1.setId(0);
         task2.setId(1);
-        task1.setDuration(timeStep * 2);
-        task2.setDuration(timeStep * 3);
+        task1.setDuration(timeStep * 2L);
+        task2.setDuration(timeStep * 3L);
         task1.setStartTime(start);
         task2.setStartTime(task1.getEndTime());
 
@@ -157,8 +157,8 @@ class TimeManagerTest {
         Task task2 = new Task("Name2", "Description2", NEW);
         task1.setId(0);
         task2.setId(1);
-        task1.setDuration(timeStep * 2);
-        task2.setDuration(timeStep * 3);
+        task1.setDuration(timeStep * 2L);
+        task2.setDuration(timeStep * 3L);
         task1.setStartTime(start);
         task2.setStartTime(task1.getEndTime());
 

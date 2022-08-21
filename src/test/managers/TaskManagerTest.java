@@ -173,7 +173,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newTask.setName("newName");
         newTask.setDescription("newDescription");
         newTask.setStatus(IN_PROGRESS);
-        newTask.setDuration(timeStep * 2);
+        newTask.setDuration(timeStep * 2L);
         newTask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -210,7 +210,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newTask.setName("newName");
         newTask.setDescription("newDescription");
         newTask.setStatus(IN_PROGRESS);
-        newTask.setDuration(timeStep * 2);
+        newTask.setDuration(timeStep * 2L);
         newTask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -235,7 +235,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newTask.setName("newName");
         newTask.setDescription("newDescription");
         newTask.setStatus(IN_PROGRESS);
-        newTask.setDuration(timeStep * 2);
+        newTask.setDuration(timeStep * 2L);
         newTask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -269,7 +269,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newSubtask.setName("newName");
         newSubtask.setDescription("newDescription");
         newSubtask.setStatus(IN_PROGRESS);
-        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setDuration(timeStep * 2L);
         newSubtask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -310,7 +310,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newSubtask.setName("newName");
         newSubtask.setDescription("newDescription");
         newSubtask.setStatus(IN_PROGRESS);
-        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setDuration(timeStep * 2L);
         newSubtask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
@@ -336,7 +336,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         newSubtask.setName("newName");
         newSubtask.setDescription("newDescription");
         newSubtask.setStatus(IN_PROGRESS);
-        newSubtask.setDuration(timeStep * 2);
+        newSubtask.setDuration(timeStep * 2L);
         newSubtask.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
