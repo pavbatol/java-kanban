@@ -26,7 +26,7 @@ import static tasks.TaskStatus.NEW;
 import static tasks.TaskType.*;
 
 class HttpTaskServerTest {
-    private static Path path = Paths.get("resourcesTest", "backTest.csv");
+    private static final Path path = Paths.get("resourcesTest", "backTest.csv");
     private static FileBackedTaskManager tm;
     private final int port = 8080;
     private  final String host = "http://localhost";
@@ -301,16 +301,6 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_task_POST_should_task_added() throws IOException, InterruptedException {
-//        server.stop();
-//        tm = new FileBackedTaskManager(path);
-//        try {
-//            server = new HttpTaskServer(tm);
-//            server.start();
-//        } catch (IOException e) {
-//            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-//            return;
-//        }
-
         //Добавить новую задачу Task
         Task task1 =  new Task("name_Task", "description_Task", NEW);
         Task receivedTask;
@@ -327,24 +317,15 @@ class HttpTaskServerTest {
 
         assertEquals(201, response.statusCode(), "Код не совпадает");
 
-        receivedTask = tm.getTaskById(0);
-        task1.setId(0); // id меняются при добавлении, сделаем одинаковыми для сравнения
+        int lastId = tm.getLastId();
+        receivedTask = tm.getTaskById(lastId);
+        task1.setId(lastId);
 
         assertEquals(task1, receivedTask, "Задачи не равны");
     }
 
     @Test
     void tasks_subtask_POST_should_task_added() throws IOException, InterruptedException {
-//        server.stop();
-//        tm = new FileBackedTaskManager(path);
-//        try {
-//            server = new HttpTaskServer(tm);
-//            server.start();
-//        } catch (IOException e) {
-//            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-//            return;
-//        }
-
         //Добавить новую задачу Subtask
         Epic epic1 = addEpicToManager();
         Subtask subtask1 = new Subtask("name_Subtask", "description_Subtask", NEW, epic1.getId());
@@ -362,8 +343,9 @@ class HttpTaskServerTest {
 
         assertEquals(201, response.statusCode(), "Код не совпадает");
 
-        receivedTask = tm.getSubtaskById(1);
-        subtask1.setId(1); // id меняются при добавлении, сделаем одинаковыми для сравнения
+        int lastId = tm.getLastId();
+        receivedTask = tm.getSubtaskById(lastId);
+        subtask1.setId(lastId);
 
         assertEquals(subtask1, receivedTask, "Задачи не равны");
     }

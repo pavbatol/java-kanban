@@ -490,6 +490,10 @@ public class InMemoryTaskManager implements TaskManager {
         );
     }
 
+    public int getLastId() {
+        return this.itemId;
+    }
+
     public TaskType getTaskTypeByTaskId(int taskId) {
         if (tasks.containsKey(taskId)) {
             return TASK;
@@ -523,4 +527,6 @@ public class InMemoryTaskManager implements TaskManager {
                 "\ttimeManager=" + timeManager.toString().replace("\n", "\n\t") + "\n" +
                 '}';
     }
+
+
 }
