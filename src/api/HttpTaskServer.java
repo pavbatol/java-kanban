@@ -14,7 +14,6 @@ import tasks.Task;
 import tasks.TaskType;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -100,9 +99,6 @@ public class HttpTaskServer {
                 TaskType pathType = getPathType(h.getRequestURI().getPath());
                 if (pathType == null) {
                     h.sendResponseHeaders(400, 0);
-                    try (OutputStream os = h.getResponseBody()) {
-                        os.write("".getBytes());
-                    }
                     return;
                 }
 
