@@ -32,7 +32,7 @@ public class TimeManager {
     private boolean isCorrectDates(LocalDateTime start, LocalDateTime end) {
         String message = getClass().getSimpleName() + ": ";
         if (start == null || end == null) {
-            System.out.println(message + "Получен null для start или end");
+            //System.out.println(message + "Получен null для start или end");
             return false;
         }
         if (start.isAfter(end) || start.isEqual(end)) {
