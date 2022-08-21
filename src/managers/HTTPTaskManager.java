@@ -105,7 +105,6 @@ public class HTTPTaskManager extends FileBackedTaskManager{
 
     }
 
-    // Return may be null
     public static HTTPTaskManager loadFromServer(KVTaskClient client, String key) {
         HTTPTaskManager hm = Managers.getNewHTTPTaskManager();
         if (client == null) {
