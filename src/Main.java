@@ -49,11 +49,11 @@ public class Main {
                 LocalDate.now().getDayOfMonth(),
                 0, 0);
 
-        task1.setDuration(timeStep * 2);
-        task2.setDuration(timeStep * 2);
-        subtask1.setDuration(timeStep * 2);
-        subtask2.setDuration(timeStep * 2);
-        subtask3.setDuration(timeStep * 2);
+        task1.setDuration(timeStep * 2L);
+        task2.setDuration(timeStep * 2L);
+        subtask1.setDuration(timeStep * 2L);
+        subtask2.setDuration(timeStep * 2L);
+        subtask3.setDuration(timeStep * 2L);
 
         task1.setStartTime(start);
         task2.setStartTime(task1.getEndTime());
