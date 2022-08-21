@@ -32,10 +32,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         return isNormalOrder;
     }
 
-    public int getSizeMax() {
-        return sizeMax;
-    }
-
     @Override
     public List<Task> getHistory() {
         return lastViewedTasks.getTasks();
