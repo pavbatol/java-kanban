@@ -26,14 +26,14 @@ import static tasks.TaskStatus.NEW;
 import static tasks.TaskType.*;
 
 class HttpTaskServerTest {
-    static Path path = Paths.get("resourcesTest", "backTest.csv");
-    public static FileBackedTaskManager tm;
-    public final int port = 8080;
-    public final String host = "http://localhost";
-    public final String url = host +":" + port;
-    static HttpTaskServer server;
-    static HttpClient client;
-    Gson gson = new GsonBuilder()
+    private static Path path = Paths.get("resourcesTest", "backTest.csv");
+    private static FileBackedTaskManager tm;
+    private final int port = 8080;
+    private  final String host = "http://localhost";
+    private  final String url = host +":" + port;
+    private static HttpTaskServer server;
+    private static HttpClient client;
+    private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
@@ -225,7 +225,6 @@ class HttpTaskServerTest {
     @Test
     void tasks_task_id_GET_should_response_body_received() throws IOException, InterruptedException {
         //Получить задачу Task по id
-        removeAllTasksFromManager();
         Task task1 =  addTaskToManager();
         Task receivedTask;
 
@@ -250,7 +249,6 @@ class HttpTaskServerTest {
     @Test
     void tasks_subtask_id_GET_should_response_body_received() throws IOException, InterruptedException {
         //Получить задачу Subtask по id
-        removeAllTasksFromManager();
         Epic epic1 = addEpicToManager();
         Subtask subtask1 =  addSubtaskToManager(epic1);
         Subtask receivedTask;
@@ -278,7 +276,6 @@ class HttpTaskServerTest {
     @Test
     void tasks_epic_id_GET_should_response_body_received() throws IOException, InterruptedException {
         //Получить задачу Epic по id
-        removeAllTasksFromManager();
         Epic epic1 = addEpicToManager();
         Epic receivedTask;
 
@@ -303,19 +300,18 @@ class HttpTaskServerTest {
     }
 
     @Test
-    void tasks_task_POST_should_task_added_() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
+    void tasks_task_POST_should_task_added() throws IOException, InterruptedException {
+//        server.stop();
+//        tm = new FileBackedTaskManager(path);
+//        try {
+//            server = new HttpTaskServer(tm);
+//            server.start();
+//        } catch (IOException e) {
+//            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+//            return;
+//        }
 
         //Добавить новую задачу Task
-        removeAllTasksFromManager();
         Task task1 =  new Task("name_Task", "description_Task", NEW);
         Task receivedTask;
 
@@ -339,18 +335,17 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_subtask_POST_should_task_added() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
+//        server.stop();
+//        tm = new FileBackedTaskManager(path);
+//        try {
+//            server = new HttpTaskServer(tm);
+//            server.start();
+//        } catch (IOException e) {
+//            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
+//            return;
+//        }
 
         //Добавить новую задачу Subtask
-        removeAllTasksFromManager();
         Epic epic1 = addEpicToManager();
         Subtask subtask1 = new Subtask("name_Subtask", "description_Subtask", NEW, epic1.getId());
         Subtask receivedTask;
@@ -375,18 +370,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_epic_POST_should_task_added() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Добавить новую задачу Epic
-        removeAllTasksFromManager();
         Epic epic1 = new Epic("name_Epic", "description_Epic");
         Epic receivedTask;
 
@@ -411,18 +395,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_task_id_POST_should_task_updated() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Обновить задачу Task по id
-        removeAllTasksFromManager();
         Task task1 =  addTaskToManager();
         Task newTask =  new Task("name_Task_2", "description_Task_2", DONE);
         newTask.setId(task1.getId());
@@ -445,18 +418,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_subtask_id_POST_should_task_updated() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Обновить задачу Subtask по id
-        removeAllTasksFromManager();
         Epic epic1 = addEpicToManager();
         Subtask subtask1 = addSubtaskToManager(epic1);
         Subtask newTask = new Subtask("name_Subtask_2", "description_Subtask_2", DONE, epic1.getId());
@@ -480,18 +442,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_epic_id_POST_should_task_updated() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Обновить задачу Epic по id
-        removeAllTasksFromManager();
         Epic epic1 =  addEpicToManager();
         Epic newTask =  new Epic("name_Epic_2", "description_Epic_2");
         newTask.setId(epic1.getId());
@@ -513,18 +464,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_task_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить все Task
-        removeAllTasksFromManager();
         fillManager(); // наполняем
 
         URI uri = URI.create(url + "/tasks/task");
@@ -544,18 +484,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_subtask_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить все Subtask
-        removeAllTasksFromManager();
         fillManager(); // наполняем
 
         URI uri = URI.create(url + "/tasks/subtask");
@@ -575,18 +504,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_epic_DELETE_should_all_tasks_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить все Epic
-        removeAllTasksFromManager();
         fillManager(); // наполняем
 
         URI uri = URI.create(url + "/tasks/epic");
@@ -607,18 +525,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_task_id_DELETE_should_task_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить Task по id
-        removeAllTasksFromManager();
         Task task1 =  addTaskToManager();
         Task task2 =  addTaskToManager();
 
@@ -641,18 +548,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_subtask_id_DELETE_should_task_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить Subtask по id
-        removeAllTasksFromManager();
         Epic epic1 = addEpicToManager();
         Subtask task1 =  addSubtaskToManager(epic1);
         Subtask task2 =  addSubtaskToManager(epic1);
@@ -676,18 +572,7 @@ class HttpTaskServerTest {
 
     @Test
     void tasks_epic_id_DELETE_should_task_removed() throws IOException, InterruptedException {
-        server.stop();
-        tm = new FileBackedTaskManager(path);
-        try {
-            server = new HttpTaskServer(tm);
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Не удалось запустить HTTP-Server\n" + e.getMessage());
-            return;
-        }
-
         //Удалить Epic по id
-        removeAllTasksFromManager();
         Epic task1 = addEpicToManager();
         Epic task2 = addEpicToManager();
 
