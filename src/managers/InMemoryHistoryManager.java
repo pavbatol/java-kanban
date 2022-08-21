@@ -52,7 +52,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 '}';
     }
 
-    public class CustomLinkedList<E extends Task> {
+    private class CustomLinkedList<E extends Task> {
         private Node<E> head;
         private Node<E> tail;
         private int size;
