@@ -14,13 +14,12 @@ import tasks.Task;
 import tasks.TaskType;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static tasks.TaskType.*;
 import static util.Functions.*;
 
@@ -54,102 +53,95 @@ public class HttpTaskServer {
     }
 
     private class AllTasksHandler implements HttpHandler {
-        // Будем возвращать в ответе все задач-подзадачи-эпики или историю просмотра
         @Override
         public void handle(HttpExchange h) throws IOException {
             System.out.println("Началась обработка. Строка запроса: " + h.getRequestURI());
 
-            String response;
-            Headers headers = h.getResponseHeaders();
-            headers.set("Content-Type", "text/JSON");
-            Gson gson = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                    .create();
+            try {
+                String response;
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                        .create();
 
-            if ("GET".equals(h.getRequestMethod())) {
-                String path = h.getRequestURI().getPath();
-                String rawQuery = h.getRequestURI().getRawQuery();
-
-                if ((path.endsWith("/tasks") || path.endsWith("/tasks/"))  && rawQuery == null) {
-                    List<Task> allTasks = fbtm.getTasks();
-                    allTasks.addAll(fbtm.getEpics());
-                    allTasks.addAll(fbtm.getSubtasks());
-                    response = gson.toJson(allTasks);
-                    h.sendResponseHeaders(200, 0);
-                } else if ((path.endsWith("/tasks/history") || path.endsWith("/tasks/history/")) && rawQuery == null) {
-                    response = gson.toJson(fbtm.getHistory());
-                    h.sendResponseHeaders(200, 0);
+                if ("GET".equals(h.getRequestMethod())) {
+                    String path = h.getRequestURI().getPath();
+                    String rawQuery = h.getRequestURI().getRawQuery();
+                    if ((path.endsWith("/tasks") || path.endsWith("/tasks/"))  && rawQuery == null) {
+                        List<Task> allTasks = fbtm.getTasks();
+                        allTasks.addAll(fbtm.getEpics());
+                        allTasks.addAll(fbtm.getSubtasks());
+                        response = gson.toJson(allTasks);
+                        sendText(h, 200, response);
+                    } else if ((path.endsWith("/tasks/history") || path.endsWith("/tasks/history/"))
+                            && rawQuery == null) {
+                        response = gson.toJson(fbtm.getHistory());
+                        sendText(h, 200, response);
+                    } else {
+                        response = gson.toJson("В запросе содержится ошибка. Проверьте и отправьте запрос снова.");
+                        sendText(h, 400, response);
+                    }
                 } else {
-                    response = gson.toJson("В запросе содержится ошибка. Проверьте и отправьте запрос снова.");
-                    h.sendResponseHeaders(400, 0);
+                    response = "Поддерживается только метод GET.";
+                    response = gson.toJson(response);
+                    sendText(h, 405, response);
                 }
-            } else {
-                response = "Поддерживается только метод GET.";
-                response = gson.toJson(response);
-                h.sendResponseHeaders(405, 0);
-            }
-
-            try (OutputStream os = h.getResponseBody()) {
-                os.write(response.getBytes());
+            } finally {
+                h.close();
             }
         }
     }
 
     private class TaskHandler implements HttpHandler {
-        // Возвращаем в ответе только Tasks/Subtasks/Epics если GET и не указан id,
-        // или если есть id, работаем с конкретной задачей по Методу запроса
         @Override
         public void handle(HttpExchange h) throws IOException {
             System.out.println("Началась обработка. Строка запроса: " + h.getRequestURI());
-
-            TaskType pathType = getPathType(h.getRequestURI().getPath()); //Для каких задач запрос
-            if (pathType == null) {
-                h.sendResponseHeaders(400, 0);
-                try (OutputStream os = h.getResponseBody()) {
-                    os.write("".getBytes());
+            try {
+                TaskType pathType = getPathType(h.getRequestURI().getPath());
+                if (pathType == null) {
+                    h.sendResponseHeaders(400, 0);
+                    try (OutputStream os = h.getResponseBody()) {
+                        os.write("".getBytes());
+                    }
+                    return;
                 }
-                return;
-            }
 
-            String finding = "id=";
-            String rawQuery = h.getRequestURI().getRawQuery();
-            int id = parsFindingStrToIntFromQuery(finding, rawQuery, -1); // после знака "?"
+                String finding = "id=";
+                String rawQuery = h.getRequestURI().getRawQuery();
+                int id = parseToId(finding, rawQuery);
 
-            Headers headers = h.getResponseHeaders();
-            headers.set("Content-Type", "text/JSON");
-            Gson gson = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                    .create();
-            String response = "";
+                Headers headers = h.getResponseHeaders();
+                headers.set("Content-Type", "text/JSON");
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                        .create();
 
-            switch (h.getRequestMethod()) {
-                case "GET": //Получить задачи-задачу по типу
-                    response = buildResponseForGet(rawQuery, pathType, id, h, gson);
-                    break;
-                case "POST": //Добавить-обновить по типу задачу, в зависимости есть ли id в запросе
-                    response = buildResponseForPOST(rawQuery, pathType, id, h, gson);
-                    break;
-                case "DELETE"://Удалить по типу задачи-задачу , в зависимости есть ли id в запросе
-                    response = buildResponseForDELETE(rawQuery, pathType, id, h);
-                    break;
-                default:
-                    h.sendResponseHeaders(405, 0);
-            }
-
-            try (OutputStream os = h.getResponseBody()) {
-                os.write(response.getBytes());
+                switch (h.getRequestMethod()) {
+                    case "GET":
+                        sendResponseForGet(rawQuery, pathType, id, h, gson);
+                        break;
+                    case "POST":
+                        sendResponseForPOST(rawQuery, pathType, id, h, gson);
+                        break;
+                    case "DELETE":
+                        sendResponseForDELETE(rawQuery, pathType, id, h);
+                        break;
+                    default:
+                        h.sendResponseHeaders(405, 0);
+                }
+            } finally {
+                h.close();
             }
         }
 
         private TaskType getPathType(String path) {
             TaskType pathType;
-            if (path.endsWith("/tasks/task") || path.endsWith("/tasks/task/")) {
+            if ("/tasks/task".equals(path) || "/tasks/task/".equals(path)) {
                 pathType = TASK;
-            } else if (path.endsWith("/tasks/subtask") || path.endsWith("/tasks/subtask/")) {
+            } else if ("/tasks/subtask".equals(path) || "/tasks/subtask/".equals(path)) {
                 pathType = SUBTASK;
-            } else if (path.endsWith("/tasks/epic") || path.endsWith("/tasks/epic/")) {
+            } else if ("/tasks/epic".equals(path) || "/tasks/epic/".equals(path)) {
                 pathType = EPIC;
             } else {
                 return null;
@@ -157,19 +149,19 @@ public class HttpTaskServer {
             return pathType;
         }
 
-        private int parsFindingStrToIntFromQuery(String finding, String rawQuery, int defaultReturn) {
-            int id = defaultReturn;
-            if (finding == null || rawQuery == null) {
+        private int parseToId(String prefix, String rawQuery) {
+            int id = -1;
+            if (prefix == null || rawQuery == null) {
                 return id;
             }
             String[] parts = rawQuery.split("&");
             for (String part : parts) {
-                if (part.contains(finding) && finding.length() < part.length()) {
-                    String targetStr = part.substring(finding.length());
+                if (part.contains(prefix) && prefix.length() < part.length()) {
+                    String targetStr = part.substring(prefix.length());
                     try {
                         id = Integer.parseInt(targetStr);
                     } catch (NumberFormatException e) {
-                        System.out.println("Некорректное значение для " + finding);
+                        System.out.println("Некорректное значение для " + prefix);
                         break;
                     }
                     break;
@@ -178,54 +170,51 @@ public class HttpTaskServer {
             return id;
         }
 
-        private String buildResponseForGet(String rawQuery,
+        private void sendResponseForGet(String rawQuery,
+                                          TaskType pathType,
+                                          int requestId,
+                                          HttpExchange h,
+                                          Gson gson) throws IOException {
+            String response;
+            if (rawQuery != null) {
+                if (requestId < 0) {
+                    h.sendResponseHeaders(400, 0);
+                } else {
+                    response = gson.toJson(getAnyTypeTaskByIdForType(requestId, fbtm, pathType));
+                    sendText(h, 200, response);
+                }
+            } else {
+                response = gson.toJson(getAnyTypeTasksForType(fbtm, pathType));
+                sendText(h, 200, response);
+            }
+        }
+
+        private void sendResponseForDELETE(String rawQuery,
+                                             TaskType pathType,
+                                             int requestId,
+                                             HttpExchange h) throws IOException {
+            String response = "";
+            if (rawQuery != null) {
+                if (requestId < 0) {
+                    h.sendResponseHeaders(400, 0);
+                } else {
+                    removedAnyTypeTaskByIdForType(requestId, fbtm, pathType);
+                    sendText(h, 200, response);
+                }
+            } else {
+                removedAnyTypeTasksForType(fbtm, pathType);
+                sendText(h, 200, response);
+            }
+        }
+
+        private void sendResponseForPOST(String rawQuery,
                                            TaskType pathType,
                                            int requestId,
                                            HttpExchange h,
                                            Gson gson) throws IOException {
             String response = "";
-            if (rawQuery != null) {
-                if (requestId < 0) {
-                    h.sendResponseHeaders(400, 0); // нет id но rawQuery есть
-                } else {
-                    response = gson.toJson(getAnyTypeTaskByIdForType(requestId, fbtm, pathType));
-                    h.sendResponseHeaders(200, 0);
-                }
-            } else {
-                response = gson.toJson(getAnyTypeTasksForType(fbtm, pathType));
-                h.sendResponseHeaders(200, 0);
-            }
-            return response;
-        }
-
-        private String buildResponseForDELETE(String rawQuery,
-                                              TaskType pathType,
-                                              int requestId,
-                                              HttpExchange h) throws IOException {
-            String response = "";
-            if (rawQuery != null) {
-                if (requestId < 0) {
-                    h.sendResponseHeaders(400, 0); // нет id но rawQuery есть
-                } else {
-                    removedAnyTypeTaskByIdForType(requestId, fbtm, pathType);
-                    h.sendResponseHeaders(200, 0);
-                }
-            } else {
-                removedAnyTypeTasksForType(fbtm, pathType);
-                h.sendResponseHeaders(200, 0);
-            }
-            return response;
-        }
-
-        private String buildResponseForPOST(String rawQuery,
-                                            TaskType pathType,
-                                            int requestId,
-                                            HttpExchange h,
-                                            Gson gson) throws IOException {
-            String response = "";
             Task task;
-            InputStream inputStream = h.getRequestBody();
-            String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            String body = readText(h);
 
             Class<? extends Task> classOfT;
             if (pathType == TASK) {
@@ -235,35 +224,44 @@ public class HttpTaskServer {
             } else if (pathType == EPIC) {
                 classOfT = Epic.class;
             } else {
+                System.out.println("!Не определен тип по пути запроса");
                 h.sendResponseHeaders(400, 0);
-                return "!Не определен тип по пути запроса";
+                return ;
             }
             task = gson.fromJson(body, classOfT);
 
             if (rawQuery != null) {
                 if (requestId < 0) {
-                    h.sendResponseHeaders(400, 0); // нет id, но rawQuery есть
+                    h.sendResponseHeaders(400, 0);
                 } else if (requestId != task.getId()) {
-                    response = gson.toJson("!Не совпадают id в запросе и в задаче из тела запроса");
-                    h.sendResponseHeaders(203, 0); // не совпадают id
+                    response = gson.toJson("!Не совпадают id в запросе и в задаче из тела запроса. "
+                            + "Обновление не выполнено");
+                    sendText(h, 400, response);
                 } else {
-                    // Обновляем
                     updateAnyTypeTaskForType(task, fbtm, pathType);
-                    h.sendResponseHeaders(200, 0);
+                    sendText(h, 200, response);
                 }
             } else {
-                //Добавляем
                 int addedTaskId = addAnyTypeTaskForType(task, fbtm, pathType);
                 if (addedTaskId < 0) {
                     response = gson.toJson("!Задача не добавлена, id не найден для " + pathType);
-                    h.sendResponseHeaders(203, 0);
+                    sendText(h, 400, response);
                 } else {
                     response = gson.toJson("Задача добавлена");
-                    h.sendResponseHeaders(201, 0);
+                    sendText(h, 201, response);
                 }
             }
-            return response;
         }
+    }
 
+    protected String readText(HttpExchange h) throws IOException {
+        return new String(h.getRequestBody().readAllBytes(), UTF_8);
+    }
+
+    protected void sendText(HttpExchange h, int code, String text) throws IOException {
+        byte[] resp = text.getBytes(UTF_8);
+        h.getResponseHeaders().add("Content-Type", "application/json");
+        h.sendResponseHeaders(code, resp.length);
+        h.getResponseBody().write(resp);
     }
 }
