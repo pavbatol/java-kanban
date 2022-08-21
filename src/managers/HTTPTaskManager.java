@@ -73,10 +73,10 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 LocalDate.now().getDayOfMonth(),
                 0, 0);
 
-        task1.setDuration(timeStep * 2);
-        task2.setDuration(timeStep * 2);
-        subtask1.setDuration(timeStep * 2);
-        subtask2.setDuration(timeStep * 2);
+        task1.setDuration(timeStep * 2L);
+        task2.setDuration(timeStep * 2L);
+        subtask1.setDuration(timeStep * 2L);
+        subtask2.setDuration(timeStep * 2L);
 
         task1.setStartTime(start);
         task2.setStartTime(task1.getEndTime());
@@ -103,10 +103,11 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         System.out.println("\nМенеджер загруженный с сервера");
         System.out.println(tm2);
 
+        server.stop();
     }
 
     public static HTTPTaskManager loadFromServer(KVTaskClient client, String key) {
-        HTTPTaskManager hm = Managers.getNewHTTPTaskManager();
+        HTTPTaskManager htm = Managers.getNewHTTPTaskManager();
         if (client == null) {
             System.out.println("Клиент не запущен (null), загрузка отменена");
             return null;
@@ -123,50 +124,50 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .create();
 
         JsonObject root = jsonElement.getAsJsonObject();
-        hm.itemId = root.get("itemId").getAsInt();
+        htm.itemId = root.get("itemId").getAsInt();
         //Задачи
         JsonObject joTasks = root.get("tasks").getAsJsonObject();
         joTasks.entrySet().forEach(e -> {
             JsonObject joTask = joTasks.get(e.getKey()).getAsJsonObject();
             Task task =  gson.fromJson(joTask, Task.class);
-            hm.getTasksKeeper().put(task.getId(), task);
-            hm.getTimeManager().occupyFor(task, false);
+            htm.getTasksKeeper().put(task.getId(), task);
+            htm.getTimeManager().occupyFor(task, false);
         });
         //Подзадачи
         JsonObject joSubtasks = root.get("subtasks").getAsJsonObject();
         joSubtasks.entrySet().forEach(e -> {
             JsonObject joTask = joSubtasks.get(e.getKey()).getAsJsonObject();
             Subtask task =  gson.fromJson(joTask, Subtask.class);
-            hm.getSubtasksKeeper().put(task.getId(), task);
-            hm.getTimeManager().occupyFor(task, false);
+            htm.getSubtasksKeeper().put(task.getId(), task);
+            htm.getTimeManager().occupyFor(task, false);
         });
         //Эпики
         JsonObject joEpics = root.get("epics").getAsJsonObject();
         joEpics.entrySet().forEach(e -> {
             JsonObject joTask = joEpics.get(e.getKey()).getAsJsonObject();
             Epic task =  gson.fromJson(joTask, Epic.class);
-            hm.getEpicsKeeper().put(task.getId(), task);
+            htm.getEpicsKeeper().put(task.getId(), task);
         });
         //История
-        JsonObject johistoryManager = root.get("historyManager").getAsJsonObject();
-        JsonArray johistory = johistoryManager.get("history").getAsJsonArray();
+        JsonObject joHistoryManager = root.get("historyManager").getAsJsonObject();
+        JsonArray joHistory = joHistoryManager.get("history").getAsJsonArray();
 
         boolean isRev = false; // нормальный или обратный порядок
-        int size = johistory.size();
-        if (!((InMemoryHistoryManager) hm.getHistoryManager()).isNormalOrder()) {
+        int size = joHistory.size();
+        if (!((InMemoryHistoryManager) htm.getHistoryManager()).isNormalOrder()) {
             isRev = true;
         }
         for (int i = isRev ? size - 1 : 0; isRev ? i >=0 : i < size ; i += isRev ? -1 : 1) {
-            int id =  johistory.get(i).getAsInt();
-            if (hm.getTasksKeeper().containsKey(id)) {
-                hm.getHistoryManager().add(hm.getTasksKeeper().get(id));
-            } else if (hm.getSubtasksKeeper().containsKey(id)) {
-                hm.getHistoryManager().add(hm.getSubtasksKeeper().get(id));
-            } else if (hm.getEpicsKeeper().containsKey(id)) {
-                hm.getHistoryManager().add(hm.getEpicsKeeper().get(id));
+            int id =  joHistory.get(i).getAsInt();
+            if (htm.getTasksKeeper().containsKey(id)) {
+                htm.getHistoryManager().add(htm.getTasksKeeper().get(id));
+            } else if (htm.getSubtasksKeeper().containsKey(id)) {
+                htm.getHistoryManager().add(htm.getSubtasksKeeper().get(id));
+            } else if (htm.getEpicsKeeper().containsKey(id)) {
+                htm.getHistoryManager().add(htm.getEpicsKeeper().get(id));
             }
         }
-        return hm;
+        return htm;
     }
 
     @Override
