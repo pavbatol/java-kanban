@@ -15,6 +15,7 @@ public final class CSVConverter {
     private CSVConverter() {
     }
 
+    // TODO: 21.08.2022 Учесть userId
     public static String toString(Task task) {
         if (task == null) {
             System.out.println("Перевод в строку НЕ выполнен, объект не инициализирован");
@@ -58,6 +59,7 @@ public final class CSVConverter {
         return sb.toString();
     }
 
+    // TODO: 21.08.2022 Учесть userId
     public static Task fromStringOfTask(String value) {
         if (value == null) {
             System.out.println("Перевод строки в задачу НЕ выполнен, строка = null");
@@ -131,6 +133,7 @@ public final class CSVConverter {
         return new ArrayList<>();
     }
 
+    // TODO: 21.08.2022 Учесть userId
     public static String getHeads() {
         return "id," +
                 "type," +
