@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TimeManager {
-    protected final int timeStep; // Шаг изменения времени задачи
-    protected final Map<String, Task> timeMarks; //k->Время строкой, v->Занято или нет
+    protected final int timeStep;
+    protected final Map<String, Task> timeMarks;
 
     public TimeManager(int timeStep) {
         this.timeStep = getCorrectTimeStep(timeStep);
@@ -121,12 +121,6 @@ public class TimeManager {
         return timeMarks.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         (entry) -> entry.getValue().getId()));
-    }
-
-    public Map<String, String> getTimeMarksStr() {
-        return timeMarks.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        (entry) -> entry.getValue().getId() + "" ));
     }
 
     @Override
