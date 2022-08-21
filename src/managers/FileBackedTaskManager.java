@@ -27,7 +27,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
 
     public static void main(String[] args) {
         final String blockSeparator = "-----------";
-        Path path = Paths.get("", args);
+        Path path;
+        if (args.length == 0) {
+            path = Path.of("resources", "back.csv");
+        } else {
+            path = Paths.get("", args);
+        }
         FileBackedTaskManager taskManager =  new FileBackedTaskManager(path);
 
         Task task1 = new Task("Имя_Задачи_1", "Описание_Задачи_1", NEW);
@@ -98,7 +103,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
             boolean nextHasHistory = false;
             int i = -1;
             int maxId = 0;
-            // TODO: 03.08.2022 Переделать на for и Files.readString(Path.of(path)); ???
             while (br.ready()) {
                 i++;
                 String str = br.readLine().trim();
