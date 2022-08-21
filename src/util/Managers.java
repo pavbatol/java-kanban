@@ -1,9 +1,14 @@
 package util;
 
+import api.GsonAdapters.LocalDateTimeAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import managers.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.Locale;
 
 public final class Managers {
     public static final Path path = Paths.get("resources", "back.csv");
@@ -31,4 +36,15 @@ public final class Managers {
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager(10, false);
     }
+
+    public static UserManager getDefaultUserManager() {
+        return new InMemoryUserManager();
+    }
+
+    public static Gson getGson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+        return gsonBuilder.create();
+    }
+
 }

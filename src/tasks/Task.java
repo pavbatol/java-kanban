@@ -3,6 +3,7 @@ package tasks;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import static tasks.TaskStatus.NEW;
 import static util.Functions.getTaskType;
 
 public class Task {
@@ -13,15 +14,29 @@ public class Task {
     private final TaskType type;
     private long duration;
     private LocalDateTime startTime;
+    private final int userId;
 
-    public Task(String name, String description, TaskStatus status) {
-        id = -1;
+    public Task(int id, int userId, String name, String description, TaskStatus status) {
+        this.id = id;
+        this.userId = userId;
         this.name = name;
         this.description = description;
         this.status = status;
         type = getTaskType(getClass());
         duration = 0;
         startTime = null;
+    }
+
+    public Task(int userId, String name, String description, TaskStatus status) {
+        this(-1, userId, name, description, status);
+    }
+
+    public Task(String name, String description, TaskStatus status) {
+        this(-1, name, description, status);
+    }
+
+    public Task(String name, String description) {
+        this(-1, name, description, NEW);
     }
 
     public int getId() {
@@ -78,6 +93,10 @@ public class Task {
 
     public LocalDateTime getEndTime() {
         return  getStartTime() != null ? getStartTime().plusMinutes(getDuration()) : null;
+    }
+
+    public int getUserId() {
+        return this.userId;
     }
 
     @Override
