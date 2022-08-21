@@ -1,7 +1,5 @@
 package managers;
 
-import tasks.Epic;
-import tasks.Subtask;
 import tasks.Task;
 import tasks.User;
 import util.Managers;
@@ -12,15 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InMemoryUserManager implements UserManager, TaskManager{
+public class InMemoryUserManager implements UserManager{
     private int lastId;
     private final Map<Integer, User> users;
     private final TaskManager tm;
 
     public InMemoryUserManager() {
+        this(Managers.getNewInMemoryTaskManager());
+    }
+
+    public InMemoryUserManager(TaskManager tm) {
         this.lastId = -1;
         this.users = new HashMap<>();
-        this.tm = Managers.getNewInMemoryTaskManager();
+        this.tm = tm;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class InMemoryUserManager implements UserManager, TaskManager{
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getUsers() {
         return new ArrayList<>(users.values());
     }
 
@@ -81,103 +83,4 @@ public class InMemoryUserManager implements UserManager, TaskManager{
         return ++lastId;
     }
 
-    @Override
-    public int addTask(Task task) {
-        return 0;
-    }
-
-    @Override
-    public int addSubtask(Subtask subtask) {
-        return 0;
-    }
-
-    @Override
-    public int addEpic(Epic epic) {
-        return 0;
-    }
-
-    @Override
-    public void updateTask(Task task) {
-
-    }
-
-    @Override
-    public void updateSubtask(Subtask subtask) {
-
-    }
-
-    @Override
-    public void updateEpic(Epic epic) {
-
-    }
-
-    @Override
-    public void removeTaskById(int id) {
-
-    }
-
-    @Override
-    public void removeSubtaskById(int id) {
-
-    }
-
-    @Override
-    public void removeEpicById(int id) {
-
-    }
-
-    @Override
-    public void removeTasks() {
-
-    }
-
-    @Override
-    public void removeSubtasks() {
-
-    }
-
-    @Override
-    public void removeEpics() {
-
-    }
-
-    @Override
-    public Task getTaskById(int id) {
-        return null;
-    }
-
-    @Override
-    public Subtask getSubtaskById(int id) {
-        return null;
-    }
-
-    @Override
-    public Epic getEpicById(int id) {
-        return null;
-    }
-
-    @Override
-    public List<Task> getTasks() {
-        return null;
-    }
-
-    @Override
-    public List<Subtask> getSubtasks() {
-        return null;
-    }
-
-    @Override
-    public List<Epic> getEpics() {
-        return null;
-    }
-
-    @Override
-    public List<Subtask> getSubtasksByEpicId(int epicId) {
-        return null;
-    }
-
-    @Override
-    public List<Task> getHistory() {
-        return null;
-    }
 }

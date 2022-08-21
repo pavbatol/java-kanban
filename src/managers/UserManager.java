@@ -14,7 +14,7 @@ public interface UserManager {
 
     User getUser(int id);
 
-    List<User> getAllUsers();
+    List<User> getUsers();
 
     List<Task> getUserAllTasks(int uaerId);
 
