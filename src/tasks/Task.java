@@ -11,7 +11,7 @@ public class Task {
     private String description;
     private TaskStatus status;
     private final TaskType type;
-    private int duration;
+    private long duration;
     private LocalDateTime startTime;
 
     public Task(String name, String description, TaskStatus status) {
@@ -60,11 +60,11 @@ public class Task {
         return type;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 

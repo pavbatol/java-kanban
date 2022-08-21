@@ -83,7 +83,7 @@ class TaskTest {
 
     @Test
     void getDuration() {
-        int i = task.getDuration();
+        long i = task.getDuration();
         assertEquals(0, i);
     }
 
