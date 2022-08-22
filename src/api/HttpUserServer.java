@@ -5,10 +5,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import managers.TaskManager;
 import managers.UserManager;
+import tasks.User;
 import util.Managers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -45,7 +48,7 @@ public class HttpUserServer {
 
     private void handleUsers(HttpExchange h) {
         try {
-            System.out.println("Обработала /api/v1/users: " + h.getRequestURI());
+            System.out.println("Обработка /api/v1/users: " + h.getRequestURI());
             String method = h.getRequestMethod();
             String path = h.getRequestURI().getPath();
             switch (method) {
@@ -63,24 +66,102 @@ public class HttpUserServer {
                         } else {
                             final String response = gson.toJson(um.getUser(id));
                             sendText(h, 200, response);
-                            return;
                         }
+                        return;
+                    }
+                    if (Pattern.matches("^/api/v1/users/\\d+/tasks$", path)) {
+                        String idStr = path.replaceFirst("/api/v1/users/", "")
+                                .replaceFirst("/tasks", "");
+                        int id = parsePathId(idStr);
+                        if (id == -1) {
+                            System.out.println("Неверный запрос, невозможно определить id");
+                            h.sendResponseHeaders(400, 0);
+                        } else {
+                            final String response = gson.toJson(um.getUserAllTasks(id));
+                            sendText(h, 200, response);
+                        }
+                        return;
                     }
                     System.out.println("Неверный запрос: " + h.getRequestURI());
                     h.sendResponseHeaders(400, 0);
                     break;
                 }
                 case "DELETE": {
-                    int id = parsePathId(path.replaceFirst("/api/v1/users/", ""));
-                    if (id == -1) {
-                        System.out.println("Неверный запрос, невозможно определить id");
-                        h.sendResponseHeaders(400, 0);
-                    } else {
-                        um.removeUser(id);
-                        System.out.println("Удален пользователь с id = " + id);
+                    if (Pattern.matches("^/api/v1/users$", path)) {
+                        um.removeUsers();
+                        System.out.println("Все пользователи удалены");
                         h.sendResponseHeaders(200, 0);
+                        return;
                     }
+                    if (Pattern.matches("^/api/v1/users/\\d+$", path)) {
+                        int id = parsePathId(path.replaceFirst("/api/v1/users/", ""));
+                        if (id == -1) {
+                            System.out.println("Неверный запрос, невозможно определить id");
+                            h.sendResponseHeaders(400, 0);
+                        } else {
+                            um.removeUser(id);
+                            System.out.println("Удален пользователь с id = " + id);
+                            h.sendResponseHeaders(200, 0);
+                        }
+                        return;
+                    }
+                    System.out.println("Неверный запрос: " + h.getRequestURI());
+                    h.sendResponseHeaders(400, 0);
                     break;
+                }
+                case "POST": {
+                    if (Pattern.matches("^/api/v1/users/\\d+$", path)) {
+                        int id = parsePathId(path.replaceFirst("/api/v1/users/", ""));
+                        if (id == -1) {
+                            System.out.println("Неверный запрос, невозможно определить id");
+                            h.sendResponseHeaders(400, 0);
+                        } else {
+                            User user = gson.fromJson(readText(h), User.class);
+                            Optional.ofNullable(user)
+                                    .map(User::getId)
+                                    .filter(userId -> userId == id)
+                                    .ifPresentOrElse(userId -> {
+                                                um.updateUser(user);
+                                                System.out.println("Обновлен пользователь с id = " + id);
+                                                try {
+                                                    h.sendResponseHeaders(200, 0);
+                                                } catch (IOException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            }, () -> {
+                                                System.out.println("Не равны id в полученных строке запроса и задаче");
+                                                try {
+                                                    h.sendResponseHeaders(400, 0);
+                                                } catch (IOException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            });
+                        }
+                        return;
+                    }
+                    if (Pattern.matches("^/api/v1/users$", path)) {
+                        User user = gson.fromJson(readText(h), User.class);
+                        Optional.ofNullable(user)
+                                .map(um::addUser)
+                                .filter(userId -> userId != -1)
+                                .ifPresentOrElse(userId -> {
+                                    System.out.println("Добавлен пользователь с id = " + userId);
+                                    try {
+                                        h.sendResponseHeaders(201, 0);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }, () -> {
+                                    System.out.println("Не удалось добавить пользователя, " +
+                                            "проверьте корректность объекта user");
+                                    try {
+                                        h.sendResponseHeaders(400, 0);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                        return;
+                    }
                 }
                 default:
                     System.out.println("Ждем GET или DELETE, а получен " + method);
