@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryUserManager implements UserManager{
     private int lastId;
-    private final Map<Integer, User> users;
+    protected final Map<Integer, User> users;
     private final TaskManager tm;
 
     public InMemoryUserManager() {
@@ -50,6 +50,12 @@ public class InMemoryUserManager implements UserManager{
     public void removeUser(int id) {
         users.remove(id);
     }
+
+    @Override
+    public void removeUsers() {
+        users.clear();
+    }
+
 
     @Override
     public User getUser(int id) {

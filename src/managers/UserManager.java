@@ -12,6 +12,8 @@ public interface UserManager {
 
     void removeUser(int id);
 
+    void removeUsers();
+
     User getUser(int id);
 
     List<User> getUsers();
