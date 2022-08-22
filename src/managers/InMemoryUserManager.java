@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryUserManager implements UserManager{
     private int lastId;
-    protected final Map<Integer, User> users;
+    private final Map<Integer, User> users;
     private final TaskManager tm;
 
     public InMemoryUserManager() {
@@ -59,10 +59,7 @@ public class InMemoryUserManager implements UserManager{
 
     @Override
     public User getUser(int id) {
-        if (users.containsKey(id)) {
             return users.get(id);
-        }
-        return null;
     }
 
     @Override
@@ -89,4 +86,15 @@ public class InMemoryUserManager implements UserManager{
         return ++lastId;
     }
 
+    @Override
+    public String toString() {
+        final Map<String, String> strs = new HashMap<>(Map.of(
+                "users", ""));
+        users.forEach((id, user) -> strs.put("users",  strs.get("users") + "\t\t" + user.toString() + "\n"));
+        return "InMemoryUserManager{" +
+                "\n\tlastId=" + lastId +
+                "\n\tusers=\n" + strs.get("users") +
+                "\n\ttm=" + tm.toString().replace("\t", "\t\t") +
+                '}';
+    }
 }
