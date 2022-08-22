@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static tasks.TaskStatus.NEW;
 
 class HttpUserServerTest {
@@ -35,6 +36,7 @@ class HttpUserServerTest {
     private static final TaskManager tm = new InMemoryTaskManager();
     private static final UserManager um = new InMemoryUserManager(tm);
     private static final HttpUserServer server;
+    private final HttpClient client = HttpClient.newHttpClient();
 
     static {
         try {
@@ -57,14 +59,14 @@ class HttpUserServerTest {
 
     @BeforeEach
     void setUp() {
+        um.removeUsers();
         user = new User("Тестов Тест Тестович");
         userId = um.addUser(user);
         task = new Task(userId, "Task", "TaskTaskTask", NEW);
     }
 
     @Test
-    void getUsers() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
+    void getUsers_should_receive_all_users() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder().GET().uri(uri).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -75,11 +77,63 @@ class HttpUserServerTest {
 
         List<User> users = gson.fromJson(response.body(), userListType);
 
-        users.forEach(System.out::println);
+        assertEquals(1, users.size(), "Неверный размер списка");
+        assertEquals(user, users.get(0));
+    }
+
+    @Test
+    void getUser_should_receive_user_by_id() throws IOException, InterruptedException {
+
+        HttpRequest request = HttpRequest.newBuilder().GET().uri(uri).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+
+        Type userListType = new TypeToken<ArrayList<User>>(){
+        }.getType();
+
+        List<User> users = gson.fromJson(response.body(), userListType);
 
         assertEquals(1, users.size(), "Неверный размер списка");
         assertEquals(user, users.get(0));
 
+        //Получаем по id
+        int id = users.get(0).getId();
+        uri = URI.create(uri.toString() + "/" + id);
+        request = HttpRequest.newBuilder().GET().uri(uri).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+        assertEquals(200, response.statusCode());
+
+        User receivedUser = gson.fromJson(response.body(), User.class);
+
+        assertEquals(receivedUser, users.get(0));
+    }
+
+    @Test
+    public void removeUser_should_remove_by_id() throws IOException, InterruptedException {
+        // Проверяем что есть пользователь
+        HttpRequest request = HttpRequest.newBuilder().GET().uri(uri).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+
+        Type userListType = new TypeToken<ArrayList<User>>(){
+        }.getType();
+
+        List<User> users = gson.fromJson(response.body(), userListType);
+
+        assertEquals(1, users.size(), "Неверный размер списка");
+        assertEquals(user, users.get(0));
+
+        //удаляем пользователя
+        int id = users.get(0).getId();
+        uri = URI.create(uri.toString() + "/" + id);
+        request = HttpRequest.newBuilder().DELETE().uri(uri).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        users = gson.fromJson(response.body(), userListType);
+
+        assertNull(users, "Список не null");
     }
 }
