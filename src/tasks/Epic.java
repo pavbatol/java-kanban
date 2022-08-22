@@ -15,6 +15,12 @@ public class Epic extends Task {
         endTime = null;
     }
 
+    public Epic(int userId, String name, String description) {
+        super(userId, name, description, TaskStatus.NEW);
+        subtaskIds = new ArrayList<>();
+        endTime = null;
+    }
+
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
