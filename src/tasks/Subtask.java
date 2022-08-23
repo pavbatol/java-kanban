@@ -8,16 +8,6 @@ import static tasks.TaskStatus.NEW;
 public class Subtask extends Task {
     private final int epicId;
 
-//    public Subtask(String name, String description, TaskStatus status, int epicId) {
-//        super(name, description, status);
-//        this.epicId = epicId;
-//    }
-
-//    public Subtask(int userId, String name, String description, TaskStatus status, int epicId) {
-//        super(userId, name, description, status);
-//        this.epicId = epicId;
-//    }
-
     public Subtask(String name, String description, int epicId) {
         this(name, description, NEW, epicId);
     }
