@@ -64,7 +64,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         subtask2.setDuration(20);
 
         subtask1.setStartTime(LocalDateTime.of(2023, 7, 11, 15, 0));
-        subtask2.setDuration(0);
+        subtask1.setDuration(30);
 
         System.out.println("После создания объектов");
         System.out.println("\tПервый taskManager = " + taskManager.toString().replace("\n", "\n\t"));
