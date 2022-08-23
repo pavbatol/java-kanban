@@ -130,6 +130,7 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "id=" + id +
+                ", userId=" + userId +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
