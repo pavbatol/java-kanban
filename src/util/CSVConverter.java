@@ -107,7 +107,7 @@ public final class CSVConverter {
                 if (parts.length > minNumberOfDataInLine) {
                     task = new Epic(id, userId, name, description, status);
                     LocalDateTime endTime = !parts[minNumberOfDataInLine].trim().equals("null")
-                            ? LocalDateTime.parse(parts[6].trim()) : null;
+                            ? LocalDateTime.parse(parts[6 + 1].trim()) : null;
                     ((Epic) task).setEndTime(endTime);
                     for (int i = relationsIndex; i < parts.length; i++) {
                         if (isPositiveInt(parts[i].trim())) {
