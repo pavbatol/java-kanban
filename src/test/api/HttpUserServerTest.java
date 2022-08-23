@@ -208,7 +208,8 @@ class HttpUserServerTest {
     }
 
     @Test
-    void updateUser_should_be_user_added() throws IOException, InterruptedException {
+    void addUser_should_be_user_added() throws IOException, InterruptedException {
+        um.removeUsers();
         um.addUser(user);
         User newUser = new User("newName");
 
@@ -218,11 +219,11 @@ class HttpUserServerTest {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println(um);
+        //System.out.println(um);
 
         assertEquals(201, response.statusCode(), "Код не совпадает");
         assertEquals(2, um.getUsers().size());
-        assertEquals("newName", um.getUser(1).getName());
+        assertEquals("newName", um.getUsers().get(um.getUsers().size() - 1).getName());
     }
 
 
@@ -249,7 +250,7 @@ class HttpUserServerTest {
 
     private void fillTaskManager(int userId) {
         Epic epic1 = new Epic(userId, "Epic_1", "EpicEpicEpic");
-        Epic epic2 = new Epic(userId, "Task_1", "TaskTaskTask");
+        Epic epic2 = new Epic(userId, "Epic_2", "TaskTaskTask");
         Task task1 = new Task(userId, "Task_1", "TaskTaskTask", NEW);
         Task task2 = new Task(userId, "Task_2", "TaskTaskTask", NEW);
         tm.addEpic(epic1);
@@ -265,7 +266,6 @@ class HttpUserServerTest {
         tm.addSubtask(subtask1);
         tm.addSubtask(subtask2);
         tm.addSubtask(subtask3);
-
     }
 
 

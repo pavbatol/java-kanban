@@ -48,8 +48,8 @@ public class HttpUserServer {
 
     private void handleUsers(HttpExchange h) {
         try {
-            System.out.println("Обработка /api/v1/users: " + h.getRequestURI());
             String method = h.getRequestMethod();
+            System.out.println("Обработка " + method + " /api/v1/users: " + h.getRequestURI());
             String path = h.getRequestURI().getPath();
             switch (method) {
                 case "GET": {
@@ -117,49 +117,33 @@ public class HttpUserServer {
                             h.sendResponseHeaders(400, 0);
                         } else {
                             User user = gson.fromJson(readText(h), User.class);
-                            Optional.ofNullable(user)
-                                    .map(User::getId)
-                                    .filter(userId -> userId == id)
-                                    .ifPresentOrElse(userId -> {
-                                                um.updateUser(user);
-                                                System.out.println("Обновлен пользователь с id = " + id);
-                                                try {
-                                                    h.sendResponseHeaders(200, 0);
-                                                } catch (IOException e) {
-                                                    throw new RuntimeException(e);
-                                                }
-                                            }, () -> {
-                                                System.out.println("Не равны id в полученных строке запроса и задаче");
-                                                try {
-                                                    h.sendResponseHeaders(400, 0);
-                                                } catch (IOException e) {
-                                                    throw new RuntimeException(e);
-                                                }
-                                            });
+                            if (user == null || user.getId() != id) {
+                                System.out.println("Не равны id в полученных строке запроса и задаче");
+                                h.sendResponseHeaders(400, 0);
+                            } else {
+                                if (um.getUser(id) == null) {
+                                    System.out.println("Нет пользователя с id = " + id);
+                                    h.sendResponseHeaders(400, 0);
+                                } else {
+                                    um.updateUser(user);
+                                    System.out.println("Обновлен пользователь с id = " + id);
+                                    h.sendResponseHeaders(200, 0);
+                                }
+                            }
                         }
                         return;
                     }
                     if (Pattern.matches("^/api/v1/users$", path)) {
                         User user = gson.fromJson(readText(h), User.class);
-                        Optional.ofNullable(user)
-                                .map(um::addUser)
-                                .filter(userId -> userId != -1)
-                                .ifPresentOrElse(userId -> {
-                                    System.out.println("Добавлен пользователь с id = " + userId);
-                                    try {
-                                        h.sendResponseHeaders(201, 0);
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }, () -> {
-                                    System.out.println("Не удалось добавить пользователя, " +
-                                            "проверьте корректность объекта user");
-                                    try {
-                                        h.sendResponseHeaders(400, 0);
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                });
+                        int userId = um.addUser(user);
+                        if (userId == -1) {
+                            System.out.println("Не удалось добавить пользователя, " +
+                                    "проверьте корректность объекта User");
+                            h.sendResponseHeaders(400, 0);
+                        } else {
+                            System.out.println("Добавлен пользователь с id = " + userId);
+                            h.sendResponseHeaders(201, 0);
+                        }
                         return;
                     }
                 }
@@ -167,15 +151,11 @@ public class HttpUserServer {
                     System.out.println("Ждем GET или DELETE, а получен " + method);
                     h.sendResponseHeaders(405, 0);
             }
-
-
-
         } catch (Exception e) {
             System.out.println("Ошибка при обработке запроса");
         } finally {
             h.close();
         }
-
     }
 
     private int parsePathId(String idStr) {
