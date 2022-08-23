@@ -25,6 +25,7 @@ public final class CSVConverter {
         TaskType type = task.getType();
         StringBuilder sb = new StringBuilder();
         sb.append(task.getId())
+                .append(",").append(task.getUserId())
                 .append(",").append(type.name())
                 .append(",").append(task.getName())
                 .append(",").append(task.getStatus())
@@ -65,16 +66,17 @@ public final class CSVConverter {
             System.out.println("Перевод строки в задачу НЕ выполнен, строка = null");
             return null;
         }
-        int minNumberOfDataInLine = 7; // Минимальное количество данных в строке
+        int minNumberOfDataInLine = 8; // Минимальное количество данных в строке
         int relationsIndex = minNumberOfDataInLine + 1; // Индекс, в котором связи
         String[] parts = value.split(",");
         if (parts.length < minNumberOfDataInLine) {
             System.out.println("Перевод в задачу НЕ выполнен, мало данных в строке: " + Arrays.toString(parts));
             return null;
         }
-        String name = parts[2].trim();
-        String description = parts[4].trim();
+        String name = parts[2 + 1].trim();
+        String description = parts[4 + 1].trim();
         int id;
+        int userId;
         TaskType type;
         TaskStatus status;
         int duration;
@@ -82,10 +84,11 @@ public final class CSVConverter {
         Task task = null;
         try {
             id = Integer.parseInt(parts[0].trim());
-            type = TaskType.valueOf(parts[1].trim());
-            status = TaskStatus.valueOf(parts[3].trim());
-            duration = Integer.parseInt(parts[5].trim());
-            startTime = parts[6].trim().equals("null") ? null : LocalDateTime.parse(parts[6].trim());
+            userId = Integer.parseInt(parts[0 + 1].trim());
+            type = TaskType.valueOf(parts[1 + 1].trim());
+            status = TaskStatus.valueOf(parts[3 + 1].trim());
+            duration = Integer.parseInt(parts[5 + 1].trim());
+            startTime = parts[6 + 1].trim().equals("null") ? null : LocalDateTime.parse(parts[6 + 1].trim());
         } catch (IllegalArgumentException e) {
             System.out.println("Перевод строки в задачу НЕ выполнен, некорректные данные: " + value);
             return null;
@@ -97,19 +100,22 @@ public final class CSVConverter {
             case SUBTASK:
                 if (parts.length > relationsIndex  && isPositiveInt(parts[relationsIndex])) {
                     int epicId = Integer.parseInt(parts[relationsIndex]);
-                    task = new Subtask(name, description, status, epicId); //Задачу не создаем если нет к какому Эпику привязан
+                    task = new Subtask(name, description, status, epicId); //Нне создаем если не указан Эпик
                 }
                 break;
             case EPIC:
-                task = new Epic(name, description);
-                LocalDateTime endTime = !parts[7].trim().equals("null") ? LocalDateTime.parse(parts[6].trim()) : null;
-                ((Epic)task).setEndTime(endTime);
-                for (int i = relationsIndex; i < parts.length; i++) {
-                    if (isPositiveInt(parts[i].trim())) {
-                        ((Epic) task).addSubtaskById(Integer.parseInt(parts[i].trim()));
-                    } else {
-                        task = null; // Задачу с некорректными данными не будем создавать
-                        break;
+                if (parts.length > minNumberOfDataInLine) {
+                    task = new Epic(name, description);
+                    LocalDateTime endTime = !parts[minNumberOfDataInLine].trim().equals("null")
+                            ? LocalDateTime.parse(parts[6].trim()) : null;
+                    ((Epic) task).setEndTime(endTime);
+                    for (int i = relationsIndex; i < parts.length; i++) {
+                        if (isPositiveInt(parts[i].trim())) {
+                            ((Epic) task).addSubtaskById(Integer.parseInt(parts[i].trim()));
+                        } else {
+                            task = null; // Задачу с некорректными данными не будем создавать
+                            break;
+                        }
                     }
                 }
                 break;
@@ -136,6 +142,7 @@ public final class CSVConverter {
     // TODO: 21.08.2022 Учесть userId
     public static String getHeads() {
         return "id," +
+                "userId," +
                 "type," +
                 "name," +
                 "status," +
