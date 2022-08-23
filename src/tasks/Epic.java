@@ -5,18 +5,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static tasks.TaskStatus.NEW;
+import static util.Functions.getTaskType;
+
 public class Epic extends Task {
     private final List<Integer> subtaskIds;
     private LocalDateTime endTime;
 
+//    public Epic(String name, String description) {
+//        super(name, description, TaskStatus.NEW);
+//        subtaskIds = new ArrayList<>();
+//        endTime = null;
+//    }
+//
+//    public Epic(int userId, String name, String description) {
+//        super(userId, name, description, TaskStatus.NEW);
+//        subtaskIds = new ArrayList<>();
+//        endTime = null;
+//    }
+//
+//    public Epic(int userId, String name, String description, TaskStatus status) {
+//        super(userId, name, description, status);
+//        subtaskIds = new ArrayList<>();
+//        endTime = null;
+//    }
+
     public Epic(String name, String description) {
-        super(name, description, TaskStatus.NEW);
-        subtaskIds = new ArrayList<>();
-        endTime = null;
+        this(name, description, NEW);
     }
 
-    public Epic(int userId, String name, String description) {
-        super(userId, name, description, TaskStatus.NEW);
+    public Epic(String name, String description, TaskStatus status) {
+        this(-1, name, description, status);
+    }
+
+    public Epic(int userId, String name, String description, TaskStatus status) {
+        this(-1, userId, name, description, status);
+    }
+
+    public Epic(int id, int userId, String name, String description, TaskStatus status) {
+        super(id, userId, name, description, status);
         subtaskIds = new ArrayList<>();
         endTime = null;
     }

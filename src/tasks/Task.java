@@ -16,27 +16,32 @@ public class Task {
     private LocalDateTime startTime;
     private final int userId;
 
-    public Task(int id, int userId, String name, String description, TaskStatus status) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        type = getTaskType(getClass());
-        duration = 0;
-        startTime = null;
-    }
-
-    public Task(int userId, String name, String description, TaskStatus status) {
-        this(-1, userId, name, description, status);
+    public Task(String name, String description) {
+        this(name, description, NEW);
     }
 
     public Task(String name, String description, TaskStatus status) {
         this(-1, name, description, status);
     }
 
-    public Task(String name, String description) {
-        this(-1, name, description, NEW);
+    public Task(int userId, String name, String description, TaskStatus status) {
+        this(-1, userId, name, description, status);
+    }
+
+    public Task(int id, int userId, String name, String description, TaskStatus status) {
+        this(id, userId, name, description, status, 0, null);
+    }
+
+    public Task(int id, int userId, String name, String description, TaskStatus status,
+                long duration, LocalDateTime startTime) {
+        type = getTaskType(getClass());
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public int getId() {

@@ -95,17 +95,17 @@ public final class CSVConverter {
         }
         switch (type) {
             case TASK:
-                task = new Task(name, description,status);
+                task = new Task(id, userId, name, description, status, duration, startTime);
                 break;
             case SUBTASK:
-                if (parts.length > relationsIndex  && isPositiveInt(parts[relationsIndex])) {
+                if (parts.length > relationsIndex  && isPositiveInt(parts[relationsIndex])) { //Без Эпика не создаем
                     int epicId = Integer.parseInt(parts[relationsIndex]);
-                    task = new Subtask(name, description, status, epicId); //Нне создаем если не указан Эпик
+                    task = new Subtask(id, userId, name, description, status, duration, startTime, epicId);
                 }
                 break;
             case EPIC:
                 if (parts.length > minNumberOfDataInLine) {
-                    task = new Epic(name, description);
+                    task = new Epic(id, userId, name, description, status);
                     LocalDateTime endTime = !parts[minNumberOfDataInLine].trim().equals("null")
                             ? LocalDateTime.parse(parts[6].trim()) : null;
                     ((Epic) task).setEndTime(endTime);
@@ -113,18 +113,12 @@ public final class CSVConverter {
                         if (isPositiveInt(parts[i].trim())) {
                             ((Epic) task).addSubtaskById(Integer.parseInt(parts[i].trim()));
                         } else {
-                            task = null; // Задачу с некорректными данными не будем создавать
+                            task = null; // Задачу с некорректными данными не создаем
                             break;
                         }
                     }
                 }
                 break;
-        }
-        if (task != null) {
-            task.setId(id);
-            task.setStatus(status); // TODO: 04.08.2022 Статус только требуется для Эпика
-            task.setDuration(duration);
-            task.setStartTime(startTime);
         }
         return task;
     }
