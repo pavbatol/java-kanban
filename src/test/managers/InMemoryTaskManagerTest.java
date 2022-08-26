@@ -24,10 +24,8 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         return new InMemoryTaskManager();
     }
 
-    @Override
     @Test
-    void updateTask_general_cases() {
-        super.updateTask_general_cases();
+    void updateTask_should_correct_validate_times() {
         // Валидность полей времени
         testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), TASK);
     }
@@ -46,9 +44,8 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         assertTrue(taskManager.isNeededPrioritySort());
     }
 
-    @Override
-    void updateSubtask_general_cases() {
-        super.updateSubtask_general_cases();
+    @Test
+    void updateSubtask_should_correct_validate_times() {
         // Валидность полей времени
         testTimesForUpdateTaskAndSubtaskType(getNewTaskManager(), SUBTASK);
     }
@@ -66,7 +63,6 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         // Проверяем флаг для необходимости сортировки
         assertTrue(taskManager.isNeededPrioritySort());
     }
-
 
     @Test
     void getPrioritizedTasks() {
