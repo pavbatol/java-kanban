@@ -103,7 +103,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         System.out.println("\nМенеджер загруженный с сервера");
         System.out.println(tm2);
 
-        server.stop();
+        //server.stop();
     }
 
     public static HTTPTaskManager loadFromServer(KVTaskClient client, String key) {
@@ -124,6 +124,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 .create();
 
         JsonObject root = jsonElement.getAsJsonObject();
+        //Счетчик id
         htm.itemId = root.get("itemId").getAsInt();
         //Задачи
         JsonObject joTasks = root.get("tasks").getAsJsonObject();
@@ -148,6 +149,8 @@ public class HTTPTaskManager extends FileBackedTaskManager{
             Epic task =  gson.fromJson(joTask, Epic.class);
             htm.getEpicsKeeper().put(task.getId(), task);
         });
+        //Приоритетные по времени
+        htm.fillPrioritizedTasks();
         //История
         JsonObject joHistoryManager = root.get("historyManager").getAsJsonObject();
         JsonArray joHistory = joHistoryManager.get("history").getAsJsonArray();

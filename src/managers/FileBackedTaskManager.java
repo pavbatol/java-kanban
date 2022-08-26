@@ -152,6 +152,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager{
         } catch (IOException e) {
             System.out.println("Ошибка чтения.");
         }
+        taskManager.fillPrioritizedTasks();
         return taskManager;
     }
 
