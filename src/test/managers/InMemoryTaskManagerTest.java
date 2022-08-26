@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static tasks.TaskStatus.*;
 import static tasks.TaskType.SUBTASK;
 import static tasks.TaskType.TASK;
+import static util.Functions.addAnyTypeTask;
+import static util.Functions.updateAnyTypeTask;
 
 class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
@@ -112,31 +114,6 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         //taskManager.getPrioritizedTasks().forEach(t -> System.out.println(t + "\n"));
     }
 
-    // TODO: 14.08.2022 Эти метод есть в Functions
-    private  int addAnyTypeTask (InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
-        switch (task.getType()) {
-            case TASK: return tm.addTask(task);
-            case SUBTASK: return tm.addSubtask((Subtask) task);
-            case EPIC: return tm.addEpic((Epic) task);
-            default:
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-    }
-
-    // TODO: 14.08.2022 Эти метод есть в Functions
-    private void updateAnyTypeTask(InMemoryTaskManager tm, Task task) throws IllegalArgumentException {
-        switch (task.getType()) {
-            case TASK: tm.updateTask(task);
-                break;
-            case SUBTASK: tm.updateSubtask((Subtask) task);
-                break;
-            case EPIC: tm.updateEpic((Epic) task);
-                break;
-            default:
-                throw new IllegalArgumentException("Неизвестный тип задачи");
-        }
-    }
-
     private void testTimesForUpdateTaskAndSubtaskType(InMemoryTaskManager tm, TaskType type)
             throws IllegalArgumentException {
         Epic epic = new Epic("Name", "Description");
@@ -173,7 +150,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
         // Установим время у контрольной задачи
         newTask.setId(id1);
-        newTask.setDuration(timeStep * 2);
+        newTask.setDuration(timeStep * 2L);
         newTask.setStartTime(start);
         updateAnyTypeTask(tm, newTask);
 
@@ -185,13 +162,13 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         assertNotEquals(task2, newTask, "Задача записалась");
 
         //За границами года
-        newTask.setDuration(timeStep * 3);
+        newTask.setDuration(timeStep * 3L);
         newTask.setStartTime(start.minusMinutes(timeStep));
         updateAnyTypeTask(tm, newTask);
         assertNotEquals(task2, newTask, "Задача опять записалась");
 
         // Старт внутри контрольной
-        newTask.setDuration(timeStep * 4);
+        newTask.setDuration(timeStep * 4L);
         newTask.setStartTime(start.plusMinutes(timeStep));
         updateAnyTypeTask(tm, newTask);
         assertNotEquals(task2, newTask, "Задача еще раз записалась");
