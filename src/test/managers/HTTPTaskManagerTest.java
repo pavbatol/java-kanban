@@ -66,7 +66,7 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
         // Проверка с задачами, но без истории
         final int id1 = taskManager.addTask(task1);
         int timeStep = taskManager.getTimeManager().getTimeStep();
-        task1.setDuration(timeStep * 5);
+        task1.setDuration(timeStep * 5L);
         task1.setStartTime(LocalDateTime.of(
                 LocalDate.now().getYear(),
                 LocalDate.now().getMonth(),
