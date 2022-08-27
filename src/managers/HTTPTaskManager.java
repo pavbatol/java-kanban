@@ -188,8 +188,8 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                     + "\"tasks\": "
                     + gson.toJson(getTasks())
                     + ","
-                    + "\"epics\": " +
-                    gson.toJson(getEpics())
+                    + "\"epics\": "
+                    + gson.toJson(getEpics())
                     + ","
                     + "\"subtask\": "
                     + gson.toJson(getSubtasks())
