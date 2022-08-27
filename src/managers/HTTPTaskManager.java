@@ -166,9 +166,6 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 htm.getHistoryManager().add(htm.getEpicsKeeper().get(id));
             }
         }
-
-        System.out.println(htm);
-
         return htm;
     }
 
