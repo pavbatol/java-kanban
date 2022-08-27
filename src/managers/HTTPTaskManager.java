@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static tasks.TaskStatus.NEW;
 
@@ -178,13 +179,54 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         if (client == null) {
             throw new ManagerSaveException("Клиент не запущен, сохранение не выполнено");
         }
-        String json;
+/*
+        StringBuilder builder = new StringBuilder("{");
+
+        builder.append("\"lastId\": ");
+        builder.append(this.itemId);
+        builder.append(",");
+
+        builder.append("\"tasks\": ");
+        builder.append(gson.toJson(getTasks()));
+        builder.append(",");
+
+        builder.append("\"epics\": ");
+        builder.append(gson.toJson(getEpics()));
+        builder.append(",");
+
+        builder.append("\"subtask\": ");
+        builder.append(gson.toJson(getSubtasks()));
+        builder.append(",");
+
+        builder.append("\"history\": ");
+        builder.append(gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList())));
+        builder.append(",");
+
+        builder.append("}");
+
+*/
+        String jsonBuilder;
         try {
-            json = gson.toJson(this);
+            jsonBuilder = "{"
+                    + "\"lastId\": "
+                    + this.itemId
+                    + ","
+                    + "\"tasks\": "
+                    + gson.toJson(getTasks())
+                    + ","
+                    + "\"epics\": " +
+                    gson.toJson(getEpics())
+                    + ","
+                    + "\"subtask\": "
+                    + gson.toJson(getSubtasks())
+                    + ","
+                    + "\"history\": "
+                    + gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList()))
+                    + "}";
         } catch (Exception e) {
             throw new ManagerSaveException("Не удалось перевести в JSON, сохранение не выполнено\n" + e.getMessage());
         }
-        client.put(key, json);
+        client.put(key, jsonBuilder);
     }
 
     public KVTaskClient getClient() {
