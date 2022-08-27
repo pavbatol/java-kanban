@@ -505,7 +505,6 @@ public class InMemoryTaskManager implements TaskManager {
         tasks.forEach((id, task) -> strs.put("tasks",  strs.get("tasks") + "\t\t" + task.toString() + "\n"));
         epics.forEach((id, task) -> strs.put("epics", strs.get("epics") + "\t\t" + task.toString() + "\n"));
         subtasks.forEach((id, task) -> strs.put("subtasks", strs.get("subtasks") + "\t\t" + task.toString() + "\n"));
-        prioritizedTasks.forEach((task) -> strs.put("subtasks", strs.get("subtasks") + "\t\t" + task.toString() + "\n"));
 
         final StringBuilder prioritizedStr = new StringBuilder();
         prioritizedTasks.forEach(task -> prioritizedStr.append("\t\t").append(task.toString()).append("\n"));
