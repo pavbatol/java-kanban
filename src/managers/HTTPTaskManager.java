@@ -1,8 +1,5 @@
 package managers;
 
-import api.GsonAdapters.HistoryManagerAdapter;
-import api.GsonAdapters.LocalDateTimeAdapter;
-import api.GsonAdapters.TimeManagerAdapter;
 import api.KVServer;
 import api.KVTaskClient;
 import com.google.gson.*;
@@ -31,12 +28,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         super(Path.of(""));
         this.key =  "taskManager";
         this.url = url;
-        this.gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(HistoryManager.class, new HistoryManagerAdapter())
-                .registerTypeAdapter(TimeManager.class, new TimeManagerAdapter())
-                .create();
+        this.gson = Managers.getGson();
         try {
             this.client = new KVTaskClient(this.url);
             System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", адрес: " + this.url);
@@ -120,12 +112,10 @@ public class HTTPTaskManager extends FileBackedTaskManager{
             System.out.println("Ответ от сервера не соответствует ожидаемому.");
             return null;
         }
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
 
+        Gson gson = Managers.getGson();
         JsonObject root = jsonElement.getAsJsonObject();
+
         //Счетчик id
         htm.itemId = root.get("lastId").getAsInt();
         //Задачи
