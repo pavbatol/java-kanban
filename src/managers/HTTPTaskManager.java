@@ -28,7 +28,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
 
     public HTTPTaskManager(String url) {
         super(Path.of(""));
-        this.key =  generateKey();
+        this.key =  "taskManager";
         this.url = url;
         this.gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -185,10 +185,6 @@ public class HTTPTaskManager extends FileBackedTaskManager{
             throw new ManagerSaveException("Не удалось перевести в JSON, сохранение не выполнено\n" + e.getMessage());
         }
         client.put(key, json);
-    }
-
-    private String generateKey() {
-        return "taskManager";
     }
 
     public KVTaskClient getClient() {
