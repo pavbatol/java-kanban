@@ -126,37 +126,32 @@ public class HTTPTaskManager extends FileBackedTaskManager{
 
         JsonObject root = jsonElement.getAsJsonObject();
         //Счетчик id
-        htm.itemId = root.get("itemId").getAsInt();
+        htm.itemId = root.get("lastId").getAsInt();
         //Задачи
-        JsonObject joTasks = root.get("tasks").getAsJsonObject();
-        joTasks.entrySet().forEach(e -> {
-            JsonObject joTask = joTasks.get(e.getKey()).getAsJsonObject();
-            Task task =  gson.fromJson(joTask, Task.class);
+        JsonArray jTasks = root.get("tasks").getAsJsonArray();
+        jTasks.forEach(jTask -> {
+            Task task =  gson.fromJson(jTask, Task.class);
             htm.getTasksKeeper().put(task.getId(), task);
             htm.getTimeManager().occupyFor(task, false);
         });
+        //Эпики
+        JsonArray jEpics = root.get("epics").getAsJsonArray();
+        jEpics.forEach(jTask -> {
+            Epic task =  gson.fromJson(jTask, Epic.class);
+            htm.getEpicsKeeper().put(task.getId(), task);
+        });
         //Подзадачи
-        JsonObject joSubtasks = root.get("subtasks").getAsJsonObject();
-        joSubtasks.entrySet().forEach(e -> {
-            JsonObject joTask = joSubtasks.get(e.getKey()).getAsJsonObject();
-            Subtask task =  gson.fromJson(joTask, Subtask.class);
+        JsonArray jSubtasks = root.get("subtasks").getAsJsonArray();
+        jSubtasks.forEach(jTask-> {
+            Subtask task =  gson.fromJson(jTask, Subtask.class);
             htm.getSubtasksKeeper().put(task.getId(), task);
             htm.getTimeManager().occupyFor(task, false);
-        });
-        //Эпики
-        JsonObject joEpics = root.get("epics").getAsJsonObject();
-        joEpics.entrySet().forEach(e -> {
-            JsonObject joTask = joEpics.get(e.getKey()).getAsJsonObject();
-            Epic task =  gson.fromJson(joTask, Epic.class);
-            htm.getEpicsKeeper().put(task.getId(), task);
         });
         //Приоритетные по времени
         htm.fillPrioritizedTasks();
         //История
-        JsonObject joHistoryManager = root.get("historyManager").getAsJsonObject();
-        JsonArray joHistory = joHistoryManager.get("history").getAsJsonArray();
-
-        boolean isRev = false; // нормальный или обратный порядок
+        JsonArray joHistory = root.get("history").getAsJsonArray();
+        boolean isRev = false;
         int size = joHistory.size();
         if (!((InMemoryHistoryManager) htm.getHistoryManager()).isNormalOrder()) {
             isRev = true;
@@ -171,6 +166,9 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 htm.getHistoryManager().add(htm.getEpicsKeeper().get(id));
             }
         }
+
+        System.out.println(htm);
+
         return htm;
     }
 
@@ -180,26 +178,22 @@ public class HTTPTaskManager extends FileBackedTaskManager{
             throw new ManagerSaveException("Клиент не запущен, сохранение не выполнено");
         }
         String jsonBuilder;
-        try {
-            jsonBuilder = "{"
-                    + "\"lastId\": "
-                    + this.itemId
-                    + ","
-                    + "\"tasks\": "
-                    + gson.toJson(getTasks())
-                    + ","
-                    + "\"epics\": "
-                    + gson.toJson(getEpics())
-                    + ","
-                    + "\"subtask\": "
-                    + gson.toJson(getSubtasks())
-                    + ","
-                    + "\"history\": "
-                    + gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList()))
-                    + "}";
-        } catch (Exception e) {
-            throw new ManagerSaveException("Не удалось перевести в JSON, сохранение не выполнено\n" + e.getMessage());
-        }
+        jsonBuilder = "{"
+                + "\"lastId\": "
+                + this.itemId
+                + ","
+                + "\"tasks\": "
+                + gson.toJson(getTasks())
+                + ","
+                + "\"epics\": "
+                + gson.toJson(getEpics())
+                + ","
+                + "\"subtasks\": "
+                + gson.toJson(getSubtasks())
+                + ","
+                + "\"history\": "
+                + gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList()))
+                + "}";
         client.put(key, jsonBuilder);
     }
 
