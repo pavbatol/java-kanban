@@ -179,32 +179,6 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         if (client == null) {
             throw new ManagerSaveException("Клиент не запущен, сохранение не выполнено");
         }
-/*
-        StringBuilder builder = new StringBuilder("{");
-
-        builder.append("\"lastId\": ");
-        builder.append(this.itemId);
-        builder.append(",");
-
-        builder.append("\"tasks\": ");
-        builder.append(gson.toJson(getTasks()));
-        builder.append(",");
-
-        builder.append("\"epics\": ");
-        builder.append(gson.toJson(getEpics()));
-        builder.append(",");
-
-        builder.append("\"subtask\": ");
-        builder.append(gson.toJson(getSubtasks()));
-        builder.append(",");
-
-        builder.append("\"history\": ");
-        builder.append(gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList())));
-        builder.append(",");
-
-        builder.append("}");
-
-*/
         String jsonBuilder;
         try {
             jsonBuilder = "{"
