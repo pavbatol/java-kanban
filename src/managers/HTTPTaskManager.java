@@ -151,14 +151,14 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         //Приоритетные по времени
         htm.fillPrioritizedTasks();
         //История
-        JsonArray joHistory = root.get("history").getAsJsonArray();
+        JsonArray jHistory = root.get("history").getAsJsonArray();
         boolean isRev = false;
-        int size = joHistory.size();
+        int size = jHistory.size();
         if (!((InMemoryHistoryManager) htm.getHistoryManager()).isNormalOrder()) {
             isRev = true;
         }
         for (int i = isRev ? size - 1 : 0; isRev ? i >=0 : i < size ; i += isRev ? -1 : 1) {
-            int id =  joHistory.get(i).getAsInt();
+            int id =  jHistory.get(i).getAsInt();
             if (htm.getTasksKeeper().containsKey(id)) {
                 htm.getHistoryManager().add(htm.getTasksKeeper().get(id));
             } else if (htm.getSubtasksKeeper().containsKey(id)) {
