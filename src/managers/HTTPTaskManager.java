@@ -87,8 +87,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         tm.getSubtaskById(subtask2.getId());
         tm.getSubtaskById(subtask3.getId());
 
-
-        HTTPTaskManager tm2 = loadFromServer(tm.client, HTTPTaskManager.KEY);
+        HTTPTaskManager tm2 = loadFromServer(tm.client, KEY);
         System.out.println("\nМенеджер оригинальный");
         System.out.println(tm);
         System.out.println("\nМенеджер загруженный с сервера");
