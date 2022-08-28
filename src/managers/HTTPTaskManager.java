@@ -166,22 +166,19 @@ public class HTTPTaskManager extends FileBackedTaskManager{
             throw new ManagerSaveException("Клиент не запущен, сохранение не выполнено");
         }
         String jsonBuilder;
-        jsonBuilder = "{"
+        jsonBuilder = '{'
                 + "\"lastId\": "
-                + this.itemId
-                + ","
-                + "\"tasks\": "
+                + itemId
+                + ",\"tasks\": "
                 + gson.toJson(getTasks())
-                + ","
-                + "\"epics\": "
+                + ",\"epics\": "
                 + gson.toJson(getEpics())
-                + ","
-                + "\"subtasks\": "
+                + ",\"subtasks\": "
                 + gson.toJson(getSubtasks())
-                + ","
-                + "\"history\": "
-                + gson.toJson(getHistory().stream().map(Task::getId).collect(Collectors.toList()))
-                + "}";
+                + ",\"history\": "
+                + gson.toJson(getHistory().stream()
+                        .filter(Objects::nonNull).map(Task::getId).collect(Collectors.toList()))
+                + '}';
         client.put(key, jsonBuilder);
     }
 
