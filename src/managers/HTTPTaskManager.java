@@ -19,19 +19,16 @@ import java.util.stream.Collectors;
 import static tasks.TaskStatus.NEW;
 
 public class HTTPTaskManager extends FileBackedTaskManager{
-    private final transient String key;
+    public static final String KEY = "taskManager";
     private final transient String url;
-    private final transient Gson gson;
     private transient KVTaskClient client;
 
     public HTTPTaskManager(String url) {
         super(Path.of(""));
-        this.key =  "taskManager";
         this.url = url;
-        this.gson = Managers.getGson();
         try {
             this.client = new KVTaskClient(this.url);
-            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + key + ", адрес: " + this.url);
+            System.out.println("Клиент запущен. Ключ сохранения/восстановления: " + KEY + ", адрес: " + this.url);
         } catch (RuntimeException e) {
             System.out.println("!Не удалось запустить HTTP-Client\n" + e.getMessage());
         }
@@ -91,7 +88,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         tm.getSubtaskById(subtask3.getId());
 
 
-        HTTPTaskManager tm2 = loadFromServer(tm.client, tm.key);
+        HTTPTaskManager tm2 = loadFromServer(tm.client, HTTPTaskManager.KEY);
         System.out.println("\nМенеджер оригинальный");
         System.out.println(tm);
         System.out.println("\nМенеджер загруженный с сервера");
@@ -165,6 +162,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         if (client == null) {
             throw new ManagerSaveException("Клиент не запущен, сохранение не выполнено");
         }
+        Gson gson = Managers.getGson();
         String jsonBuilder;
         jsonBuilder = '{'
                 + "\"lastId\": "
@@ -179,7 +177,7 @@ public class HTTPTaskManager extends FileBackedTaskManager{
                 + gson.toJson(getHistory().stream()
                         .filter(Objects::nonNull).map(Task::getId).collect(Collectors.toList()))
                 + '}';
-        client.put(key, jsonBuilder);
+        client.put(KEY, jsonBuilder);
     }
 
     public KVTaskClient getClient() {
@@ -191,16 +189,13 @@ public class HTTPTaskManager extends FileBackedTaskManager{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HTTPTaskManager that = (HTTPTaskManager) o;
-        return key.equals(that.key)
-                && url.equals(that.url)
-                && Objects.equals(client, that.client)
-                ;
+        return url.equals(that.url)
+                && Objects.equals(client, that.client);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                key,
                 url,
                 client
         );

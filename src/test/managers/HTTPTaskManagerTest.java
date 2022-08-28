@@ -19,7 +19,7 @@ class HTTPTaskManagerTest extends TaskManagerTest<HTTPTaskManager>{
     public final int port = 8078;
     public final String host = "http://localhost";
     public final String url = host +":" + port;
-    final String key = "taskManager";
+    final String key = HTTPTaskManager.KEY;
     static KVServer server;
     @Override
     protected HTTPTaskManager getNewTaskManager() {
